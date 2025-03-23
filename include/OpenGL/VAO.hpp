@@ -1,0 +1,33 @@
+#pragma once
+
+#include <config.hpp>
+#include "VBO.hpp"
+
+class VAO {
+    public:
+        mutable GLuint ID;
+
+        VAO() {
+            glGenVertexArrays(1, &ID);
+        }
+
+        void linkAttrib(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
+            VBO.bind();
+            // stride => number of bytes per vertex
+            glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+            glEnableVertexAttribArray(layout);
+            VBO.unbind();
+        }
+
+        void bind() {
+            glBindVertexArray(ID);
+        }
+
+        void unbind() {
+            glBindVertexArray(0);
+        }
+
+        void destory() {
+            glDeleteVertexArrays(1, &ID);
+        }
+};
