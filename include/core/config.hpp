@@ -32,8 +32,8 @@ const char* iconPath = "res/icon.png";
 const bool showShaderMessages= true;
 
 // window settings
-const int defaultWindowWidth = 640;
-const int defaultWindowHeight = 480;
+const int defaultWindowWidth = 500;
+const int defaultWindowHeight = 500;
 
 const int minWindowWidth = 300;
 const int minWindowHeight = 300;
