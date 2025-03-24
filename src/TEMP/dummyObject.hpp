@@ -4,30 +4,14 @@
 #include <VBO.hpp>
 #include <EBO.hpp>
 #include <VAO.hpp>
+#include <texture.hpp>
 
 class dummyObject {
-    private:
-        GLuint ID;
     public:
         dummyObject() {
-            int imageWidth, imageHeight, channelAmount;
-            stbi_set_flip_vertically_on_load(true);
-            unsigned char* pixels = stbi_load(projectPath("res/img/example.png").c_str(), &imageWidth, &imageHeight, &channelAmount, 0);
-        
-            glGenTextures(1, &ID);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, ID);
-        
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            stbi_image_free(pixels);
+            Texture example(projectPath("res/img/example.png").c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+            example.textureUnit(mainShader, "texture0", 0);
+            example.bind();
 
             GLfloat vertices[] = {
                 // vertex position        vertex color              texture coordinates
@@ -55,21 +39,14 @@ class dummyObject {
             VBO1.unbind();
             EBO1.unbind();
 
-            mainShader->activate();
-
             GLuint uniID = glGetUniformLocation(mainShader->ID, "scale");
 
             glUniform1f(uniID, 0.5f);
-
-            GLuint texture0Uniform = glGetUniformLocation(mainShader->ID, "texture0");
-
-            glUniform1i(texture0Uniform, 0);
 
         }
 
         void draw() {
             VAO1.bind();
-            glBindTexture(GL_TEXTURE_2D, ID);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
     private:
