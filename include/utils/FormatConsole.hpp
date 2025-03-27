@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FORMAT_CONSOLE_TEXT_HEADER
+#define FORMAT_CONSOLE_TEXT_HEADER
 
 #include <string>
 
@@ -16,3 +17,5 @@ std::string formatPath(const std::string &path) { return ANSII_MAGENTA + path + 
 std::string formatSuccess(const std::string &text) { return ANSII_GREEN + text + ANSII_RESET; }
 std::string formatProcess(const std::string &text) { return ANSII_BLUE + text + ANSII_RESET; }
 auto formatRole = formatProcess;
+
+#endif // FORMAT_CONSOLE_TEXT_HEADER

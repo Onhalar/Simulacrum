@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VAO_CLASS_HEADER
+#define VAO_CLASS_HEADER
 
 #include <glad/glad.h>
 
@@ -32,3 +33,5 @@ class VAO {
             glDeleteVertexArrays(1, &ID);
         }
 };
+
+#endif // VAO_CLASS_HEADER

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VBO_CLASS_HEADER
+#define VBO_CLASS_HEADER
 
 #include <glad/glad.h>
 
@@ -24,3 +25,5 @@ class VBO {
             glDeleteBuffers(1, &ID);
         }
 };
+
+#endif // VBO_CLASS_HEADER

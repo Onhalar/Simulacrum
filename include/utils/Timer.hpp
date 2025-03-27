@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GLFW_SCHEDULER_HEADER
+#define GLFW_SCHEDULER_HEADER
 
 #include <map>
 #include <GLFW/glfw3.h>
@@ -23,3 +24,5 @@ void handleSchedule() {
         }
     }
 }
+
+#endif // GLFW_SCHEDULER_HEADER

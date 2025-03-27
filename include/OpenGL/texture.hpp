@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEXTURE_CLASS_HEADER
+#define TEXTURE_CLASS_HEADER
 
 #include <glad/glad.h>
 
@@ -71,3 +72,5 @@ class Texture {
             glDeleteTextures(1, &ID);
         }
 };
+
+#endif // TEXTURE_CLASS_HEADER

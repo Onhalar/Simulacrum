@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAIN_CONFIG_HEADER
+#define MAIN_CONFIG_HEADER
 
 #include <iostream>
 #include <map>
@@ -42,3 +43,5 @@ const char* windowName = "Simulacrum project";
 
 // render settings
 int maxFrameRate = 60;
+
+#endif // MAIN_CONFIG_HEADER

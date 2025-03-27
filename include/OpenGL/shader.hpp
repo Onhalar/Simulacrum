@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADER_CLASS_HEADER
+#define SHADER_CLASS_HEADER
 
 // only for central assignment of the 'showShaderMessages' variable
 #include <config.hpp>
@@ -105,3 +106,4 @@ class Shader {
 		}
 };
 
+#endif // SHADER_CLASS_HEADER
