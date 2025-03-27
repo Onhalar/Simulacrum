@@ -1,7 +1,5 @@
 #pragma once
 
-typedef void (*callback_function)(void);
-
 #include <iostream>
 #include <map>
 #include <vector>

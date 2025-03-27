@@ -1,5 +1,9 @@
 #pragma once
-#include <config.hpp>
+
+#include <map>
+#include <GLFW/glfw3.h>
+
+typedef void (*callback_function)(void);
 
 std::map<float, callback_function> schedule;
 

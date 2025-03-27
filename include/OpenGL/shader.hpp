@@ -1,10 +1,17 @@
 #pragma once
 
+// only for central assignment of the 'showShaderMessages' variable
 #include <config.hpp>
 
-#include <paths.hpp>
+#include <filesystem>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
 
+// custom libraries
 #include <FormatConsole.hpp>
+#include <paths.hpp>
 
 class Shader {
 	public:

@@ -1,9 +1,10 @@
-#include <config.hpp>
+#include <filesystem>
+#include <string>
 
-string getFileName(const string& path) {
+std::string getFileName(const std::string& path) {
     return filesystem::path(path).filename().string();
 }
 
-string projectPath(const string& path) {
+std::string projectPath(const std::string& path) {
     return (projectDir / filesystem::path(path)).string();
 }
