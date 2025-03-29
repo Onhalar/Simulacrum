@@ -30,7 +30,14 @@ else()
     target_link_libraries(simulacrum opengl32)
 endif()
 
-target_link_libraries(simulacrum glfw3)
+if(WIN32)
+    # For Windows, use glfw3
+    target_link_libraries(simulacrum glfw3)
+else()
+    # For other platforms (Linux/macOS), use glfw
+    target_link_libraries(simulacrum glfw)
+endif()
+
 
 # Copy /res and /shaders folders to build folder
 # You can change this path to wherever your actual resource and shader files are located
