@@ -34,15 +34,9 @@ endif()
 if(WIN32)
     # For Windows, use glfw3
     target_link_libraries(simulacrum glfw3)
-    # Install GLFW3 DLL to the install folder (e.g., CMake install path)
-    install(FILES $<TARGET_FILE:glfw3> DESTINATION bin)
 else()
     # For other platforms (Linux/macOS), use glfw
     target_link_libraries(simulacrum glfw)
-    # macOS - Link against frameworks instead of a shared library
-    if(APPLE)
-        target_link_libraries(simulacrum "-framework Cocoa" "-framework OpenGL" "-framework IOKit")
-    endif()
 endif()
 
 # Install the main executable
