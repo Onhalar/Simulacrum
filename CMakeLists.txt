@@ -13,9 +13,14 @@ add_executable(
 
     #dependencies
     dependencies/glad.c
-    )
+)
 
 target_include_directories(simulacrum PRIVATE include/core include/OpenGL include/utils dependencies )
+
+# Set the output directory for the executable to "bin" inside the build folder
+set_target_properties(simulacrum PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 # Check if OpenGL was found
 if (OPENGL_FOUND)
@@ -26,3 +31,20 @@ else()
 endif()
 
 target_link_libraries(simulacrum glfw3)
+
+# Copy /res and /shaders folders to build folder
+# You can change this path to wherever your actual resource and shader files are located
+file(GLOB_RECURSE RESOURCES "${CMAKE_SOURCE_DIR}/res/*")
+file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/shaders/*")
+
+foreach(FILE ${RESOURCES})
+    get_filename_component(FILENAME ${FILE} NAME)
+    add_custom_command(TARGET simulacrum POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} ${CMAKE_BINARY_DIR}/res/${FILENAME})
+endforeach()
+
+foreach(FILE ${SHADERS})
+    get_filename_component(FILENAME ${FILE} NAME)
+    add_custom_command(TARGET simulacrum POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} ${CMAKE_BINARY_DIR}/shaders/${FILENAME})
+endforeach()
