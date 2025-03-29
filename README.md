@@ -24,8 +24,12 @@ cmake ..
 make
 ```
 
-* to run the file
+* to run the program
 
 windows ```./bin/simulacrum.exe```
 linux   ```./bin/simulacrum```
+
+___
+
+It is possible that you may get shader compilation error, in which case copy the '*src/*' and '*shaders*' folders into the '*build*' folder.
 
