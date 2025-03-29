@@ -2,9 +2,9 @@
 
 project doesn't require any external libraries or binaries, you will however need a few tools:
 
- * '*GCC*' 13.0+ or another C/C++ compiler
- * '*Cmake*' and '*Make*' if not included with your compiler
- * '*Git*' for copying over the files, step can be avoided by downloading the source code directly
+ * **GCC** 13.0+ or another C/C++ compiler
+ * **Cmake** and '*Make*' if not included with your compiler
+ * **Git** for copying over the files, step can be avoided by downloading the source code directly
 
 ___
 
