@@ -33,7 +33,7 @@ endif()
 if(WIN32)
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3.a")
 else()
-    target_link_libraries(simulacrum glfw)
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
 endif()
 
 
