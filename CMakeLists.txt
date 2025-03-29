@@ -54,5 +54,3 @@ foreach(FILE ${SHADERS})
     install(FILES ${FILE} DESTINATION shaders)
 endforeach()
 
-# Optionally, install other headers, libraries, etc.
-# install(FILES include/some_header.h DESTINATION include)
