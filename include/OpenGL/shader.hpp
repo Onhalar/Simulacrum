@@ -3,6 +3,10 @@
 
 // only for central assignment of the 'showShaderMessages' variable
 #include <config.hpp>
+// uncomment the below and remove the include above
+// bool showShaderMessages = true;
+
+#include <glm/glm.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -18,9 +22,69 @@ class Shader {
 	public:
 		mutable GLuint ID;
 
-		Shader(const filesystem::path& vertexFilepath, const filesystem::path& fragmentFilepath) {
+		mutable int modelMatrixUniform, projectionMatrixUniform, viewMatrixUniform;
+
+		mutable bool hasModelMatrixUniform, hasProjectionMatrixUniform, hasViewMatrixUniform;
+
+		mutable glm::mat4 modelMatrix = glm::mat4(1.0f);
+		mutable glm::mat4 viewMatrix = glm::mat4(1.0f);
+		mutable glm::mat4 projectionMatrix = glm::mat4(1.0f);
+
+		Shader(const filesystem::path& vertexFilepath, const filesystem::path& fragmentFilepath, const char* modelMatrixUniformName = "model", const char* viewMatrixUniformName = "view", const char* projectionMatrixUniformName = "projection") {
 			ID = makeShader(vertexFilepath, fragmentFilepath);
+
+			hasModelMatrixUniform = hasProjectionMatrixUniform = hasViewMatrixUniform = false;
+
+			activate();
+
+			modelMatrixUniform = glGetUniformLocation(ID, modelMatrixUniformName);
+			if (modelMatrixUniform != -1) { hasModelMatrixUniform = true; }
+
+			viewMatrixUniform = glGetUniformLocation(ID, viewMatrixUniformName);
+			if (viewMatrixUniform != -1) { hasViewMatrixUniform = true; }
+
+			projectionMatrixUniform = glGetUniformLocation(ID, projectionMatrixUniformName);
+			if (projectionMatrixUniform != -1) { hasProjectionMatrixUniform = true; }
 		}
+
+		// applies the main model matrix
+		void applyModelMatrix() {
+			if (hasModelMatrixUniform) {
+				glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+			}
+		}
+		// applies custom model matrix
+		void applyModelMatrix(const glm::mat4& modelMatrixARG) {
+			if (hasModelMatrixUniform) {
+				glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrixARG));
+			}
+		}
+		
+		// applies the main view matrix
+		void applyViewMatrix() {
+			if (hasViewMatrixUniform) {
+            	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+			}
+        }
+		// applies custom view matrix
+        void applyViewMatrix(const glm::mat4& viewMatrixARG) {
+			if (hasViewMatrixUniform) {
+            	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrixARG));
+			}
+        }
+		
+		// applies the main projection matrix
+        void applyProjectionMatrix() {
+			if (hasProjectionMatrixUniform) {
+            	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+			}
+        }
+		// applies custom projection matrix
+		void applyProjectionMatrix(const glm::mat4& projectionMatrixARG) {
+			if (hasProjectionMatrixUniform) {
+            	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectionMatrixARG));
+			}
+        }
 
 		void activate() {
 			glUseProgram(ID);

@@ -19,8 +19,9 @@ int main(int argc, char **argv) {
         projectDir = filesystem::current_path().parent_path();
     }
 
-
     createWindow();
+
+    glfwSetFramebufferSizeCallback(mainWindow, resize);
 
     setupOpenGL();
 
@@ -81,6 +82,14 @@ void setupOpenGL() {
     // loads in OpenGL functions from GLAD
     gladLoadGL();
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS); // default but good to specify
+
+    // Enable face culling (you already know this part)
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
     int width, height;
 
     // retrieves the size of GLFW window
@@ -96,6 +105,8 @@ void setupOpenGL() {
         projectPath("shaders/vertex.default.glsl"),
         projectPath("shaders/fragment.default.glsl")
     );
+
+    setupShaderMetrices(mainShader);
 }
 
 

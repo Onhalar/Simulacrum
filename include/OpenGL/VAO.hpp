@@ -13,7 +13,7 @@ class VAO {
             glGenVertexArrays(1, &ID);
         }
 
-        void linkAttrib(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
+        void linkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
             VBO.bind();
             // stride => number of bytes per vertex
             glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);

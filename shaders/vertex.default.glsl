@@ -9,13 +9,12 @@ out vec2 texturePosition;
 
 uniform float scale;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 void main() {
-    gl_Position = vec4(
-        vertexPos.x + vertexPos.x * scale,
-        vertexPos.y + vertexPos.y * scale,
-        vertexPos.z + vertexPos.z * scale,
-        1.0
-    );
+    gl_Position = projection * view * model * vec4(vertexPos, 1.0);
     color = vertexColor;
     texturePosition = vertexTexture;
 }

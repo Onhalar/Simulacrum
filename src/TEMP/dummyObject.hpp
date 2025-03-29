@@ -8,23 +8,37 @@
 
 class dummyObject {
     public:
-        dummyObject() {
-            Texture example(projectPath("res/img/example.png").c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        glm::mat4 objectModelMatrix = mainShader->modelMatrix;
+
+        dummyObject(const char* textureFilepath = "res/img/default.png", Shader* shader = mainShader) {
+            this->shader = shader;
+
+            Texture example(projectPath(textureFilepath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
             example.textureUnit(mainShader, "texture0", 0);
             example.bind();
 
             GLfloat vertices[] = {
                 // vertex position        vertex color              texture coordinates
-                -0.5f,  -0.5f, 0.0f,        1.0f, 0.0f, 0.0f,         0.0f, 0.0f,
-                -0.5f, 0.5f, 0.0f,          0.0f, 1.0f, 0.0f,         0.0f, 1.0f,
-                0.5f, 0.5f, 0.0f,           0.0f, 0.0f, 1.0f,         1.0f, 1.0f,
-                0.5f, -0.5f, 0.0f,          0.5f, 1.0f, 0.0f,         1.0f, 0.0f
+                -0.5f,  0.0f,  0.5f,        0.83f, 0.70f, 0.44f,         0.0f, 0.0f,
+                -0.5f,  0.0f, -0.5f,        0.86f, 0.70f, 0.44f,         5.0f, 0.0f,
+                 0.5f,  0.0f, -0.5f,        0.83f, 0.70f, 0.44f,         0.0f, 0.0f,
+                 0.5f,  0.0f,  0.5f,        0.83f, 0.70f, 0.44f,         5.0f, 0.0f,
+
+                 0.0f,  0.8f,  0.0f,        0.92f, 0.86f, 0.76f,         2.5f, 5.0f
             };
 
             GLuint indices[] = {
-                0, 2, 1,
-                0, 3, 2
+                // Base
+                0, 1, 2,
+                0, 2, 3,
+                // Sides
+                0, 4, 1,
+                1, 4, 2,
+                2, 4, 3,
+                3, 4, 0
             };
+
+            amountOfVertices = sizeof(indices) / sizeof(GL_UNSIGNED_INT);
 
             VAO1.bind();
 
@@ -46,9 +60,14 @@ class dummyObject {
         }
 
         void draw() {
+            shader->applyModelMatrix(objectModelMatrix);
+
             VAO1.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+            glDrawElements(GL_TRIANGLES, amountOfVertices, GL_UNSIGNED_INT, 0);
         }
     private:
         VAO VAO1;
+        Shader* shader;
+        int amountOfVertices;
 };
