@@ -1,16 +1,14 @@
 **OpenGL 3D viewer**
 
-project doesn't require any external libraries or binaries, you will however require '*cmake*' and any requirements bound with it.
+project doesn't require any external libraries or binaries, you will however need a few tools:
+
+ * '*GCC*' 13.0+ or another C/C++ compiler
+ * '*Cmake*' and '*Make*' if not included with your compiler
+ * '*Git*' for copying over the files, step can be avoided by downloading the source code directly
 
 ___
 
 **HOW TO COMPILE**
-
- * get '*git*' for your respective operating system
-
-Windows '*https://git-scm.com/downloads/win*'<br>
-debian ```sudo apt install git-all```<br>
-RPM ```sudo dnf install git-all```<br>
 
  * navingate to a directory of your choice right click anywhre and console on Linux, type cmd into the path display on windows
 
