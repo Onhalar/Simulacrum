@@ -3,7 +3,6 @@ project(simulacrum VERSION 1.0.0)
 
 # Try to find OpenGL package
 find_package(OpenGL QUIET)
-find_package(glfw3 REQUIRED)
 
 add_executable(
     simulacrum
@@ -30,14 +29,13 @@ else()
     target_link_libraries(simulacrum opengl32)
 endif()
 
-# Link against glfw3 (Windows) or glfw (Linux/macOS)
+
 if(WIN32)
-    # For Windows, use glfw3
-    target_link_libraries(simulacrum glfw3)
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3.a")
 else()
-    # For other platforms (Linux/macOS), use glfw
     target_link_libraries(simulacrum glfw)
 endif()
+
 
 # Install the main executable
 install(TARGETS simulacrum DESTINATION bin)
