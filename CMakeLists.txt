@@ -36,21 +36,26 @@ else()
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
 endif()
 
+# Define paths to the directories
+set(SOURCE_RES_DIR "${CMAKE_SOURCE_DIR}/res")
+set(SOURCE_SHADERS_DIR "${CMAKE_SOURCE_DIR}/shaders")
+set(BUILD_RES_DIR "${CMAKE_BINARY_DIR}/res")
+set(BUILD_SHADERS_DIR "${CMAKE_BINARY_DIR}/shaders")
+
+# Create a custom command to copy the res directory
+add_custom_command(
+    TARGET simulacrum PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${SOURCE_RES_DIR} ${BUILD_RES_DIR}
+)
+
+# Create a custom command to copy the shaders directory
+add_custom_command(
+    TARGET simulacrum PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${SOURCE_SHADERS_DIR} ${BUILD_SHADERS_DIR}
+)
 
 # Install the main executable
 install(TARGETS simulacrum DESTINATION bin)
-
-# Copy /res and /shaders folders to the install directory
-file(GLOB_RECURSE RESOURCES "${CMAKE_SOURCE_DIR}/res/*")
-file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/shaders/*")
-
-foreach(FILE ${RESOURCES})
-    get_filename_component(FILENAME ${FILE} NAME)
-    install(FILES ${FILE} DESTINATION res)
-endforeach()
-
-foreach(FILE ${SHADERS})
-    get_filename_component(FILENAME ${FILE} NAME)
-    install(FILES ${FILE} DESTINATION shaders)
-endforeach()
 

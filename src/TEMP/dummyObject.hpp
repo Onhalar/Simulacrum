@@ -10,7 +10,7 @@ class dummyObject {
     public:
         glm::mat4 objectModelMatrix = mainShader->modelMatrix;
 
-        dummyObject(const char* textureFilepath = "res/defaultTexture.png", Shader* shader = mainShader) {
+        dummyObject(const char* textureFilepath = "res/img/defaultTexture.png", Shader* shader = mainShader) {
             this->shader = shader;
 
             Texture example(projectPath(textureFilepath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
