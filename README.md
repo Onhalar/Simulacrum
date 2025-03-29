@@ -31,5 +31,5 @@ linux   ```./bin/simulacrum```<br>
 
 ___
 
-It is possible that you may get shader compilation error, in which case copy the '*src/*' and '*shaders*' folders into the '*build*' folder.
+It is possible that you may get shader compilation error, in which case copy the '*src/*' and '*shaders/*' folders into the '*build/*' folder.
 
