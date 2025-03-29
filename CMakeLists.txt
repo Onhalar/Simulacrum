@@ -11,11 +11,11 @@ add_executable(
     # main entry point of the application
     src/main.cpp
 
-    #dependencies
+    # dependencies
     dependencies/glad.c
 )
 
-target_include_directories(simulacrum PRIVATE include/core include/OpenGL include/utils dependencies )
+target_include_directories(simulacrum PRIVATE include/core include/OpenGL include/utils dependencies)
 
 # Set the output directory for the executable to "bin" inside the build folder
 set_target_properties(simulacrum PROPERTIES
@@ -30,28 +30,37 @@ else()
     target_link_libraries(simulacrum opengl32)
 endif()
 
+# Link against glfw3 (Windows) or glfw (Linux/macOS)
 if(WIN32)
     # For Windows, use glfw3
     target_link_libraries(simulacrum glfw3)
+    # Install GLFW3 DLL to the install folder (e.g., CMake install path)
+    install(FILES $<TARGET_FILE:glfw3> DESTINATION bin)
 else()
     # For other platforms (Linux/macOS), use glfw
     target_link_libraries(simulacrum glfw)
+    # macOS - Link against frameworks instead of a shared library
+    if(APPLE)
+        target_link_libraries(simulacrum "-framework Cocoa" "-framework OpenGL" "-framework IOKit")
+    endif()
 endif()
 
+# Install the main executable
+install(TARGETS simulacrum DESTINATION bin)
 
-# Copy /res and /shaders folders to build folder
-# You can change this path to wherever your actual resource and shader files are located
+# Copy /res and /shaders folders to the install directory
 file(GLOB_RECURSE RESOURCES "${CMAKE_SOURCE_DIR}/res/*")
 file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/shaders/*")
 
 foreach(FILE ${RESOURCES})
     get_filename_component(FILENAME ${FILE} NAME)
-    add_custom_command(TARGET simulacrum POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} ${CMAKE_BINARY_DIR}/res/${FILENAME})
+    install(FILES ${FILE} DESTINATION res)
 endforeach()
 
 foreach(FILE ${SHADERS})
     get_filename_component(FILENAME ${FILE} NAME)
-    add_custom_command(TARGET simulacrum POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} ${CMAKE_BINARY_DIR}/shaders/${FILENAME})
+    install(FILES ${FILE} DESTINATION shaders)
 endforeach()
+
+# Optionally, install other headers, libraries, etc.
+# install(FILES include/some_header.h DESTINATION include)
