@@ -8,9 +8,9 @@ ___
 
  * get '*git*' for your respective operating system
 
- * Windows '*https://git-scm.com/downloads/win*'
- * debian ```sudo apt install git-all```
- * RPM ```sudo dnf install git-all```
+Windows '*https://git-scm.com/downloads/win*'
+debian ```sudo apt install git-all```
+RPM ```sudo dnf install git-all```
 
  * navingate to a directory of your choice right click anywhre and console on Linux, type cmd into the path display on windows
 
@@ -26,6 +26,6 @@ make
 
 * to run the file
 
-* windows ```./bin/simulacrum.exe```
-* linux   ```./bin/simulacrum```
+windows ```./bin/simulacrum.exe```
+linux   ```./bin/simulacrum```
 
