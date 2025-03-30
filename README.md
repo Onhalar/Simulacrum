@@ -12,7 +12,7 @@ ___
 
  * navingate to a directory of your choice right click anywhre and console on Linux, type cmd into the path display on windows
 
- * run the following commands or the included '*.bat*' and '*.sh*' files
+ * run the following commands or the included '*.bat*' and '*.sh*' files in the '*setup/*' directory
 
 *Linux*
 ```
