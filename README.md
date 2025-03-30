@@ -12,7 +12,9 @@ ___
 
  * navingate to a directory of your choice right click anywhre and console on Linux, type cmd into the path display on windows
 
- * run 
+ * run
+
+*Linux*
 ```
 git clone https://github.com/Onhalar/3DviewerOpenGL.git
 cd 3DviewerOpenGL
@@ -21,7 +23,16 @@ cd build
 cmake ..
 make
 ```
-
+*Windows*
+```
+git clone https://github.com/Onhalar/3DviewerOpenGL.git
+cd 3DviewerOpenGL
+mkdir build
+cd build
+cmake -G "MinGW Makefiles" ..
+cmake --build .
+```
+*Note: replac e"MinGW Makerfiles with your generator.*
 * to run the program
 
 windows ```./bin/simulacrum.exe```<br>
