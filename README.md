@@ -32,10 +32,10 @@ cd build
 cmake -G "MinGW Makefiles" ..
 cmake --build .
 ```
-*Note: replac e"MinGW Makerfiles with your generator.*
+*Note: replace "MinGW Makerfiles with your generator.*
 * to run the program
 
-windows ```."/bin/simulacrum.exe"```<br>
+windows  ```."/bin/simulacrum.exe"```<br>
 linux   ```./bin/simulacrum```<br>
 
 ___
