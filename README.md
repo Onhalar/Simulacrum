@@ -3,7 +3,7 @@
 project doesn't require any external libraries or binaries, you will however need a few tools:
 
  * **GCC** 13.0+ or another C/C++ compiler
- * **Cmake** and **Make** if not included with your compiler
+ * **Cmake** and **Make** if not included with your compiler on *linux*
  * **Git** for copying over the files, step can be avoided by downloading the source code directly
 
 ___
