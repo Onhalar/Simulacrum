@@ -37,7 +37,7 @@ else()
 endif()
 
 # did not have the time to test this yet so here goes
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
 # Define paths to the directories
 set(SOURCE_RES_DIR "${CMAKE_SOURCE_DIR}/res")
