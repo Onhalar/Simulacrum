@@ -1,6 +1,6 @@
 **OpenGL 3D viewer**
 
-project doesn't require any external libraries or binaries, you will however need a few tools:
+project doesn't require any external libraries or binaries, you will however need a few tools to compile it on your system:
 
  * **GCC** 13.0+ or another C/C++ compiler
  * **Cmake** and **Make** if not included with your compiler on *linux*
@@ -41,4 +41,6 @@ linux   ```./bin/simulacrum```<br>
 ___
 
 It is possible that you may get shader compilation error, in which case copy the '*src/*' and '*shaders/*' folders into the '*build/*' folder.
+
+It is also possible that the **GLFW** compiled library won't work on your system, in that case. replace the file library link in '*cnakelists.txt*' with '*glfw*'. You will however need to download the **GLFW** package on your system.
 
