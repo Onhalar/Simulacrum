@@ -30,7 +30,7 @@ cd 3DviewerOpenGL
 mkdir build
 cd build
 cmake -G "MinGW Makefiles" ..
-cmake --build .
+cmake --build . --config Release
 ```
 *Note: replace "MinGW Makerfiles with your generator.*
 * to run the program
