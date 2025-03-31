@@ -44,3 +44,5 @@ It is possible that you may get shader compilation error, in which case copy the
 
 It is also possible that the **GLFW** compiled library won't work on your system, in that case. replace the file library link in '*cmakelists.txt*' with '*glfw*'. You will however need to download the **GLFW** package on your system.
 
+Unofficial realeses: *https://drive.google.com/drive/folders/1BPOMDyiJ33jIuRH_5MbRswOZE8WqXZ87?usp=drive_link*
+
