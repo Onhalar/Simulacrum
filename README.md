@@ -42,5 +42,5 @@ ___
 
 It is possible that you may get shader compilation error, in which case copy the '*src/*' and '*shaders/*' folders into the '*build/*' folder.
 
-It is also possible that the **GLFW** compiled library won't work on your system, in that case. replace the file library link in '*cnakelists.txt*' with '*glfw*'. You will however need to download the **GLFW** package on your system.
+It is also possible that the **GLFW** compiled library won't work on your system, in that case. replace the file library link in '*cmakelists.txt*' with '*glfw*'. You will however need to download the **GLFW** package on your system.
 
