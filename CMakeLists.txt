@@ -36,6 +36,9 @@ else()
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
 endif()
 
+# did not have the time to test this yet so here goes
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+
 # Define paths to the directories
 set(SOURCE_RES_DIR "${CMAKE_SOURCE_DIR}/res")
 set(SOURCE_SHADERS_DIR "${CMAKE_SOURCE_DIR}/shaders")
@@ -58,4 +61,3 @@ add_custom_command(
 
 # Install the main executable
 install(TARGETS simulacrum DESTINATION bin)
-
