@@ -6,11 +6,12 @@
 #include <VAO.hpp>
 #include <texture.hpp>
 
-class dummyObject {
+// still static will update when necesery
+class object {
     public:
         glm::mat4 objectModelMatrix = mainShader->modelMatrix;
 
-        dummyObject(const char* textureFilepath = "res/img/defaultTexture.png", Shader* shader = mainShader) {
+        object(const char* textureFilepath = "res/img/defaultTexture.png", Shader* shader = mainShader) {
             this->shader = shader;
 
             Texture example(projectPath(textureFilepath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -40,6 +41,8 @@ class dummyObject {
 
             amountOfVertices = sizeof(indices) / sizeof(GL_UNSIGNED_INT);
 
+            VAO1 = VAO();
+
             VAO1.bind();
 
             VBO VBO1(vertices, sizeof(vertices));
@@ -53,18 +56,18 @@ class dummyObject {
             VBO1.unbind();
             EBO1.unbind();
 
-            GLuint uniID = glGetUniformLocation(mainShader->ID, "scale");
-
-            glUniform1f(uniID, 0.5f);
-
         }
 
         void draw() {
+            shader->activate();
+
             shader->applyModelMatrix(objectModelMatrix);
 
             VAO1.bind();
 
             glDrawElements(GL_TRIANGLES, amountOfVertices, GL_UNSIGNED_INT, 0);
+
+            VAO1.unbind();
         }
     private:
         VAO VAO1;

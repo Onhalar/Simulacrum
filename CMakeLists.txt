@@ -14,7 +14,14 @@ add_executable(
     dependencies/glad.c
 )
 
-target_include_directories(simulacrum PRIVATE include/core include/OpenGL include/utils dependencies)
+target_include_directories(simulacrum PRIVATE
+    include/core
+    include/OpenGL
+    include/utils
+    include/objects
+
+    dependencies
+    )
 
 # Set the output directory for the executable to "bin" inside the build folder
 set_target_properties(simulacrum PROPERTIES

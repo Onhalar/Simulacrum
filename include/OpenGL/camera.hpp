@@ -19,6 +19,9 @@
 
 class Camera {
     public:
+        glm::mat4 projectionMatrix = glm::mat4(1.0f);
+        glm::mat4 viewMatrix = glm::mat4(1.0f);
+
         glm::vec3 position;
         glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
         const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -38,25 +41,36 @@ class Camera {
         }
 
         void updateProjection(Shader* shader) {
-            shader->viewMatrix = glm::lookAt(position, position + orientation, UP);
-            shader->projectionMatrix = glm::perspective(glm::radians(FOVdeg), width/(float)height, nearClipPlane, farClipPlane);
+            shader->activate();
+
+            viewMatrix = glm::lookAt(position, position + orientation, UP);
+            projectionMatrix = glm::perspective(glm::radians(FOVdeg), width/(float)height, nearClipPlane, farClipPlane);
+
+            shader->viewMatrix = viewMatrix;
+            shader->projectionMatrix = projectionMatrix;
 
             shader->applyViewMatrix();
             shader->applyProjectionMatrix();
         }
         void updateProjection(int projectionWidth, int projectionHeight, Shader* shader) {
+            shader->activate();
+            
             width = projectionWidth;
             height = projectionHeight;
 
             glViewport(0, 0, projectionWidth, projectionHeight);
 
-            shader->viewMatrix = glm::lookAt(position, position + orientation, UP);
-            shader->projectionMatrix = glm::perspective(glm::radians(FOVdeg), projectionWidth/(float)projectionHeight, nearClipPlane, farClipPlane);
+            viewMatrix = glm::lookAt(position, position + orientation, UP);
+            projectionMatrix = glm::perspective(glm::radians(FOVdeg), width/(float)height, nearClipPlane, farClipPlane);
+
+            shader->viewMatrix = viewMatrix;
+            shader->projectionMatrix = projectionMatrix;
 
             shader->applyViewMatrix();
             shader->applyProjectionMatrix();
         }
         void handleInputs(GLFWwindow* window, Shader* shader) {
+            shader->activate();
             static bool controlCamera = false;
 
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera) {

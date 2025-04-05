@@ -7,8 +7,6 @@ layout (location = 2) in vec2 vertexTexture;
 out vec3 color;
 out vec2 texturePosition;
 
-uniform float scale;
-
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;

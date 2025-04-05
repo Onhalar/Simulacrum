@@ -42,15 +42,14 @@ void createWindow() {
         exit(-1);
     }
 
-    // creating GLFW window
-    window = glfwCreateWindow(defaultWindowWidth, defaultWindowHeight, windowName, NULL, NULL);
-    
     // specifying which OpenGL version to use
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-    // tell GLFW what profele to use (CORE)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
+    // creating GLFW window
+    window = glfwCreateWindow(defaultWindowWidth, defaultWindowHeight, windowName, NULL, NULL);
 
     // sets the minimum and maximum window size
     glfwSetWindowSizeLimits(window, minWindowWidth, minWindowHeight, GLFW_DONT_CARE, GLFW_DONT_CARE);
@@ -76,7 +75,6 @@ void createWindow() {
     mainWindow = window;
 }
 
-
 void setupOpenGL() {
 
     // loads in OpenGL functions from GLAD
@@ -89,6 +87,11 @@ void setupOpenGL() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(MessageCallback, 0);
+
 
     int width, height;
 
@@ -106,7 +109,14 @@ void setupOpenGL() {
         projectPath("shaders/fragment.default.glsl")
     );
 
+    lightShader = new Shader(
+        projectPath("shaders/light.vert.glsl"),
+        projectPath("shaders/light.frag.glsl")
+    );
+
     setupShaderMetrices(mainShader);
+
+    setupShaderMetrices(lightShader);
 }
 
 

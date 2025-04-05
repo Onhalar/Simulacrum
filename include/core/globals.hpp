@@ -7,6 +7,7 @@
 GLFWwindow* mainWindow;
 
 Shader* mainShader;
+Shader* lightShader;
 
 float deltaTime;
 
