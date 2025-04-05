@@ -3,5 +3,4 @@ cd 3DviewerOpenGL
 mkdir build
 cd build
 cmake -G "MinGW Makefiles" ..
-cmake --build .
-."/bin/simulacrum.exe"
+cmake --build . --config Release

@@ -75,7 +75,6 @@ class Camera {
 
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera) {
                 controlCamera = true;
-                glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glfwSetCursorPos(window, (width / 2), (height / 2));
             }
@@ -100,12 +99,6 @@ class Camera {
                 }
 
                 glfwSetCursorPos(window, (width / 2), (height / 2));
-
-                const char* description;
-                glfwGetError(&description);
-                if (description != GLFW_NO_ERROR) {
-                    std::cerr << "GLFW Error: " << description << std::endl;
-                }
 
 
                 // Rotates the Orientation left and right
