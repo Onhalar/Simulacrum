@@ -42,7 +42,7 @@ void render() {
         7, 6, 5
     };
 
-    static LightObject* light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices));
+    static LightObject* light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

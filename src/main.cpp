@@ -105,13 +105,13 @@ void setupOpenGL() {
     apply(glClearColor, defaultBackgroundColor);
 
     mainShader = new Shader(
-        projectPath("shaders/vertex.default.glsl"),
-        projectPath("shaders/fragment.default.glsl")
+        projectPath("shaders/default.vert"),
+        projectPath("shaders/default.frag")
     );
 
     lightShader = new Shader(
-        projectPath("shaders/light.vert.glsl"),
-        projectPath("shaders/light.frag.glsl")
+        projectPath("shaders/light.vert"),
+        projectPath("shaders/light.frag")
     );
 
     setupShaderMetrices(mainShader);

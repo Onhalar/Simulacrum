@@ -13,6 +13,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <unordered_map>
 
 // custom libraries
 #include <FormatConsole.hpp>
@@ -21,6 +22,8 @@
 class Shader {
 	public:
 		mutable GLuint ID;
+
+		mutable std::unordered_map<const char*, GLuint> otherUniforms;
 
 		mutable int modelMatrixUniform, projectionMatrixUniform, viewMatrixUniform;
 
@@ -46,6 +49,39 @@ class Shader {
 			projectionMatrixUniform = glGetUniformLocation(ID, projectionMatrixUniformName);
 			if (projectionMatrixUniform != -1) { hasProjectionMatrixUniform = true; }
 		}
+
+		// tries to find it if it's already set, elsewere looks for it in the shader if not found returns; shader needs to be activated first
+		bool setUniform(const char* name, glm::mat4 data) {
+			if (otherUniforms.find(name) == otherUniforms.end()) {
+				otherUniforms[name] = glGetUniformLocation(ID, name);
+				if (otherUniforms[name] == -1) {
+					return false;
+				}
+			}
+			glUniformMatrix4fv(otherUniforms[name], 1, GL_FALSE, glm::value_ptr(data));
+            return true;
+		}
+		bool setUniform(const char* name, glm::vec3 data) {
+			if (otherUniforms.find(name) == otherUniforms.end()) {
+				otherUniforms[name] = glGetUniformLocation(ID, name);
+				if (otherUniforms[name] == -1) {
+					return false;
+				}
+			}
+			glUniform3fv(otherUniforms[name], 1, glm::value_ptr(data));
+            return true;
+		}
+		bool setUniform(const char* name, glm::vec4 data) {
+			if (otherUniforms.find(name) == otherUniforms.end()) {
+				otherUniforms[name] = glGetUniformLocation(ID, name);
+				if (otherUniforms[name] == -1) {
+					return false;
+				}
+			}
+			glUniform4fv(otherUniforms[name], 1, glm::value_ptr(data));
+            return true;
+		}
+
 
 		// applies the main model matrix
 		void applyModelMatrix() {
