@@ -18,8 +18,10 @@ struct Light {
     float intensity; // Intensity of the light
 };
 
-uniform Light lights[MAX_LIGHTS];  // Array of lights
-uniform int lightCount;            // The actual number of active lights
+layout(std140) uniform LightBlock {
+    Light lights[MAX_LIGHTS];  // Array of lights in UBO
+    int lightCount;            // The actual number of active lights
+};
 
 void main() {
     // Normalize the normal vector for lighting calculations

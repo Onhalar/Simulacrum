@@ -5,6 +5,7 @@
 
 #include <shader.hpp>
 #include <camera.hpp>
+#include <UBO.hpp>
 
 #include <lightObject.hpp>
 #include <object.hpp>
@@ -16,13 +17,6 @@ Camera* currentCamera;
 
 // setting up objects
 object* pyramid;
-
-struct Light {
-    glm::vec3 position;
-    glm::vec4 color;
-    GLfloat intensity;
-};
-
 
 GLfloat lightVertices[] =
 { //     COORDINATES     //
@@ -56,11 +50,34 @@ GLuint lightIndices[] =
 LightObject* light;
 LightObject* redLight;
 
+struct Light {
+    glm::vec3 position = glm::vec3(0.0f);
+    float _pad1 = 0.0f;
+
+    glm::vec4 color = glm::vec4(1.0f);
+    float intensity = 1.0f;
+    float _pad2[3] = {0.0f, 0.0f, 0.0f};
+
+    // Default constructor
+    Light() = default;
+
+    // Custom constructor
+    Light(glm::vec3 pos, glm::vec4 col, float inten)
+        : position(pos), color(col), intensity(inten) {}
+};
+
+// Define LightBlock struct that represents the UBO structure
+struct LightBlock {
+    Light lights[MAX_AMOUNT_LIGHTS];
+    alignas(16) int lightCount;  // Align to 16 bytes
+    int _pad[3] = {0, 0, 0};     // Padding to match std140
+};
+
 void renderSetup() {
 
     pyramid = new object();
-    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 1.5f);
-    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 1.5f);
+    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 1.25f);
+    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 1.25f);
 
     vector<Light> lights;
 
@@ -72,19 +89,19 @@ void renderSetup() {
     
     mainShader->setUniform("lightCount", (GLint)lights.size());
 
-    // sends all the uniforms at once (setup) individual change might be required upon the light changing position
-    for (int i = 0; i < lights.size() || i < MAX_AMOUNT_LIGHTS; ++i) {
-        std::string prefix = "lights[" + std::to_string(i) + "]"; // Lights[0] for this case
-        
-        // Setting light position (vec3)
-        mainShader->setUniform((prefix + ".position").c_str(), lights[i].position, true);
-        
-        // Setting light color (vec4)
-        mainShader->setUniform((prefix + ".color").c_str(), lights[i].color, true);
-        
-        // Setting light intensity (float)
-        mainShader->setUniform((prefix + ".intensity").c_str(), lights[i].intensity, true);
+    LightBlock lightBlock;
+    lightBlock.lightCount = lights.size();
+
+    // Copy data from the vector to the LightBlock
+    for (int i = 0; i < lightBlock.lightCount; ++i) {
+        lightBlock.lights[i] = lights[i];
     }
+
+    // Create a UBO to store light data
+    UBO lightUBO(sizeof(LightBlock), &lightBlock);
+
+    // Bind the UBO to a binding point (e.g., binding 0)
+    lightUBO.bind();
 
 }
 
