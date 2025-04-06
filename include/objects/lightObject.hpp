@@ -16,12 +16,14 @@ class LightObject {
         glm::vec4 lightColor;
         glm::vec3 lightPosition;
         GLfloat lightIntensity;
+        GLfloat lightDistance;
 
-        LightObject(Shader* shader, GLfloat* vertices, size_t verticesSize, GLuint* indices, size_t indicesSize, glm::vec4 lightColor = glm::vec4(1.0f), glm::vec3 lightPosition = glm::vec3(0.0f), GLfloat intensity = 1.0f) {
+        LightObject(Shader* shader, GLfloat* vertices, size_t verticesSize, GLuint* indices, size_t indicesSize, glm::vec4 lightColor = glm::vec4(1.0f), glm::vec3 lightPosition = glm::vec3(0.0f), GLfloat intensity = 1.0f, float lightDistance = 0.5f) {
             this->shader = shader;
             this->lightColor = lightColor;
             this->lightPosition = lightPosition;
             this->lightIntensity = intensity;
+            this->lightDistance = lightDistance;
 
             amountOfVertices = indicesSize;
 

@@ -56,14 +56,15 @@ struct Light {
 
     glm::vec4 color = glm::vec4(1.0f);
     float intensity = 1.0f;
-    float _pad2[3] = {0.0f, 0.0f, 0.0f};
+    float falloff = 1.0f;  // Added falloff
+    float _pad2[2] = {0.0f, 0.0f}; // Adjust padding to maintain alignment
 
     // Default constructor
     Light() = default;
 
     // Custom constructor
-    Light(glm::vec3 pos, glm::vec4 col, float inten)
-        : position(pos), color(col), intensity(inten) {}
+    Light(glm::vec3 pos, glm::vec4 col, float inten, float off)
+        : position(pos), color(col), intensity(inten), falloff(off) {}
 };
 
 // Define LightBlock struct that represents the UBO structure
@@ -73,23 +74,23 @@ struct LightBlock {
     int _pad[3] = {0, 0, 0};     // Padding to match std140
 };
 
+vector<Light> lights;
+UBO* lightUBO;
+LightBlock lightBlock;
+
 void renderSetup() {
 
     pyramid = new object();
-    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 1.25f);
-    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 1.25f);
+    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 0.2f, 1.5f);
+    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 0.2f, 1.5f);
 
-    vector<Light> lights;
 
     // send info about the light source to the object shader; can be set once if only one light present
     mainShader->activate();
 
-    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity});
-    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity});
+    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity, light->lightDistance});
+    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity, light->lightDistance});
     
-    mainShader->setUniform("lightCount", (GLint)lights.size());
-
-    LightBlock lightBlock;
     lightBlock.lightCount = lights.size();
 
     // Copy data from the vector to the LightBlock
@@ -98,11 +99,27 @@ void renderSetup() {
     }
 
     // Create a UBO to store light data
-    UBO lightUBO(sizeof(LightBlock), &lightBlock);
+    lightUBO = new UBO(sizeof(LightBlock), &lightBlock);
 
     // Bind the UBO to a binding point (e.g., binding 0)
-    lightUBO.bind();
+    lightUBO->bind();
 
+}
+
+void updateLights() {
+    lights.clear();
+
+    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity, light->lightDistance});
+    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity, light->lightDistance});
+    
+    lightBlock.lightCount = lights.size();
+
+    // Copy data from the vector to the LightBlock
+    for (int i = 0; i < lightBlock.lightCount; ++i) {
+        lightBlock.lights[i] = lights[i];
+    }
+
+    lightUBO->update(0, sizeof(lightBlock), &lightBlock);
 }
 
 void render() {
@@ -119,11 +136,21 @@ void render() {
     // sends draw matrices to the light buffer
     currentCamera->updateProjection(lightShader);
 
+    static bool switchDir = false;
+    if (redLight->lightPosition.z >= 0.35f || redLight->lightPosition.z <= -0.5f) { switchDir = !switchDir; }
+    redLight->updatePosition(redLight->lightPosition + glm::vec3(0.0f, 0.0f, -0.3f  * deltaTime * (switchDir ? 1.0f : -1.0f)));
+
+    updateLights();
+
     light->updatePosition();
+    lightShader->modelMatrix = glm::scale(lightShader->modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+    lightShader->applyModelMatrix(); // can do it this ways since light->updatePosition() resets the shader model matrix each time.
     light->applyLightColor();
     light->draw();
 
     redLight->updatePosition();
+    lightShader->modelMatrix = glm::scale(lightShader->modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+    lightShader->applyModelMatrix();
     redLight->applyLightColor();
     redLight->draw();
 

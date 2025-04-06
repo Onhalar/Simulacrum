@@ -21,6 +21,7 @@ struct Light {
 layout(std140) uniform LightBlock {
     Light lights[MAX_LIGHTS];  // Array of lights in UBO
     int lightCount;            // The actual number of active lights
+    float lightDistance;        // Falloff factor (can be used to control the effect of distance)
 };
 
 void main() {
@@ -42,21 +43,30 @@ void main() {
     for (int i = 0; i < lightCount; ++i) {
         // Get the direction from the current fragment to the light source
         vec3 lightDirection = normalize(lights[i].position - currentPosition);
+        
+        // Calculate the distance from the light to the fragment
+        float distance = length(lights[i].position - currentPosition);
+        
+        // Apply the falloff based on distance (inverse square law)
+        float falloff = 1.0f / (distance * distance + lightDistance); // Light falloff with an added factor to prevent divide by zero
+
+        // Adjust intensity with falloff
+        float adjustedIntensity = lights[i].intensity * falloff;
 
         // Calculate diffuse lighting (Lambertian reflectance)
-        float diffuse = max(dot(faceNormal, lightDirection), 0.0f) * lights[i].intensity;
+        float diffuse = max(dot(faceNormal, lightDirection), 0.0f) * adjustedIntensity;
 
         // Calculate specular lighting (using Phong model)
         vec3 reflectionDirection = reflect(-lightDirection, faceNormal);
         float specularAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 8.0);
-        float specular = specularAmount * 0.5f * lights[i].intensity;
+        float specular = specularAmount * 0.5f * adjustedIntensity;
 
         // Accumulate the lighting contributions, scaling by light color
         totalDiffuse += diffuse * lights[i].color.rgb;
         totalSpecular += specular * lights[i].color.rgb;
     }
 
-    // Combine all lighting effects: ambient, diffuse, and specular
+    // Combine all lighting effects: ambient, diffuse, and speculara
     vec3 totalLighting = (ambientLight + totalDiffuse + totalSpecular);
 
     // Final result color: combine texture color with the lighting
