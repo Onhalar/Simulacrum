@@ -1,6 +1,5 @@
 #version 330 core
 
-in vec3 color;
 in vec2 texturePosition;
 
 in vec3 normal;
@@ -20,7 +19,7 @@ void main() {
     // diffused lighting ---------------------------------------------------------
 
     // we're in space so no real need for it but let's just keep it there just in case
-    float ambientLight = 0.0f;
+    float ambientLight = 0.20f;
 
     vec3 faceNormal = normalize(normal);
     vec3 lightDirection = normalize(lightPosition - currentPosition);
@@ -29,7 +28,7 @@ void main() {
 
     // specular lighting ---------------------------------------------------------
 
-    float specularLight = 0.5f; // max amount of specular light
+    float specularLight = 0.50f; // max amount of specular light
 
     vec3 viewDirection = normalize(cameraPosition - currentPosition);
     vec3 reflectionDirection = reflect(-lightDirection, normal);
