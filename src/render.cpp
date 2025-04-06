@@ -11,51 +11,62 @@
 
 Camera* currentCamera;
 
+// setting up objects
+object* pyramid;
+
+GLfloat lightVertices[] =
+{ //     COORDINATES     //
+    -0.1f, -0.1f,  0.1f,
+    -0.1f, -0.1f, -0.1f,
+     0.1f, -0.1f, -0.1f,
+     0.1f, -0.1f,  0.1f,
+    -0.1f,  0.1f,  0.1f,
+    -0.1f,  0.1f, -0.1f,
+     0.1f,  0.1f, -0.1f,
+     0.1f,  0.1f,  0.1f
+};
+
+GLuint lightIndices[] =
+{
+    1, 2, 0, // bottom
+    2, 3, 0,
+    7, 4, 0, // front
+    3, 7, 0,
+    3, 6, 7, // right
+    3, 2, 6,
+    2, 5, 6, // back
+    2, 1, 5,
+    1, 4, 5, // left
+    1, 0, 4,
+    4, 7, 5, // top
+    7, 6, 5
+};
+
+glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+LightObject* light;
+    void renderSetup() {
+
+    pyramid = new object();
+    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), lightColor, glm::vec3(0.8f, 0.5f, 0.5f));
+
+    // send info about the light source to the object shader; can be set once if only one light present
+    mainShader->activate();
+    mainShader->setUniform("lightColor", light->lightColor);
+    mainShader->setUniform("lightIntensity", light->lightIntensity);
+
+    // needs to be send each time light pos is updated
+    mainShader->setUniform("lightPosition", light->lightPosition);
+}
+
 void render() {
-    static object* pyramid = new object();
-
-    GLfloat lightVertices[] =
-    { //     COORDINATES     //
-        -0.1f, -0.1f,  0.1f,
-        -0.1f, -0.1f, -0.1f,
-         0.1f, -0.1f, -0.1f,
-         0.1f, -0.1f,  0.1f,
-        -0.1f,  0.1f,  0.1f,
-        -0.1f,  0.1f, -0.1f,
-         0.1f,  0.1f, -0.1f,
-         0.1f,  0.1f,  0.1f
-    };
-    
-    GLuint lightIndices[] =
-    {
-        1, 2, 0, // bottom
-        2, 3, 0,
-        7, 4, 0, // front
-        3, 7, 0,
-        3, 6, 7, // right
-        3, 2, 6,
-        2, 5, 6, // back
-        2, 1, 5,
-        1, 4, 5, // left
-        1, 0, 4,
-        4, 7, 5, // top
-        7, 6, 5
-    };
-
-    static glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-    static LightObject* light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), lightColor, glm::vec3(0.8f, 0.5f, 0.5f));
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // sends draw matrices to the default buffer
     currentCamera->updateProjection(mainShader);
 
-    // semd info about the light source to the object shader; can be set once if only one light preset
-    mainShader->activate();
-    mainShader->setUniform("lightColor", light->lightColor);
-    mainShader->setUniform("lightPosition", light->lightPosition);
-    mainShader->setUniform("lightIntensity", light->lightIntensity);
+    // needs to be sent every frame - sends camera position to shader for specular lighting
+    mainShader->setUniform("cameraPosition", currentCamera->position);
 
     pyramid->draw();
 

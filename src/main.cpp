@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
 
     setupOpenGL();
 
+    renderSetup();
+
     mainLoop();
 
     return 0;
