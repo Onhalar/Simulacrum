@@ -1,0 +1,9 @@
+{
+    "debugMode": true,
+    "defaultWindowWidth": 500,
+    "defaultWindowHeight": 500,
+    "minWindowWidth": 300,
+    "minWindowHeight": 300,
+    "maxFrameRate": 90,
+    "defaultBackground": [0.07, 0.13, 0.17, 1.0]
+}

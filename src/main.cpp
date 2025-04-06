@@ -2,6 +2,9 @@
 #include <globals.hpp>
 
 #include "render.cpp"
+#include "settings.cpp"
+
+const filesystem::path settingsPath("res/settings.json");
 
 void createWindow();
 void setupOpenGL();
@@ -18,6 +21,8 @@ int main(int argc, char **argv) {
     else {
         projectDir = filesystem::current_path().parent_path();
     }
+
+    loadSettings(projectPath(settingsPath.string()));
 
     createWindow();
 
@@ -97,9 +102,9 @@ void setupOpenGL() {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(MessageCallback, 0);
-    }
 
-    cout << glGetString(GL_VERSION) << endl;
+        cout << "\n" << formatRole("Info") << " " << glGetString(GL_VERSION) << "\n" << endl;
+    }
 
     int width, height;
 

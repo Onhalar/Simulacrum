@@ -63,8 +63,9 @@ struct Light {
     Light() = default;
 
     // Custom constructor
-    Light(glm::vec3 pos, glm::vec4 col, float inten, float off)
-        : position(pos), color(col), intensity(inten), falloff(off) {}
+    Light(glm::vec3 pos, glm::vec4 col, float inten, float off) {
+        position = pos; color = col; intensity = inten; falloff = off;
+    }
 };
 
 // Define LightBlock struct that represents the UBO structure

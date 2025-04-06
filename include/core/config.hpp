@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <any>
+#include <typeindex>
 #include <tuple>
 #include <utility>
 
@@ -25,24 +27,25 @@
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
+using Color = tuple<float, float, float, float>;
 
 // project directory
 filesystem::path projectDir;
 
 // main icon path
-const char* iconPath = "res/icon.png";
+string iconPath = "res/icon.png";
 
 // setup settings
-const bool debugMode = true;
+bool debugMode = true;
 
 // window settings
-const int defaultWindowWidth = 500;
-const int defaultWindowHeight = 500;
+int defaultWindowWidth = 500;
+int defaultWindowHeight = 500;
 
-const int minWindowWidth = 300;
-const int minWindowHeight = 300;
+int minWindowWidth = 300;
+int minWindowHeight = 300;
 
-const tuple defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
+Color defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
 
 const char* windowName = "Simulacrum project";
 
