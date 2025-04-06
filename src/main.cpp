@@ -99,6 +99,7 @@ void setupOpenGL() {
         glDebugMessageCallback(MessageCallback, 0);
     }
 
+    cout << glGetString(GL_VERSION) << endl;
 
     int width, height;
 

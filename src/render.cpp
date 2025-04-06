@@ -8,11 +8,21 @@
 
 #include <lightObject.hpp>
 #include <object.hpp>
+#include <vector>
+
+#define MAX_AMOUNT_LIGHTS 4
 
 Camera* currentCamera;
 
 // setting up objects
 object* pyramid;
+
+struct Light {
+    glm::vec3 position;
+    glm::vec4 color;
+    GLfloat intensity;
+};
+
 
 GLfloat lightVertices[] =
 { //     COORDINATES     //
@@ -42,21 +52,40 @@ GLuint lightIndices[] =
     7, 6, 5
 };
 
-glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 LightObject* light;
-    void renderSetup() {
+LightObject* redLight;
+
+void renderSetup() {
 
     pyramid = new object();
-    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), lightColor, glm::vec3(0.8f, 0.5f, 0.5f));
+    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 1.5f);
+    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 1.5f);
+
+    vector<Light> lights;
 
     // send info about the light source to the object shader; can be set once if only one light present
     mainShader->activate();
-    mainShader->setUniform("lightColor", light->lightColor);
-    mainShader->setUniform("lightIntensity", light->lightIntensity);
 
-    // needs to be send each time light pos is updated
-    mainShader->setUniform("lightPosition", light->lightPosition);
+    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity});
+    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity});
+    
+    mainShader->setUniform("lightCount", (GLint)lights.size());
+
+    // sends all the uniforms at once (setup) individual change might be required upon the light changing position
+    for (int i = 0; i < lights.size() || i < MAX_AMOUNT_LIGHTS; ++i) {
+        std::string prefix = "lights[" + std::to_string(i) + "]"; // Lights[0] for this case
+        
+        // Setting light position (vec3)
+        mainShader->setUniform((prefix + ".position").c_str(), lights[i].position, true);
+        
+        // Setting light color (vec4)
+        mainShader->setUniform((prefix + ".color").c_str(), lights[i].color, true);
+        
+        // Setting light intensity (float)
+        mainShader->setUniform((prefix + ".intensity").c_str(), lights[i].intensity, true);
+    }
+
 }
 
 void render() {
@@ -73,7 +102,13 @@ void render() {
     // sends draw matrices to the light buffer
     currentCamera->updateProjection(lightShader);
 
+    light->updatePosition();
+    light->applyLightColor();
     light->draw();
+
+    redLight->updatePosition();
+    redLight->applyLightColor();
+    redLight->draw();
 
     glfwSwapBuffers(mainWindow);
 }
