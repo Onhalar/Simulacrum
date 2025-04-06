@@ -1,10 +1,10 @@
 #ifndef SHADER_CLASS_HEADER
 #define SHADER_CLASS_HEADER
 
-// only for central assignment of the 'showShaderMessages' variable
+// only for central assignment of the 'debugMode' variable
 #include <config.hpp>
 // uncomment the below and remove the include above
-// bool showShaderMessages = true;
+// bool debugMode = true;
 
 #include <glm/glm.hpp>
 
@@ -81,6 +81,16 @@ class Shader {
 			glUniform4fv(otherUniforms[name], 1, glm::value_ptr(data));
             return true;
 		}
+		bool setUniform(const char* name, GLfloat data) {
+			if (otherUniforms.find(name) == otherUniforms.end()) {
+				otherUniforms[name] = glGetUniformLocation(ID, name);
+				if (otherUniforms[name] == -1) {
+					return false;
+				}
+			}
+			glUniform1f(otherUniforms[name], data);
+            return true;
+		}
 
 
 		// applies the main model matrix
@@ -135,14 +145,14 @@ class Shader {
 			std::ifstream file;
 			stringstream bufferedLines;
 		
-			if (showShaderMessages) { cout << formatProcess("Compiling") << " module '" << formatPath(getFileName(filepath.string())) << "' ... "; }
+			if (debugMode) { cout << formatProcess("Compiling") << " module '" << formatPath(getFileName(filepath.string())) << "' ... "; }
 		
 			file.open(filepath);
 			if (file.is_open()) {
 				bufferedLines << file.rdbuf();
 			}
 			else {
-				if (showShaderMessages) { std::cout << formatError("FAILED") << "\n"; }
+				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
 				cerr << "unable to open " << formatPath(filepath.string()) << "\n" << endl;
 				return 0;
 			}
@@ -161,10 +171,10 @@ class Shader {
 			if (!success) {
 				char errorLog[1024];
 				glGetShaderInfoLog(shaderModule, 1024, NULL, errorLog);
-				if (showShaderMessages) { std::cout << formatError("FAILED") << "\n"; }
+				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
 				cerr << "Shader Module compilation error:\n" << colorText(errorLog, ANSII_YELLOW) << endl;
 			}
-			else if (showShaderMessages && success) { std::cout << formatSuccess("Done") << endl; }
+			else if (debugMode && success) { std::cout << formatSuccess("Done") << endl; }
 		
 			return shaderModule;
 		}
@@ -177,7 +187,7 @@ class Shader {
 			modules.push_back(makeModule(vertexFilepath,  GL_VERTEX_SHADER));
 			modules.push_back(makeModule(fragmentFilepath, GL_FRAGMENT_SHADER));
 		
-			if (showShaderMessages) { cout << formatProcess("Making shader") << " from '" << formatPath(getFileName(vertexFilepath.string())) << "' and '" << formatPath(getFileName(fragmentFilepath.string())) << "' ... "; }
+			if (debugMode) { cout << formatProcess("Making shader") << " from '" << formatPath(getFileName(vertexFilepath.string())) << "' and '" << formatPath(getFileName(fragmentFilepath.string())) << "' ... "; }
 		
 			//Attach all the modules then link the program
 			GLuint shader = glCreateProgram();
@@ -192,10 +202,10 @@ class Shader {
 			if (!success) {
 				char errorLog[1024];
 				glGetProgramInfoLog(shader, 1024, NULL, errorLog);
-				if (showShaderMessages) { std::cout << formatError("FAILED") << "\n"; }
+				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
 				cerr << "Shader linking error:\n" << colorText(errorLog, ANSII_YELLOW) << '\n';
 			}
-			else if (showShaderMessages && success) { std::cout << formatSuccess("Done") << endl; }
+			else if (debugMode && success) { std::cout << formatSuccess("Done") << endl; }
 		
 			//Modules are now unneeded and can be freed
 			for (GLuint shaderModule : modules) {

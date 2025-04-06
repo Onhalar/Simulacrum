@@ -33,7 +33,7 @@ filesystem::path projectDir;
 const char* iconPath = "res/icon.png";
 
 // setup settings
-const bool showShaderMessages= true;
+const bool debugMode = true;
 
 // window settings
 const int defaultWindowWidth = 500;
@@ -42,7 +42,7 @@ const int defaultWindowHeight = 500;
 const int minWindowWidth = 300;
 const int minWindowHeight = 300;
 
-const tuple defaultBackgroundColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+const tuple defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
 
 const char* windowName = "Simulacrum project";
 

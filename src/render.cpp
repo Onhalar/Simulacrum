@@ -42,14 +42,24 @@ void render() {
         7, 6, 5
     };
 
-    static LightObject* light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    static glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    static LightObject* light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), lightColor, glm::vec3(0.8f, 0.5f, 0.5f));
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // sends draw matrices to the default buffer
     currentCamera->updateProjection(mainShader);
+
+    // semd info about the light source to the object shader; can be set once if only one light preset
+    mainShader->activate();
+    mainShader->setUniform("lightColor", light->lightColor);
+    mainShader->setUniform("lightPosition", light->lightPosition);
+    mainShader->setUniform("lightIntensity", light->lightIntensity);
 
     pyramid->draw();
 
+    // sends draw matrices to the light buffer
     currentCamera->updateProjection(lightShader);
 
     light->draw();
