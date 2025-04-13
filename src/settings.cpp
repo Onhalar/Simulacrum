@@ -46,6 +46,7 @@ void loadSettings(filesystem::path path) {
     settings["minWindowWidth"] = SettingsEntry(&minWindowWidth, setInt);
     settings["minWindowHeight"] = SettingsEntry(&minWindowHeight, setInt);
     settings["defaultBackgroundColor"] = SettingsEntry(&defaultBackgroundColor, setTuple);
+    settings["prettyOutput"] = SettingsEntry(&prettyOutput, setBool);
 
     if (!filesystem::exists(path)) {
         cout << formatError("FAILED") << "\n";

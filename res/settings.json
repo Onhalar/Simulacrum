@@ -1,4 +1,5 @@
 {
+    "prettyOutput": true,
     "debugMode": true,
     "defaultWindowWidth": 500,
     "defaultWindowHeight": 500,
