@@ -29,6 +29,10 @@
 using namespace std;
 using Color = tuple<float, float, float, float>;
 
+#include <chrono>
+
+using namespace chrono;
+
 // project directory
 filesystem::path projectDir;
 
@@ -52,5 +56,6 @@ const char* windowName = "Simulacrum project";
 
 // render settings
 int maxFrameRate = 90;
+int VSync = 0;
 
 #endif // MAIN_CONFIG_HEADER

@@ -2,25 +2,33 @@
 #define GLFW_SCHEDULER_HEADER
 
 #include <map>
-#include <GLFW/glfw3.h>
+#include <chrono>
+
+// Use high_resolution_clock and time_point directly
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = Clock::time_point;
+using Nanoseconds = std::chrono::nanoseconds;
 
 typedef void (*callback_function)(void);
 
-std::map<float, callback_function> schedule;
+// Schedule map: maps execution times to callbacks
+std::map<TimePoint, callback_function> schedule;
 
-void Timer(float timeOutMiliSecnods, callback_function callback) {
-    schedule[timeOutMiliSecnods + glfwGetTime() * 1000] = callback;
+// Schedules a callback to run after a given timeout
+void Timer(Nanoseconds delay, callback_function callback) {
+    schedule[Clock::now() + delay] = callback;
 }
 
+// Call this once per frame to check and run due callbacks
 void handleSchedule() {
-    float currentTime = (glfwGetTime() * 1000);
+    TimePoint now = Clock::now();
 
     for (auto it = schedule.begin(); it != schedule.end(); ) {
-        if (it->first <= currentTime) {
-            it->second(); 
-            it = schedule.erase(it); 
+        if (it->first <= now) {
+            if (it->second) it->second(); // Call the callback
+            it = schedule.erase(it);      // Remove after running
         } else {
-            ++it; 
+            break; // Remaining events are scheduled for later
         }
     }
 }

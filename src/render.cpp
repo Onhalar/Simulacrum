@@ -158,17 +158,34 @@ void render() {
     glfwSwapBuffers(mainWindow);
 }
 
+const nanoseconds frameDuration(1'000'000'000 / maxFrameRate); // 1,000,000 μs / 60 = 16666 μs = 16.666 m
+
 void renderCycle() {
-    currentCamera->handleInputs(mainWindow, mainShader);
+    auto frameStart = high_resolution_clock::now();
     
+    currentCamera->handleInputs(mainWindow, mainShader);
+
     render();
 
-    static float lastTime = 0.0f;
-    float currentTime = static_cast<float>(glfwGetTime());
-    deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-    
-    Timer(1000 / maxFrameRate, renderCycle);
+    auto frameEnd = high_resolution_clock::now();
+    auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
+
+    static decltype(frameStart) lastTime;
+
+    // here just so everything doesn't fly 10 000 km off the screen
+    static bool isFirstFrame = true;
+    if (isFirstFrame) {
+        lastTime = frameStart;
+        isFirstFrame = false;
+    }
+
+    deltaTime =  duration_cast<nanoseconds>(frameStart - lastTime).count() / 1'000'000'000.0f;
+
+    cout << 1/deltaTime << endl;
+        
+    Timer(frameDuration - elapsed, renderCycle);
+
+    lastTime = frameEnd;
 }
 
 void resize(GLFWwindow *window, int width, int height) {

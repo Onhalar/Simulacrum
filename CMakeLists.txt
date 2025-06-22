@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26.0)
-project(simulacrum VERSION 1.0.0)
+project(simulacrum VERSION 1.2.0)
 
 # Try to find OpenGL package
 find_package(OpenGL QUIET)

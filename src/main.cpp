@@ -4,6 +4,10 @@
 #include "render.cpp"
 #include "settings.cpp"
 
+// ***************************************
+// **   ToDo: Add GUI with Dear ImGui   **
+// ****************************************
+
 const filesystem::path settingsPath("res/settings.json");
 
 void createWindow();
@@ -130,6 +134,8 @@ void setupOpenGL() {
     setupShaderMetrices(mainShader);
 
     setupShaderMetrices(lightShader);
+
+    glfwSwapInterval(VSync);
 }
 
 

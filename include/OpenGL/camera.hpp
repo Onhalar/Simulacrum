@@ -100,35 +100,36 @@ class Camera {
 
                 glfwSetCursorPos(window, (width / 2), (height / 2));
 
+                float FdeltaTime = (float)deltaTime;
 
                 // Rotates the Orientation left and right
                 orientation = glm::rotate(orientation, glm::radians(-rotY), UP);
 
                 // forward [W]
                 if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-                    position += orientation * cameraSpeed * deltaTime;
+                    position += orientation * cameraSpeed * FdeltaTime;
                 }
                 // backward [S]
                 if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-                    position += orientation * -cameraSpeed * deltaTime;
+                    position += orientation * -cameraSpeed * FdeltaTime;
                 }
 
                 // left [A]
                 if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-                    position += -glm::normalize(glm::cross(orientation, UP)) * cameraSpeed * deltaTime;
+                    position += -glm::normalize(glm::cross(orientation, UP)) * cameraSpeed * FdeltaTime;
                 }
                 // right [D]
                 if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-                    position += glm::normalize(glm::cross(orientation, UP)) * cameraSpeed * deltaTime;
+                    position += glm::normalize(glm::cross(orientation, UP)) * cameraSpeed * FdeltaTime;
                 }
 
                 // up [SPACE]
                 if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-                    position += cameraSpeed * UP * deltaTime;
+                    position += cameraSpeed * UP * FdeltaTime;
                 }
                 // down [C]
                 if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-                    position += cameraSpeed * -UP * deltaTime;
+                    position += cameraSpeed * -UP * FdeltaTime;
                 }
 
                 updateProjection(shader);

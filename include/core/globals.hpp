@@ -9,6 +9,6 @@ GLFWwindow* mainWindow;
 Shader* mainShader;
 Shader* lightShader;
 
-float deltaTime;
+double deltaTime;
 
 #endif // GLOBAL_PROJECT_VARIABLE_HEADER
