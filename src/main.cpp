@@ -26,11 +26,11 @@ int main(int argc, char **argv) {
         projectDir = filesystem::current_path().parent_path();
     }
 
-    loadSettings(projectPath(settingsPath.string()));
-
     createWindow();
 
     glfwSetFramebufferSizeCallback(mainWindow, resize);
+
+    loadSettings(projectPath(settingsPath.string()));
 
     setupOpenGL();
 

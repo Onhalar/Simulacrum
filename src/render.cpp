@@ -158,8 +158,7 @@ void render() {
     glfwSwapBuffers(mainWindow);
 }
 
-void renderCycle() {
-    
+void renderCycle() {    
     auto frameStart = high_resolution_clock::now();
     
     currentCamera->handleInputs(mainWindow, mainShader);
@@ -178,7 +177,7 @@ void renderCycle() {
         isFirstFrame = false;
     }
 
-    deltaTime =  duration_cast<nanoseconds>(frameStart - lastTime).count() / 1'000'000'000.0f;
+    deltaTime =  duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0f;
 
     cout << 1/deltaTime << endl;
         
