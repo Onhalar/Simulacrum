@@ -158,9 +158,8 @@ void render() {
     glfwSwapBuffers(mainWindow);
 }
 
-const nanoseconds frameDuration(1'000'000'000 / maxFrameRate); // 1,000,000 μs / 60 = 16666 μs = 16.666 m
-
 void renderCycle() {
+    
     auto frameStart = high_resolution_clock::now();
     
     currentCamera->handleInputs(mainWindow, mainShader);

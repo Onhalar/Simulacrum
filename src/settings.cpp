@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <tuple>
 
+#include <updateRunningConfig.hpp>
+
 using Color = tuple<float, float, float, float>;
 using AnyType = variant<int*, bool*, string*, Color*>;
 using Json = nlohmann::json;
@@ -47,6 +49,7 @@ void loadSettings(filesystem::path path) {
     settings["minWindowHeight"] = SettingsEntry(&minWindowHeight, setInt);
     settings["defaultBackgroundColor"] = SettingsEntry(&defaultBackgroundColor, setTuple);
     settings["prettyOutput"] = SettingsEntry(&prettyOutput, setBool);
+    settings["VSync"] = SettingsEntry(&VSync, setInt);
 
     if (!filesystem::exists(path)) {
         cout << formatError("FAILED") << "\n";
@@ -59,13 +62,14 @@ void loadSettings(filesystem::path path) {
     file >> data;
     file.close();
 
-
     for (auto& entry : data.items()) {
         const char* key = entry.key().c_str();
         if (settings.find(key) != settings.end()) {
             settings[key].setter(settings[key].variable, key, data);
         }
     }
+
+    updateRunningConfig::updateAllFromSet();
 
     if (showMessages) { cout << formatSuccess("Done") << endl; }
 }

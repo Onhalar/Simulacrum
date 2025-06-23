@@ -55,7 +55,7 @@ Color defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
 const char* windowName = "Simulacrum project";
 
 // render settings
-int maxFrameRate = 90;
+int maxFrameRate = 60;
 int VSync = 0;
 
 #endif // MAIN_CONFIG_HEADER

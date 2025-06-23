@@ -209,7 +209,7 @@ class Shader {
 			std::ifstream file;
 			stringstream bufferedLines;
 		
-			if (debugMode) { cout << formatProcess("Compiling") << " module '" << formatPath(getFileName(filepath.string())) << "' ... "; }
+			if (debugMode) { std::cout << formatProcess("Compiling") << " module '" << formatPath(getFileName(filepath.string())) << "' ... "; }
 		
 			file.open(filepath);
 			if (file.is_open()) {
