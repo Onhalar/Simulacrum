@@ -177,9 +177,7 @@ void renderCycle() {
         isFirstFrame = false;
     }
 
-    deltaTime =  duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0f;
-
-    cout << 1/deltaTime << endl;
+    deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
         
     Timer(frameDuration - elapsed, renderCycle);
 
