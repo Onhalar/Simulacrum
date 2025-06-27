@@ -166,7 +166,7 @@ void mainLoop() {
         auto frameEnd = steady_clock::now();
         auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
 
-        if (elapsed < frameDuration) {
+        if (elapsed < frameDuration && !VSync) {
             this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction);
 
             // spin delay for frames
