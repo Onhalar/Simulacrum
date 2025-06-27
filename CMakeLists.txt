@@ -43,8 +43,10 @@ else()
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
 endif()
 
-# did not have the time to test this yet so here goes
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+if(WIN32)
+    # did not have the time to test this yet so here goes
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+endif()
 
 # Define paths to the directories
 set(SOURCE_RES_DIR "${CMAKE_SOURCE_DIR}/res")

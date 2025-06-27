@@ -100,7 +100,7 @@ void renderSetup() {
     }
 
     // Create a UBO to store light data
-    lightUBO = new UBO(sizeof(LightBlock), &lightBlock);
+    lightUBO = new UBO(sizeof(LightBlock), &lightBlock, GL_DYNAMIC_DRAW);
 
     // Bind the UBO to a binding point (e.g., binding 0)
     lightUBO->bind();
@@ -156,32 +156,6 @@ void render() {
     redLight->draw();
 
     glfwSwapBuffers(mainWindow);
-}
-
-void renderCycle() {    
-    auto frameStart = high_resolution_clock::now();
-    
-    currentCamera->handleInputs(mainWindow, mainShader);
-
-    render();
-
-    auto frameEnd = high_resolution_clock::now();
-    auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
-
-    static decltype(frameStart) lastTime;
-
-    // here just so everything doesn't fly 10 000 km off the screen
-    static bool isFirstFrame = true;
-    if (isFirstFrame) {
-        lastTime = frameStart;
-        isFirstFrame = false;
-    }
-
-    deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
-        
-    Timer(frameDuration - elapsed, renderCycle);
-
-    lastTime = frameEnd;
 }
 
 void resize(GLFWwindow *window, int width, int height) {

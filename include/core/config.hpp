@@ -30,6 +30,7 @@ using namespace std;
 using Color = tuple<float, float, float, float>;
 
 #include <chrono>
+#include <thread>
 
 using namespace chrono;
 
@@ -57,5 +58,7 @@ const char* windowName = "Simulacrum project";
 // render settings
 inline int maxFrameRate = 60;
 inline int VSync = 1;
+inline float staticDelayFraction = 0.65f;
+inline nanoseconds spinDelay(375); // about 350 - 400 ns
 
 #endif // MAIN_CONFIG_HEADER

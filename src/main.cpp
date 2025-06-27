@@ -140,15 +140,52 @@ void setupOpenGL() {
 
 
 void mainLoop() {
-    renderCycle(); // initializes rendering loop
 
     while (!glfwWindowShouldClose(mainWindow)) {
-
-        // handles scheduled tasks
-        handleSchedule();
+        auto frameStart = steady_clock::now();
 
         // handles events such as resizing and creating window
-        glfwPollEvents(); 
+        glfwPollEvents();
+
+        // handles scheduled tasks
+        //handleSchedule();
+        
+        currentCamera->handleInputs(mainWindow, mainShader);
+
+        render();
+
+        static decltype(frameStart) lastTime;
+
+        // here just so everything doesn't fly 10 000 km off the screen
+        static bool isFirstFrame = true;
+        if (isFirstFrame) {
+            lastTime = frameStart;
+            isFirstFrame = false;
+        }
+
+        auto frameEnd = steady_clock::now();
+        auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
+
+        if (elapsed < frameDuration) {
+            this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction);
+
+            // spin delay for frames
+            if (staticDelayFraction < 1.0f) {
+                while (true)
+                {
+                    this_thread::sleep_for(spinDelay);
+                    if (steady_clock::now() >= frameStart + frameDuration) { break; }
+                }
+            }
+        }
+
+        frameEnd = steady_clock::now(); 
+
+        deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
+            
+        lastTime = frameEnd;
+
+        cout << 1/deltaTime << " FPS" << endl;
     }
 
     glfwDestroyWindow(mainWindow);

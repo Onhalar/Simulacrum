@@ -12,7 +12,7 @@
 #include <updateRunningConfig.hpp>
 
 using Color = tuple<float, float, float, float>;
-using AnyType = variant<int*, bool*, string*, Color*>;
+using AnyType = variant<float*, int*, bool*, string*, Nanoseconds*, Color*>;
 using Json = nlohmann::json;
 using JsonSetter = void(*)(AnyType, const char*, const Json&);
 
@@ -20,6 +20,8 @@ void setString(AnyType variable, const char* jsonNameIndex, const Json&);
 void setInt(AnyType variable, const char* jsonNameIndex, const Json&);
 void setTuple(AnyType variable, const char* jsonNameIndex, const Json&);
 void setBool(AnyType variable, const char* jsonNameIndex, const Json&);
+void setFloat(AnyType variable, const char* jsonNameIndex, const Json&);
+void setNanoseconds(AnyType variable, const char* jsonNameIndex, const Json&);
 
 struct SettingsEntry {
     AnyType variable;
@@ -41,6 +43,7 @@ void loadSettings(filesystem::path path) {
         showMessages = true;
     }
 
+    // register setting variables
     settings["debugMode"] = SettingsEntry(&debugMode, setBool);
     settings["maxFrameRate"] = SettingsEntry(&maxFrameRate, setInt);
     settings["defaultWindowWidth"] = SettingsEntry(&defaultWindowWidth, setInt);
@@ -50,6 +53,8 @@ void loadSettings(filesystem::path path) {
     settings["defaultBackgroundColor"] = SettingsEntry(&defaultBackgroundColor, setTuple);
     settings["prettyOutput"] = SettingsEntry(&prettyOutput, setBool);
     settings["VSync"] = SettingsEntry(&VSync, setInt);
+    settings["StaticFrameDelayFraction"] = SettingsEntry(&staticDelayFraction, setFloat);
+    settings["spinDelayNS"] = SettingsEntry(&spinDelay, setNanoseconds);
 
     if (!filesystem::exists(path)) {
         cout << formatError("FAILED") << "\n";
@@ -89,4 +94,10 @@ void setTuple(AnyType variable, const char* jsonNameIndex, const Json& data) {
 }
 void setBool(AnyType variable, const char* jsonNameIndex, const Json& data) {
     *std::get<bool*>(variable) = data[jsonNameIndex].get<bool>();
+}
+void setFloat(AnyType variable, const char* jsonNameIndex, const Json& data) {
+    *std::get<float*>(variable) = data[jsonNameIndex].get<float>();
+}
+void setNanoseconds(AnyType variable, const char* jsonNameIndex, const Json& data) {
+    *std::get<Nanoseconds*>(variable) = Nanoseconds(data[jsonNameIndex].get<int>());
 }
