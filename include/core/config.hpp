@@ -42,7 +42,7 @@ string iconPath = "res/icon.png";
 
 // setup settings
 bool debugMode = true;
-bool prettyOutput = false;
+bool prettyOutput = true;
 
 // window settings
 int defaultWindowWidth = 500;

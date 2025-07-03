@@ -184,8 +184,6 @@ void mainLoop() {
         deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
             
         lastTime = frameEnd;
-
-        cout << 1/deltaTime << " FPS" << endl;
     }
 
     glfwDestroyWindow(mainWindow);
