@@ -37,10 +37,16 @@ else()
 endif()
 
 
+# you might have to switch up config.h and revision.h from the 'generated' folder in assimp
+
 if(WIN32)
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3.a")
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/assimp/binaries/libassimp_win.a")
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/libz/libz_win.a")
 else()
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/assimp/binaries/libassimp_mint.a")
+    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/libz/libz_mint.a")
 endif()
 
 if(WIN32)
@@ -53,6 +59,12 @@ set(SOURCE_RES_DIR "${CMAKE_SOURCE_DIR}/res")
 set(SOURCE_SHADERS_DIR "${CMAKE_SOURCE_DIR}/shaders")
 set(BUILD_RES_DIR "${CMAKE_BINARY_DIR}/res")
 set(BUILD_SHADERS_DIR "${CMAKE_BINARY_DIR}/shaders")
+
+#Set debug build
+target_compile_definitions(simulacrum PRIVATE
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+)
+
 
 # Create a custom command to copy the res directory
 add_custom_command(

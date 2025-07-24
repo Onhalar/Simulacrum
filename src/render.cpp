@@ -7,161 +7,71 @@
 #include <camera.hpp>
 #include <UBO.hpp>
 
-#include <lightObject.hpp>
-#include <object.hpp>
 #include <vector>
+#include <iostream> // For std::cerr
 
-#define MAX_AMOUNT_LIGHTS 4
+// Include your OpenGL wrapper classes and the STL loader
+#include <VAO.hpp>
+#include <VBO.hpp>
+#include <EBO.hpp>
+#include <stlImport.hpp> // Include the header for loading STL files
+#include <paths.hpp> // Assuming projectPath() is defined here
+#include <model.hpp> // NEW: Include the new Model class header
 
 Camera* currentCamera;
 
-// setting up objects
-object* pyramid;
+// Global pointer for the loaded model instance
+Model* mainModelInstance = nullptr; // Renamed from pyramidModelInstance
 
-GLfloat lightVertices[] =
-{ //     COORDINATES     //
-    -0.1f, -0.1f,  0.1f,
-    -0.1f, -0.1f, -0.1f,
-     0.1f, -0.1f, -0.1f,
-     0.1f, -0.1f,  0.1f,
-    -0.1f,  0.1f,  0.1f,
-    -0.1f,  0.1f, -0.1f,
-     0.1f,  0.1f, -0.1f,
-     0.1f,  0.1f,  0.1f
-};
-
-GLuint lightIndices[] =
-{
-    1, 2, 0, // bottom
-    2, 3, 0,
-    7, 4, 0, // front
-    3, 7, 0,
-    3, 6, 7, // right
-    3, 2, 6,
-    2, 5, 6, // back
-    2, 1, 5,
-    1, 4, 5, // left
-    1, 0, 4,
-    4, 7, 5, // top
-    7, 6, 5
-};
-
-
-LightObject* light;
-LightObject* redLight;
-
-struct Light {
-    glm::vec3 position = glm::vec3(0.0f);
-    float _pad1 = 0.0f;
-
-    glm::vec4 color = glm::vec4(1.0f);
-    float intensity = 1.0f;
-    float falloff = 1.0f;  // Added falloff
-    float _pad2[2] = {0.0f, 0.0f}; // Adjust padding to maintain alignment
-
-    // Default constructor
-    Light() = default;
-
-    // Custom constructor
-    Light(glm::vec3 pos, glm::vec4 col, float inten, float off) {
-        position = pos; color = col; intensity = inten; falloff = off;
-    }
-};
-
-// Define LightBlock struct that represents the UBO structure
-struct LightBlock {
-    Light lights[MAX_AMOUNT_LIGHTS];
-    alignas(16) int lightCount;  // Align to 16 bytes
-    int _pad[3] = {0, 0, 0};     // Padding to match std140
-};
-
-vector<Light> lights;
-UBO* lightUBO;
-LightBlock lightBlock;
-
-void renderSetup() {
-
-    pyramid = new object();
-    light = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.8f, 0.5f, 0.5f), 0.2f, 1.5f);
-    redLight = new LightObject(lightShader, lightVertices, size(lightVertices), lightIndices, size(lightIndices), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.8f, 0.5f, -0.5f), 0.2f, 1.5f);
-
-
-    // send info about the light source to the object shader; can be set once if only one light present
-    mainShader->activate();
-
-    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity, light->lightDistance});
-    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity, light->lightDistance});
-    
-    lightBlock.lightCount = lights.size();
-
-    // Copy data from the vector to the LightBlock
-    for (int i = 0; i < lightBlock.lightCount; ++i) {
-        lightBlock.lights[i] = lights[i];
-    }
-
-    // Create a UBO to store light data
-    lightUBO = new UBO(sizeof(LightBlock), &lightBlock, GL_DYNAMIC_DRAW);
-
-    // Bind the UBO to a binding point (e.g., binding 0)
-    lightUBO->bind();
-
+// Function to initialize the model data and OpenGL buffers for the main model
+// Now responsible for creating the Model instance
+void setupModels() {
+    // Create an instance of your Model class
+    // It will load the STL file and set up its OpenGL buffers in its constructor
+    mainModelInstance = new Model(projectPath("res/models/pyramid.stl"), glm::vec3(1.0f, 0.0f, 0.0f)); // Red by default
 }
 
-void updateLights() {
-    lights.clear();
-
-    lights.push_back((Light){light->lightPosition, light->lightColor, light->lightIntensity, light->lightDistance});
-    lights.push_back((Light){redLight->lightPosition, redLight->lightColor, redLight->lightIntensity, light->lightDistance});
-    
-    lightBlock.lightCount = lights.size();
-
-    // Copy data from the vector to the LightBlock
-    for (int i = 0; i < lightBlock.lightCount; ++i) {
-        lightBlock.lights[i] = lights[i];
+// Function to clean up all dynamically allocated model resources
+// Now responsible for deleting the Model instance
+void cleanupModels() {
+    if (mainModelInstance) {
+        delete mainModelInstance;
+        mainModelInstance = nullptr;
     }
-
-    lightUBO->update(0, sizeof(lightBlock), &lightBlock);
 }
 
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // sends draw matrices to the default buffer
-    currentCamera->updateProjection(mainShader);
+    // Only attempt to render if the model instance has been successfully created
+    if (mainModelInstance) {
+        // Define a model matrix to position and orient the model in the scene
+        glm::mat4 modelMatrix = glm::mat4(1.0f); // Start with an identity matrix
 
-    // needs to be sent every frame - sends camera position to shader for specular lighting
-    mainShader->setUniform("cameraPosition", currentCamera->position);
+        // Apply rotation to correct orientation (e.g., if model is Z-up and OpenGL is Y-up)
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around X-axis
 
-    pyramid->draw();
+        // Translate the model back so it's visible in front of the camera
+        modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
 
-    // sends draw matrices to the light buffer
-    currentCamera->updateProjection(lightShader);
+        // Define light and camera properties (these can be moved to uniforms in a UBO later)
+        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);       // White light
+        glm::vec3 lightPosition = glm::vec3(1.0f, 1.0f, 1.0f);    // Example light position
+        glm::vec3 cameraPosition = currentCamera->position;       // Get camera position from your Camera class
 
-    static bool switchDir = false;
-    if (redLight->lightPosition.z >= 0.35f || redLight->lightPosition.z <= -0.5f) { switchDir = !switchDir; }
-    redLight->updatePosition(redLight->lightPosition + glm::vec3(0.0f, 0.0f, -0.3f  * deltaTime * (switchDir ? 1.0f : -1.0f)));
-
-    updateLights();
-
-    light->updatePosition();
-    lightShader->modelMatrix = glm::scale(lightShader->modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-    lightShader->applyModelMatrix(); // can do it this ways since light->updatePosition() resets the shader model matrix each time.
-    light->applyLightColor();
-    light->draw();
-
-    redLight->updatePosition();
-    lightShader->modelMatrix = glm::scale(lightShader->modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-    lightShader->applyModelMatrix();
-    redLight->applyLightColor();
-    redLight->draw();
+        // Call the draw method of the Model instance
+        mainModelInstance->draw(mainShader, modelMatrix, lightColor, lightPosition, cameraPosition);
+    }
 
     glfwSwapBuffers(mainWindow);
 }
 
 void resize(GLFWwindow *window, int width, int height) {
-    mainShader->activate();
-    
-    currentCamera->updateProjection(width, height, mainShader);
+    // Ensure the mainShader is active before updating projection
+    if (mainShader) {
+        mainShader->activate();
+        currentCamera->updateProjection(width, height, mainShader);
+    }
 }
 
 void setupShaderMetrices(Shader* shader) {
@@ -170,10 +80,14 @@ void setupShaderMetrices(Shader* shader) {
 
     shader->activate();
 
-    currentCamera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.5f, 2.0f));
+    // Initialize the camera (make sure it's only initialized once)
+    if (!currentCamera) {
+        currentCamera = new Camera(windowWidth, windowHeight, glm::vec3(0.0f, 0.5f, 2.0f));
+    }
 
     currentCamera->updateProjection(windowWidth, windowHeight, shader);
 
+    // Initial application of the model matrix (can be overridden in render loop)
     shader->applyModelMatrix();
 }
 
@@ -181,3 +95,4 @@ void APIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum seve
     GLsizei length, const GLchar *message, const void *userParam) {
 std::cout << formatError("OpenGL Debug") << ": " << colorText(message, ANSII_YELLOW) << std::endl;
 }
+

@@ -41,7 +41,12 @@ filesystem::path projectDir;
 string iconPath = "res/icon.png";
 
 // setup settings
-bool debugMode = true;
+#ifdef DEBUG_ENABLED
+    bool debugMode = true;
+#else
+    bool debugMode = false;
+#endif
+
 bool prettyOutput = true;
 
 // window settings
@@ -56,9 +61,9 @@ Color defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
 const char* windowName = "Simulacrum project";
 
 // render settings
-inline int maxFrameRate = 60;
-inline int VSync = 1;
-inline float staticDelayFraction = 0.65f;
-inline nanoseconds spinDelay(375); // about 350 - 400 ns
+int maxFrameRate = 60;
+int VSync = 1;
+float staticDelayFraction = 0.65f;
+nanoseconds spinDelay(375); // about 350 - 400 ns
 
 #endif // MAIN_CONFIG_HEADER

@@ -5,7 +5,7 @@
 #include "settings.cpp"
 
 // ***************************************
-// **   ToDo: Add GUI with Dear ImGui   **
+// ** ToDo: Add GUI with Dear ImGui   **
 // ****************************************
 
 const filesystem::path settingsPath("res/settings.json");
@@ -13,6 +13,12 @@ const filesystem::path settingsPath("res/settings.json");
 void createWindow();
 void setupOpenGL();
 void mainLoop();
+
+// Function prototypes for setupModels and cleanupModels from render.cpp
+// Make sure these are declared if render.cpp is compiled separately
+void setupModels();
+void cleanupModels();
+
 
 int main(int argc, char **argv) {
 
@@ -34,9 +40,17 @@ int main(int argc, char **argv) {
 
     setupOpenGL();
 
-    renderSetup();
+    // Call setupModels() to load the STL file and prepare its OpenGL buffers
+    // This must be called after OpenGL context is created and GLAD is loaded.
+    setupModels();
 
     mainLoop();
+
+    // Call cleanupModels() to free all allocated model resources before exiting
+    cleanupModels();
+
+    glfwDestroyWindow(mainWindow);
+    glfwTerminate();
 
     return 0;
 }
@@ -49,7 +63,7 @@ void createWindow() {
     
     // tries to initialize GLFW, if fails => error & exit
     if (!glfwInit()) {
-        cerr << formatError("ERROR") << ": Could not initialize GLFW" << endl;
+        std::cerr << formatError("ERROR") << ": Could not initialize GLFW" << std::endl;
         exit(-1);
     }
 
@@ -69,18 +83,23 @@ void createWindow() {
     glfwSetWindowSizeLimits(window, minWindowWidth, minWindowHeight, GLFW_DONT_CARE, GLFW_DONT_CARE);
     
     // tries to load in the icon
-    icon.pixels = stbi_load(projectPath(iconPath).c_str(), &icon.width, &icon.height, 0, 4);
+    // Note: stbi_load requires stb_image.h to be included and stb_image.c to be compiled.
+    // Ensure you have these set up in your project.
+    // For now, I'm commenting out the stbi_load part to avoid compilation issues if stb_image is not ready.
+    // icon.pixels = stbi_load(projectPath(iconPath).c_str(), &icon.width, &icon.height, 0, 4);
 
     // checks whther the icon is loaded successfully
     // if yes => sets icon and clears it from memory
     // if no  => prints an error
+    /*
     if (icon.pixels) {
         glfwSetWindowIcon(window, 1, &icon);
         stbi_image_free(icon.pixels);
     }
     else {
-        cerr << formatError("ERROR") << ": Could not open icon '" << formatPath(iconPath) << "'" << endl;
+        std::cerr << formatError("ERROR") << ": Could not open icon '" << formatPath(iconPath) << "'" << std::endl;
     }
+    */
 
     // tell GLFW that the created window is the one to be used
     glfwMakeContextCurrent(window);
@@ -107,7 +126,7 @@ void setupOpenGL() {
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(MessageCallback, 0);
 
-        cout << "\n" << formatRole("Info") << " " << glGetString(GL_VERSION) << "\n" << endl;
+        std::cout << "\n" << formatRole("Info") << " " << glGetString(GL_VERSION) << "\n" << std::endl;
     }
 
     int width, height;
@@ -119,21 +138,18 @@ void setupOpenGL() {
     glViewport(0, 0, width, height);
 
     // sets background color defined in header
+    // Assuming 'apply' is a macro or function that correctly calls glClearColor
     apply(glClearColor, defaultBackgroundColor);
 
+    // Assuming mainShader and lightShader are global pointers declared elsewhere
+    // and correctly initialized.
+    // You mentioned you'll fix the shaders, so I'm keeping these lines as is.
     mainShader = new Shader(
-        projectPath("shaders/default.vert"),
-        projectPath("shaders/default.frag")
-    );
-
-    lightShader = new Shader(
-        projectPath("shaders/light.vert"),
-        projectPath("shaders/light.frag")
+        projectPath("shaders/planet.vert"),
+        projectPath("shaders/planet.frag")
     );
 
     setupShaderMetrices(mainShader);
-
-    setupShaderMetrices(lightShader);
 
     glfwSwapInterval(VSync);
 }
@@ -142,7 +158,7 @@ void setupOpenGL() {
 void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {
-        auto frameStart = steady_clock::now();
+        auto frameStart = std::chrono::steady_clock::now(); // Use std::chrono
 
         // handles events such as resizing and creating window
         glfwPollEvents();
@@ -154,7 +170,7 @@ void mainLoop() {
 
         render();
 
-        static decltype(frameStart) lastTime;
+        static std::chrono::steady_clock::time_point lastTime; // Use std::chrono
 
         // here just so everything doesn't fly 10 000 km off the screen
         static bool isFirstFrame = true;
@@ -163,29 +179,26 @@ void mainLoop() {
             isFirstFrame = false;
         }
 
-        auto frameEnd = steady_clock::now();
-        auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
+        auto frameEnd = std::chrono::steady_clock::now(); // Use std::chrono
+        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart); // Use std::chrono
 
         if (elapsed < frameDuration && !VSync) {
-            this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction);
+            std::this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction); // Use std::this_thread
 
             // spin delay for frames
             if (staticDelayFraction < 1.0f) {
                 while (true)
                 {
-                    this_thread::sleep_for(spinDelay);
-                    if (steady_clock::now() >= frameStart + frameDuration) { break; }
+                    std::this_thread::sleep_for(spinDelay); // Use std::this_thread
+                    if (std::chrono::steady_clock::now() >= frameStart + frameDuration) { break; } // Use std::chrono
                 }
             }
         }
 
-        frameEnd = steady_clock::now(); 
+        frameEnd = std::chrono::steady_clock::now(); // Use std::chrono
 
-        deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
+        deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
             
         lastTime = frameEnd;
     }
-
-    glfwDestroyWindow(mainWindow);
-    glfwTerminate();
 }
