@@ -19,7 +19,7 @@
 #include <model.hpp> // Include the Model class header
 #include <lightObject.hpp>
 
-vector<LightObject> lightQue;
+vector<LightObject*> lightQue;
 
 Camera* currentCamera;
 
@@ -88,9 +88,9 @@ void updateLightSources() {
     lightsData.lightCount = amountOfLights;
 
     for (int i = 0; i < amountOfLights; i++) {
-        lightsData.lights[i].position = lightQue[i].position;
-        lightsData.lights[i].color = glm::vec4(lightQue[i].color, 1);
-        lightsData.lights[i].intensity = lightQue[i].intensity;
+        lightsData.lights[i].position = lightQue[i]->position;
+        lightsData.lights[i].color = glm::vec4(lightQue[i]->color, 1);
+        lightsData.lights[i].intensity = lightQue[i]->intensity;
     }
 
     // Update the UBO with the new light data
@@ -102,8 +102,8 @@ void updateLightSources() {
 
 // one shot temporary render setup
 void renderSetup() {
-    LightObject defaultLight = LightObject();
-    defaultLight.updatePosition(glm::vec3(5,5,5));
+    LightObject* defaultLight = new LightObject();
+    defaultLight->updatePosition(glm::vec3(5,5,5));
 
     lightQue.push_back(defaultLight);
 
