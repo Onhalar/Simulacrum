@@ -53,7 +53,7 @@ struct LightBlockData {
 // Function to initialize the model data and OpenGL buffers for the main model
 void setupModels() {
     // Create an instance of your Model class
-    mainModelInstance = new Model(projectPath("res/models/pyramid.stl"), glm::vec3(1.0f, 0.0f, 0.0f)); // Red by default
+    mainModelInstance = new Model(projectPath("res/models/pyramid.stl"), glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
 
     // Initialize the LightBlock UBO
     // The size should be calculated based on the struct LightBlockData
@@ -102,10 +102,8 @@ void updateLightSources() {
 
 // one shot temporary render setup
 void renderSetup() {
-    LightObject* defaultLight = new LightObject();
-    defaultLight->updatePosition(glm::vec3(5,5,5));
-
-    lightQue.push_back(defaultLight);
+    lightQue.push_back(new LightObject(glm::vec3(5,2,5), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f));
+    lightQue.push_back(new LightObject(glm::vec3(5,-2,5), glm::vec3(0.0f, 0.0f, 1.0f), 0.4f));
 
     updateLightSources();
 }

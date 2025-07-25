@@ -28,7 +28,7 @@ void main() {
     // --- Ambient Lighting (Global or Per-Light) ---
     // You can have a global ambient light or calculate ambient per light.
     // For simplicity, we'll calculate per-light ambient here.
-    float ambientStrength = 0.1; // How strong the ambient light is
+    float ambientStrength = 0.2; // How strong the ambient light is
 
     vec3 norm = normalize(normal); // Normalize the normal vector (important!)
 
