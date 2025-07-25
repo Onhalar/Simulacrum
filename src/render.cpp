@@ -89,7 +89,7 @@ void updateLightSources() {
 
     for (int i = 0; i < amountOfLights; i++) {
         lightsData.lights[i].position = lightQue[i].position;
-        lightsData.lights[i].color = lightQue[i].color;
+        lightsData.lights[i].color = glm::vec4(lightQue[i].color, 1);
         lightsData.lights[i].intensity = lightQue[i].intensity;
     }
 

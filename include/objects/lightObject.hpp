@@ -6,12 +6,12 @@
 class LightObject {
     public:
         mutable glm::vec3 position;
-        mutable glm::vec4 color;
+        mutable glm::vec3 color;
         mutable float intensity;
 
         LightObject (
             glm::vec3 position = glm::vec3(0,0,0),
-            glm::vec4 color = glm::vec4(1,0,0,1),
+            glm::vec3 color = glm::vec3(1,0,0),
             float intensity = 1
         ) {
             this->position = position;
@@ -20,12 +20,12 @@ class LightObject {
         }
 
         void updatePosition (glm::vec3 position) { this->position = position; }
-        void updateColor (glm::vec4 color) { this->color = color; }
+        void updateColor (glm::vec3 color) { this->color = color; }
         void updateIntesity (float intensity) { this->intensity = intensity; }
 
         void updateAll (
             glm::vec3 position = glm::vec3(0,0,0),
-            glm::vec4 color = glm::vec4(1,0,0,1),
+            glm::vec3 color = glm::vec3(1,0,0),
             float intensity = 1
         ) {
             this->position = position;
