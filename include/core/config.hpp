@@ -66,4 +66,7 @@ int VSync = 1;
 float staticDelayFraction = 0.65f;
 nanoseconds spinDelay(375); // about 350 - 400 ns
 
+// global shader settings
+float lightFalloff = 1.0f;
+
 #endif // MAIN_CONFIG_HEADER

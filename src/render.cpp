@@ -17,6 +17,9 @@
 #include <stlImport.hpp> // Include the header for loading STL files
 #include <paths.hpp> // Assuming projectPath() is defined here
 #include <model.hpp> // Include the Model class header
+#include <lightObject.hpp>
+
+vector<LightObject> lightQue;
 
 Camera* currentCamera;
 
@@ -65,7 +68,7 @@ void setupModels() {
 }
 
 // Function to clean up all dynamically allocated model resources
-void cleanupModels() {
+void cleanup() {
     if (mainModelInstance) {
         delete mainModelInstance;
         mainModelInstance = nullptr;
@@ -75,6 +78,36 @@ void cleanupModels() {
         delete lightBlockUBO;
         lightBlockUBO = nullptr;
     }
+}
+
+// prototype function; later will be culling based on distance
+void updateLightSources() {
+    int amountOfLights = min(MAX_LIGHTS, (int)lightQue.size());
+
+    LightBlockData lightsData;
+    lightsData.lightCount = amountOfLights;
+
+    for (int i = 0; i < amountOfLights; i++) {
+        lightsData.lights[i].position = lightQue[i].position;
+        lightsData.lights[i].color = lightQue[i].color;
+        lightsData.lights[i].intensity = lightQue[i].intensity;
+    }
+
+    // Update the UBO with the new light data
+    lightBlockUBO->update(0, sizeof(LightBlockData), &lightsData);
+
+    // Bind the UBO to the specified binding point
+    lightBlockUBO->bind(LIGHT_UBO_BINDING_POINT);
+}
+
+// one shot temporary render setup
+void renderSetup() {
+    LightObject defaultLight = LightObject();
+    defaultLight.updatePosition(glm::vec3(5,5,5));
+
+    lightQue.push_back(defaultLight);
+
+    updateLightSources();
 }
 
 void render() {
@@ -89,26 +122,10 @@ void render() {
         modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around X-axis
 
         // Translate the model back so it's visible in front of the camera
-        modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
+        //modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
 
         // Get camera position from your Camera class
         glm::vec3 cameraPosition = currentCamera->position;
-
-        // --- Update Light UBO Data ---
-        LightBlockData lightsData;
-        lightsData.lightCount = 1; // We are using one light for now
-        lightsData.lightDistance = 10.0f; // Example falloff distance
-
-        // Define the properties for the first light
-        lightsData.lights[0].position = glm::vec3(1.0f, 1.0f, 1.0f);    // Example light position
-        lightsData.lights[0].color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // White light (alpha can be ignored)
-        lightsData.lights[0].intensity = 1.0f;
-
-        // Update the UBO with the new light data
-        lightBlockUBO->update(0, sizeof(LightBlockData), &lightsData);
-
-        // Bind the UBO to the specified binding point
-        lightBlockUBO->bind(LIGHT_UBO_BINDING_POINT);
 
         // Activate the shader
         mainShader->activate();
@@ -116,9 +133,6 @@ void render() {
         // Set the camera position uniform (still needed as it's not in the UBO)
         mainShader->setUniform("cameraPosition", cameraPosition);
 
-        // Call the draw method of the Model instance.
-        // lightColor and lightPosition are no longer passed as individual uniforms,
-        // they are accessed via the UBO in the shader.
         mainModelInstance->draw(mainShader, modelMatrix, cameraPosition);
     }
 

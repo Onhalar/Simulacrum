@@ -14,10 +14,11 @@ void createWindow();
 void setupOpenGL();
 void mainLoop();
 
-// Function prototypes for setupModels and cleanupModels from render.cpp
+void renderSetup();
+// Function prototypes for setupModels and cleanup from render.cpp
 // Make sure these are declared if render.cpp is compiled separately
 void setupModels();
-void cleanupModels();
+void cleanup();
 
 
 int main(int argc, char **argv) {
@@ -43,11 +44,12 @@ int main(int argc, char **argv) {
     // Call setupModels() to load the STL file and prepare its OpenGL buffers
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
+    renderSetup();
 
     mainLoop();
 
-    // Call cleanupModels() to free all allocated model resources before exiting
-    cleanupModels();
+    // Call cleanup() to free all allocated model resources before exiting
+    cleanup();
 
     glfwDestroyWindow(mainWindow);
     glfwTerminate();
