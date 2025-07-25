@@ -156,6 +156,19 @@ class Shader {
             return true;
 		}
 
+        /**
+         * @brief Sets the binding point for a uniform block in the shader.
+         * @param blockName The name of the uniform block in the shader (e.g., "LightBlock").
+         * @param bindingPoint The binding point to assign to the uniform block.
+         */
+        void setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
+            GLuint blockIndex = glGetUniformBlockIndex(ID, blockName);
+            if (blockIndex != GL_INVALID_INDEX) {
+                glUniformBlockBinding(ID, blockIndex, bindingPoint);
+            } else {
+                std::cerr << "WARNING: Uniform block '" << blockName << "' not found in shader." << std::endl;
+            }
+        }
 
 		// applies the main model matrix
 		void applyModelMatrix() {

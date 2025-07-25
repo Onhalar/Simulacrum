@@ -125,13 +125,10 @@ public:
      * @brief Draws the model.
      * @param shader The shader program to use for rendering.
      * @param modelMatrix The model matrix for positioning and orienting the model.
-     * @param lightColor The color of the light source.
-     * @param lightPosition The position of the light source.
-     * @param cameraPosition The position of the camera.
+     * @param cameraPosition The position of the camera (still passed separately).
      */
     void draw(Shader* shader, const glm::mat4& modelMatrix,
-              const glm::vec3& lightColor, const glm::vec3& lightPosition,
-              const glm::vec3& cameraPosition) {
+              const glm::vec3& cameraPosition) { // Simplified parameters
 
         if (!vao || !ebo || !modelData) {
             // Model not properly loaded or initialized, cannot draw.
@@ -140,13 +137,11 @@ public:
 
         shader->activate(); // Activate the shader program
 
-        // Set lighting uniforms
-        shader->setUniform("lightColor", lightColor);
-        shader->setUniform("lightPosition", lightPosition);
-        shader->setUniform("cameraPosition", cameraPosition);
-
         // Set the object's base color
         shader->setUniform("objectColor", objectColor);
+
+        // Set camera position uniform (still needed as it's not in the UBO)
+        shader->setUniform("cameraPosition", cameraPosition);
 
         // Apply the model matrix
         shader->applyModelMatrix(modelMatrix);
