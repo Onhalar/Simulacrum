@@ -3,10 +3,10 @@
 
 #include <config.hpp>
 #include <shader.hpp>
-#include <map>
+#include <unordered_map>
 #include <string>
 
-using ShaderList = std::map<std::string, Shader*>;
+using ShaderList = std::unordered_map<std::string, Shader*>;
 
 GLFWwindow* mainWindow;
 

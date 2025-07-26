@@ -77,7 +77,7 @@ void setupShaders() {
         std::filesystem::path fragment;
     };
 
-    std::map<std::string, shaderSource> shaderSourceFiles;
+    std::unordered_map<std::string, shaderSource> shaderSourceFiles;
 
     // loading and sorting source files
     for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(shaderPath))) {
@@ -163,16 +163,18 @@ void render() {
         // Translate the model back so it's visible in front of the camera
         //modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
 
+        auto planetShader = Shaders["planet"];
+
         // Get camera position from your Camera class
         glm::vec3 cameraPosition = currentCamera->position;
 
         // Activate the shader
-        Shaders["planet"]->activate();
+        planetShader->activate();
 
         // Set the camera position uniform (still needed as it's not in the UBO)
-        Shaders["planet"]->setUniform("cameraPosition", cameraPosition);
+        planetShader->setUniform("cameraPosition", cameraPosition);
 
-        mainModelInstance->draw(Shaders["planet"], modelMatrix, cameraPosition);
+        mainModelInstance->draw(planetShader, modelMatrix, cameraPosition);
     }
 
     glfwSwapBuffers(mainWindow);
