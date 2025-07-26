@@ -68,7 +68,7 @@ class Texture {
             glBindTexture(type, 0);
         }
 
-        void destroy() {
+        ~Texture() {
             glDeleteTextures(1, &ID);
         }
 };

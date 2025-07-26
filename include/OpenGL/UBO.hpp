@@ -30,7 +30,7 @@ class UBO {
             glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
         }
 
-        void destroy() {
+        ~UBO() {
             glDeleteBuffers(1, &ID);
         }
 };

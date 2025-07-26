@@ -213,7 +213,7 @@ class Shader {
 			glUseProgram(ID);
 		}
 
-		void destroy() {
+		~Shader() {
 			glDeleteProgram(ID);
 		}
 

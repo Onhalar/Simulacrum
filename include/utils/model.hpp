@@ -95,27 +95,22 @@ public:
             modelData = nullptr;
         }
         if (vao) {
-            vao->destory(); // Note: Your VAO class has 'destory' typo.
             delete vao;
             vao = nullptr;
         }
         if (vboPositions) {
-            vboPositions->destroy();
             delete vboPositions;
             vboPositions = nullptr;
         }
         if (vboNormals) {
-            vboNormals->destroy();
             delete vboNormals;
             vboNormals = nullptr;
         }
         if (vboColors) {
-            vboColors->destroy();
             delete vboColors;
             vboColors = nullptr;
         }
         if (ebo) {
-            ebo->destroy();
             delete ebo;
             ebo = nullptr;
         }

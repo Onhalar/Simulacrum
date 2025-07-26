@@ -29,7 +29,7 @@ class VAO {
             glBindVertexArray(0);
         }
 
-        void destory() {
+        ~VAO() {
             glDeleteVertexArrays(1, &ID);
         }
 };

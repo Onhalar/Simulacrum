@@ -19,6 +19,10 @@
 #include <model.hpp> // Include the Model class header
 #include <lightObject.hpp>
 
+
+void setupShaderMetrices(Shader* shader);
+
+
 vector<LightObject*> lightQue;
 
 Camera* currentCamera;
@@ -67,6 +71,41 @@ void setupModels() {
     }
 }
 
+void setupShaders() {
+    struct shaderSource {
+        std::filesystem::path vertex;
+        std::filesystem::path fragment;
+    };
+
+    std::map<std::string, shaderSource> shaderSourceFiles;
+
+    // loading and sorting source files
+    for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(shaderPath))) {
+        auto filepath = file.path();
+        if (filepath.extension() == ".vert") {
+            shaderSourceFiles[filepath.stem().string()].vertex = filepath;
+        }
+        else if (filepath.extension() == ".frag") {
+            shaderSourceFiles[filepath.stem().string()].fragment = filepath;
+        }
+    }
+
+    // attempting to make shaders from source files
+    int failed;
+
+    for (const auto& shaderSource : shaderSourceFiles) {
+        if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
+            Shaders[shaderSource.first] = new Shader(shaderSource.second.vertex, shaderSource.second.fragment);
+            setupShaderMetrices(Shaders[shaderSource.first]);
+        }
+        else { failed++; }
+    }
+
+    if (debugMode) {
+        std::cout << "\n" << formatProcess("Loaded ") << Shaders.size() << " Shader" << ((Shaders.size() > 1) ? "s" : "") << ((failed > 0) ? "; failed " + failed : "") << std::endl;
+    }
+}
+
 // Function to clean up all dynamically allocated model resources
 void cleanup() {
     if (mainModelInstance) {
@@ -74,10 +113,12 @@ void cleanup() {
         mainModelInstance = nullptr;
     }
     if (lightBlockUBO) {
-        lightBlockUBO->destroy();
         delete lightBlockUBO;
         lightBlockUBO = nullptr;
     }
+
+    for(auto& shader : Shaders) { delete shader.second; } // destroys class on heap and clears OpenGl binaries
+    Shaders.clear(); // remoces map entries if classes were not cleared before -> dangling pointers
 }
 
 // prototype function; later will be culling based on distance

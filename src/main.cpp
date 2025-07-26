@@ -151,41 +151,6 @@ void setupOpenGL() {
     glfwSwapInterval(VSync);
 }
 
-void setupShaders() {
-    struct shaderSource {
-        std::filesystem::path vertex;
-        std::filesystem::path fragment;
-    };
-
-    std::map<std::string, shaderSource> shaderSourceFiles;
-
-    // loading and sorting source files
-    for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(shaderPath))) {
-        auto filepath = file.path();
-        if (filepath.extension() == ".vert") {
-            shaderSourceFiles[filepath.stem()].vertex = filepath;
-        }
-        else if (filepath.extension() == ".frag") {
-            shaderSourceFiles[filepath.stem()].fragment = filepath;
-        }
-    }
-
-    // attempting to make shaders from source files
-    int failed;
-
-    for (const auto& shaderSource : shaderSourceFiles) {
-        if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
-            Shaders[shaderSource.first] = new Shader(shaderSource.second.vertex, shaderSource.second.fragment);
-            setupShaderMetrices(Shaders[shaderSource.first]);
-        }
-        else { failed++; }
-    }
-
-    if (debugMode) {
-        std::cout << "\n" << formatProcess("Loaded ") << Shaders.size() << " Shader" << ((Shaders.size() > 1) ? "s" : "") << ((failed > 0) ? "; failed " + failed : "") << std::endl;
-    }
-}
-
 void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {

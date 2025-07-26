@@ -21,7 +21,7 @@ class EBO {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
         }
 
-        void destroy() {
+        ~EBO() {
             glDeleteBuffers(1, &ID);
         }
 };
