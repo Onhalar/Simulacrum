@@ -61,9 +61,9 @@ void setupModels() {
 
     // Set the uniform block binding for the shader
     // This connects the 'LightBlock' in the shader to LIGHT_UBO_BINDING_POINT
-    if (mainShader) {
-        mainShader->activate();
-        mainShader->setUniformBlockBinding("LightBlock", LIGHT_UBO_BINDING_POINT);
+    if (Shaders["planet"]) {
+        Shaders["planet"]->activate();
+        Shaders["planet"]->setUniformBlockBinding("LightBlock", LIGHT_UBO_BINDING_POINT);
     }
 }
 
@@ -112,7 +112,7 @@ void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Only attempt to render if the model instance has been successfully created
-    if (mainModelInstance && mainShader && lightBlockUBO) {
+    if (mainModelInstance && Shaders["planet"] && lightBlockUBO) {
         // Define a model matrix to position and orient the model in the scene
         glm::mat4 modelMatrix = glm::mat4(1.0f); // Start with an identity matrix
 
@@ -126,12 +126,12 @@ void render() {
         glm::vec3 cameraPosition = currentCamera->position;
 
         // Activate the shader
-        mainShader->activate();
+        Shaders["planet"]->activate();
 
         // Set the camera position uniform (still needed as it's not in the UBO)
-        mainShader->setUniform("cameraPosition", cameraPosition);
+        Shaders["planet"]->setUniform("cameraPosition", cameraPosition);
 
-        mainModelInstance->draw(mainShader, modelMatrix, cameraPosition);
+        mainModelInstance->draw(Shaders["planet"], modelMatrix, cameraPosition);
     }
 
     glfwSwapBuffers(mainWindow);
@@ -139,9 +139,12 @@ void render() {
 
 void resize(GLFWwindow *window, int width, int height) {
     // Ensure the mainShader is active before updating projection
-    if (mainShader) {
-        mainShader->activate();
-        currentCamera->updateProjection(width, height, mainShader);
+    for (const auto& shaderPair : Shaders) {
+        auto shader = shaderPair.second;
+        if (shader) {
+            shader->activate();
+            currentCamera->updateProjection(width, height, shader);
+        }
     }
 }
 

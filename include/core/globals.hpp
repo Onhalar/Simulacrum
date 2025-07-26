@@ -3,10 +3,14 @@
 
 #include <config.hpp>
 #include <shader.hpp>
+#include <map>
+#include <string>
+
+using ShaderList = std::map<std::string, Shader*>;
 
 GLFWwindow* mainWindow;
 
-Shader* mainShader;
+ShaderList Shaders;
 
 double deltaTime;
 nanoseconds frameDuration(1'000'000'000 / maxFrameRate); // 1,000,000 μs / 60 = 16666 μs = 16.666 m

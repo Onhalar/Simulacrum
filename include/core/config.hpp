@@ -40,6 +40,9 @@ filesystem::path projectDir;
 // main icon path
 string iconPath = "res/icon.png";
 
+// Shader resource path
+string shaderPath = "shaders/";
+
 // setup settings
 #ifdef DEBUG_ENABLED
     bool debugMode = true;

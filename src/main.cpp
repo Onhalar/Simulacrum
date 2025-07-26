@@ -1,5 +1,6 @@
 #include <config.hpp>
 #include <globals.hpp>
+#include <iostream>
 
 #include "render.cpp"
 #include "settings.cpp"
@@ -13,6 +14,8 @@ const filesystem::path settingsPath("res/settings.json");
 void createWindow();
 void setupOpenGL();
 void mainLoop();
+
+void setupShaders();
 
 void renderSetup();
 // Function prototypes for setupModels and cleanup from render.cpp
@@ -143,19 +146,45 @@ void setupOpenGL() {
     // Assuming 'apply' is a macro or function that correctly calls glClearColor
     apply(glClearColor, defaultBackgroundColor);
 
-    // Assuming mainShader and lightShader are global pointers declared elsewhere
-    // and correctly initialized.
-    // You mentioned you'll fix the shaders, so I'm keeping these lines as is.
-    mainShader = new Shader(
-        projectPath("shaders/planet.vert"),
-        projectPath("shaders/planet.frag")
-    );
-
-    setupShaderMetrices(mainShader);
+    setupShaders();
 
     glfwSwapInterval(VSync);
 }
 
+void setupShaders() {
+    struct shaderSource {
+        std::filesystem::path vertex;
+        std::filesystem::path fragment;
+    };
+
+    std::map<std::string, shaderSource> shaderSourceFiles;
+
+    // loading and sorting source files
+    for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(shaderPath))) {
+        auto filepath = file.path();
+        if (filepath.extension() == ".vert") {
+            shaderSourceFiles[filepath.stem()].vertex = filepath;
+        }
+        else if (filepath.extension() == ".frag") {
+            shaderSourceFiles[filepath.stem()].fragment = filepath;
+        }
+    }
+
+    // attempting to make shaders from source files
+    int failed;
+
+    for (const auto& shaderSource : shaderSourceFiles) {
+        if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
+            Shaders[shaderSource.first] = new Shader(shaderSource.second.vertex, shaderSource.second.fragment);
+            setupShaderMetrices(Shaders[shaderSource.first]);
+        }
+        else { failed++; }
+    }
+
+    if (debugMode) {
+        std::cout << "\n" << formatProcess("Loaded ") << Shaders.size() << " Shader" << ((Shaders.size() > 1) ? "s" : "") << ((failed > 0) ? "; failed " + failed : "") << std::endl;
+    }
+}
 
 void mainLoop() {
 
@@ -168,7 +197,10 @@ void mainLoop() {
         // handles scheduled tasks
         //handleSchedule();
         
-        currentCamera->handleInputs(mainWindow, mainShader);
+        currentCamera->handleInputs(mainWindow);
+        for(auto shader: Shaders) {
+            currentCamera->updateProjection(shader.second);
+        }
 
         render();
 

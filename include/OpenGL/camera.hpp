@@ -69,8 +69,7 @@ class Camera {
             shader->applyViewMatrix();
             shader->applyProjectionMatrix();
         }
-        void handleInputs(GLFWwindow* window, Shader* shader) {
-            shader->activate();
+        void handleInputs(GLFWwindow* window) {
             static bool controlCamera = false;
 
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera) {
@@ -131,8 +130,6 @@ class Camera {
                 if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
                     position += cameraSpeed * -UP * FdeltaTime;
                 }
-
-                updateProjection(shader);
             }
         }
 };
