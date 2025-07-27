@@ -27,9 +27,6 @@ vector<LightObject*> lightQue;
 
 Camera* currentCamera;
 
-// Global pointer for the loaded model instance
-Model* mainModelInstance = nullptr;
-
 // Global UBO for light properties
 UBO* lightBlockUBO = nullptr;
 
@@ -56,18 +53,25 @@ struct LightBlockData {
 
 // Function to initialize the model data and OpenGL buffers for the main model
 void setupModels() {
+
+    for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(modelPath))) {
+        if (file.path().extension() == ".stl") {
+            auto filepath = file.path();
+            Models[filepath.stem().string()] = new Model(filepath, glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
+        }
+    }
+
     // Create an instance of your Model class
-    mainModelInstance = new Model(projectPath("res/models/pyramid.stl"), glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
+    //mainModelInstance = new Model(projectPath("res/models/pyramid.stl"), glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
 
     // Initialize the LightBlock UBO
     // The size should be calculated based on the struct LightBlockData
     lightBlockUBO = new UBO(sizeof(LightBlockData));
 
-    // Set the uniform block binding for the shader
-    // This connects the 'LightBlock' in the shader to LIGHT_UBO_BINDING_POINT
-    if (Shaders["planet"]) {
-        Shaders["planet"]->activate();
-        Shaders["planet"]->setUniformBlockBinding("LightBlock", LIGHT_UBO_BINDING_POINT);
+    // shaders that do not have a setup for light block will be ignored
+    for (const auto& shader : Shaders) {
+        shader.second->activate();
+        shader.second->setUniformBlockBinding("LightBlock", LIGHT_UBO_BINDING_POINT);
     }
 }
 
@@ -91,7 +95,7 @@ void setupShaders() {
     }
 
     // attempting to make shaders from source files
-    int failed;
+    int failed = 0;
 
     for (const auto& shaderSource : shaderSourceFiles) {
         if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
@@ -108,16 +112,15 @@ void setupShaders() {
 
 // Function to clean up all dynamically allocated model resources
 void cleanup() {
-    if (mainModelInstance) {
-        delete mainModelInstance;
-        mainModelInstance = nullptr;
-    }
     if (lightBlockUBO) {
         delete lightBlockUBO;
         lightBlockUBO = nullptr;
     }
 
-    for(auto& shader : Shaders) { delete shader.second; } // destroys class on heap and clears OpenGl binaries
+    for (const auto& model : Models) { delete model.second; }
+    Models.clear();
+
+    for(const auto& shader : Shaders) { delete shader.second; } // destroys class on heap and clears OpenGl binaries
     Shaders.clear(); // remoces map entries if classes were not cleared before -> dangling pointers
 }
 
@@ -153,7 +156,11 @@ void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Only attempt to render if the model instance has been successfully created
-    if (mainModelInstance && Shaders["planet"] && lightBlockUBO) {
+
+    auto planetShader = Shaders["planet"];
+    auto pyrimdModel = Models["pyramid"];
+
+    if (pyrimdModel && planetShader && lightBlockUBO) {
         // Define a model matrix to position and orient the model in the scene
         glm::mat4 modelMatrix = glm::mat4(1.0f); // Start with an identity matrix
 
@@ -162,8 +169,6 @@ void render() {
 
         // Translate the model back so it's visible in front of the camera
         //modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
-
-        auto planetShader = Shaders["planet"];
 
         // Get camera position from your Camera class
         glm::vec3 cameraPosition = currentCamera->position;
@@ -174,7 +179,7 @@ void render() {
         // Set the camera position uniform (still needed as it's not in the UBO)
         planetShader->setUniform("cameraPosition", cameraPosition);
 
-        mainModelInstance->draw(planetShader, modelMatrix, cameraPosition);
+        pyrimdModel->draw(planetShader, modelMatrix, cameraPosition);
     }
 
     glfwSwapBuffers(mainWindow);

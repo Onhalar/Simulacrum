@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <config.hpp>
 #include <FormatConsole.hpp>
@@ -36,13 +37,13 @@ struct ModelData {
  * Returns nullptr if the file cannot be loaded or contains no valid mesh data.
  * The caller is responsible for deleting the returned ModelData pointer to free memory.
  */
-ModelData* loadSTLData(const std::string& filePath) {
+ModelData* loadSTLData(const std::filesystem::path& filePath) {
     Assimp::Importer importer;
     // Post-processing flags:
     // aiProcess_Triangulate: Ensures all faces are triangles.
     // aiProcess_GenSmoothNormals: Generates smooth per-vertex normals if the model doesn't have them.
     // aiProcess_JoinIdenticalVertices: Joins duplicate vertices, allowing for indexed drawing (EBO).
-    const aiScene* scene = importer.ReadFile(filePath,
+    const aiScene* scene = importer.ReadFile(filePath.string(),
                                              aiProcess_Triangulate |
                                              aiProcess_GenSmoothNormals |
                                              aiProcess_JoinIdenticalVertices);

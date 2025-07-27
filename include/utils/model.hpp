@@ -1,9 +1,10 @@
-#ifndef IMPORT_MODEL_HPP
-#define IMPORT_MODEL_HPP
+#ifndef MODEL_CLASS_HEADER
+#define MODEL_CLASS_HEADER
 
 #include <string>
 #include <vector>
 #include <iostream> // For error output
+#include <filesystem>
 
 // OpenGL and GLM includes
 #include <glad/glad.h>
@@ -38,7 +39,7 @@ public:
      * @param filePath The path to the STL model file.
      * @param defaultColor The default color for the model (defaults to red).
      */
-    Model(const std::string& filePath, const glm::vec3& defaultColor = glm::vec3(1.0f, 0.0f, 0.0f))
+    Model(const std::filesystem::path& filePath, const glm::vec3& defaultColor = glm::vec3(1.0f, 0.0f, 0.0f))
         : modelData(nullptr), vao(nullptr), vboPositions(nullptr), vboNormals(nullptr),
           vboColors(nullptr), ebo(nullptr), objectColor(defaultColor) {
 
@@ -147,4 +148,4 @@ public:
     }
 };
 
-#endif // IMPORT_MODEL_HPP
+#endif // MODEL_CLASS_HEADER

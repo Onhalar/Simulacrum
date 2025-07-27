@@ -165,8 +165,6 @@ class Shader {
             GLuint blockIndex = glGetUniformBlockIndex(ID, blockName);
             if (blockIndex != GL_INVALID_INDEX) {
                 glUniformBlockBinding(ID, blockIndex, bindingPoint);
-            } else {
-                std::cerr << "WARNING: Uniform block '" << blockName << "' not found in shader." << std::endl;
             }
         }
 
