@@ -4,16 +4,14 @@
 #include <filesystem>
 #include <string>
 
+#include <config.hpp>
+
 inline std::string getFileName(const std::string& path) {
-    return filesystem::path(path).filename().string();
+    return std::filesystem::path(path).filename().string();
 }
 
 inline std::string getFileName(const std::filesystem::path path) {
-    return filesystem::path(path).filename().string();
-}
-
-std::string projectPath(const std::string& path) {
-    return (projectDir / filesystem::path(path)).string();
+    return std::filesystem::path(path).filename().string();
 }
 
 #endif // PROJECT_PATH_HEADER

@@ -11,6 +11,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <chrono>
+#include <thread>
+
 #include <any>
 #include <typeindex>
 #include <tuple>
@@ -23,16 +26,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <types.hpp>
+
+#include <shader.hpp>
+#include <model.hpp>
+
+using ShaderList = std::unordered_map<std::string, Shader*>;
+using ModelList = std::unordered_map<std::string, Model*>;
+
 using namespace std;
-using Color = tuple<float, float, float, float>;
-
-#include <chrono>
-#include <thread>
-
 using namespace chrono;
 
 // project directory
@@ -44,15 +49,6 @@ string iconPath = "res/icon.png";
 // resource paths
 string shaderPath = "shaders/";
 string modelPath = "res/models";
-
-// setup settings
-#ifdef DEBUG_ENABLED
-    bool debugMode = true;
-#else
-    bool debugMode = false;
-#endif
-
-bool prettyOutput = true;
 
 // window settings
 int defaultWindowWidth = 500;
@@ -72,6 +68,17 @@ float staticDelayFraction = 0.65f;
 nanoseconds spinDelay(375); // about 350 - 400 ns
 
 // global shader settings
-float lightFalloff = 1.0f;
+float lightFalloff = 0.3f;
+
+// Model settings
+
+float normalizedModelRadius = 0.5f;
+float modelScalingStrength = 1.0f;
+
+// functions
+
+std::string projectPath(const std::string& path) {
+    return (projectDir / std::filesystem::path(path)).string();
+}
 
 #endif // MAIN_CONFIG_HEADER

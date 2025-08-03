@@ -2,8 +2,11 @@
 #include <globals.hpp>
 #include <iostream>
 
+#include <simObject.hpp>
+
 #include "render.cpp"
 #include "settings.cpp"
+#include "physics.cpp"
 
 // ***************************************
 // ** ToDo: Add GUI with Dear ImGui   **
@@ -16,13 +19,13 @@ void setupOpenGL();
 void mainLoop();
 
 void setupShaders();
-
 void renderSetup();
-// Function prototypes for setupModels and cleanup from render.cpp
-// Make sure these are declared if render.cpp is compiled separately
 void setupModels();
-void cleanup();
+void setupSimObjects();
+void setupPhysics();
 
+void cleanupRender();
+void cleanup();
 
 int main(int argc, char **argv) {
 
@@ -48,10 +51,12 @@ int main(int argc, char **argv) {
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
     renderSetup();
+    setupPhysics();
 
     mainLoop();
 
     // Call cleanup() to free all allocated model resources before exiting
+    cleanupRender();
     cleanup();
 
     glfwDestroyWindow(mainWindow);
@@ -87,16 +92,11 @@ void createWindow() {
     // sets the minimum and maximum window size
     glfwSetWindowSizeLimits(window, minWindowWidth, minWindowHeight, GLFW_DONT_CARE, GLFW_DONT_CARE);
     
-    // tries to load in the icon
-    // Note: stbi_load requires stb_image.h to be included and stb_image.c to be compiled.
-    // Ensure you have these set up in your project.
-    // For now, I'm commenting out the stbi_load part to avoid compilation issues if stb_image is not ready.
-    // icon.pixels = stbi_load(projectPath(iconPath).c_str(), &icon.width, &icon.height, 0, 4);
+    icon.pixels = stbi_load(projectPath(iconPath).c_str(), &icon.width, &icon.height, 0, 4);
 
     // checks whther the icon is loaded successfully
     // if yes => sets icon and clears it from memory
     // if no  => prints an error
-    /*
     if (icon.pixels) {
         glfwSetWindowIcon(window, 1, &icon);
         stbi_image_free(icon.pixels);
@@ -104,7 +104,6 @@ void createWindow() {
     else {
         std::cerr << formatError("ERROR") << ": Could not open icon '" << formatPath(iconPath) << "'" << std::endl;
     }
-    */
 
     // tell GLFW that the created window is the one to be used
     glfwMakeContextCurrent(window);
@@ -154,7 +153,7 @@ void setupOpenGL() {
 void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {
-        auto frameStart = std::chrono::steady_clock::now(); // Use std::chrono
+        auto frameStart = steady_clock::now(); // Use std::chrono
 
         // handles events such as resizing and creating window
         glfwPollEvents();
@@ -169,7 +168,7 @@ void mainLoop() {
 
         render();
 
-        static std::chrono::steady_clock::time_point lastTime; // Use std::chrono
+        static steady_clock::time_point lastTime; // Use std::chrono
 
         // here just so everything doesn't fly 10 000 km off the screen
         static bool isFirstFrame = true;
@@ -178,8 +177,8 @@ void mainLoop() {
             isFirstFrame = false;
         }
 
-        auto frameEnd = std::chrono::steady_clock::now(); // Use std::chrono
-        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart); // Use std::chrono
+        auto frameEnd = steady_clock::now(); // Use std::chrono
+        auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart); // Use std::chrono
 
         if (elapsed < frameDuration && !VSync) {
             std::this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction); // Use std::this_thread
@@ -189,15 +188,26 @@ void mainLoop() {
                 while (true)
                 {
                     std::this_thread::sleep_for(spinDelay); // Use std::this_thread
-                    if (std::chrono::steady_clock::now() >= frameStart + frameDuration) { break; } // Use std::chrono
+                    if (steady_clock::now() >= frameStart + frameDuration) { break; } // Use std::chrono
                 }
             }
         }
 
-        frameEnd = std::chrono::steady_clock::now(); // Use std::chrono
+        frameEnd = steady_clock::now(); // Use std::chrono
 
-        deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
+        deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
             
         lastTime = frameEnd;
     }
+}
+
+void cleanup() {
+    for (const auto& simObject : SimObjects) { delete simObject.second; }
+    SimObjects.clear();
+
+    for (const auto& model : Models) { delete model.second; }
+    Models.clear();
+
+    for(const auto& shader : Shaders) { delete shader.second; } // destroys class on heap and clears OpenGl binaries
+    Shaders.clear(); // remoces map entries if classes were not cleared before -> dangling pointers
 }

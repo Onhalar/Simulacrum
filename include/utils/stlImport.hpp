@@ -6,7 +6,7 @@
 #include <string>
 #include <filesystem>
 
-#include <config.hpp>
+#include <debug.hpp>
 #include <FormatConsole.hpp>
 
 // Assimp includes
@@ -15,14 +15,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-/**
- * @brief Structure to hold the extracted vertex data, normal data, and index data from an STL model.
- */
-struct ModelData {
-    std::vector<GLfloat> vertices; // Stores vertex positions (x, y, z)
-    std::vector<GLfloat> normals;  // Stores vertex normals (nx, ny, nz)
-    std::vector<GLuint> indices;   // Stores indices for indexed drawing
-};
+#include <types.hpp>
 
 /**
  * @brief Loads an STL model from the specified file path and extracts its vertex positions, normals, and indices.
@@ -43,10 +36,15 @@ ModelData* loadSTLData(const std::filesystem::path& filePath) {
     // aiProcess_Triangulate: Ensures all faces are triangles.
     // aiProcess_GenSmoothNormals: Generates smooth per-vertex normals if the model doesn't have them.
     // aiProcess_JoinIdenticalVertices: Joins duplicate vertices, allowing for indexed drawing (EBO).
+    // aiProcess_PreTransformVertices: Applies the root node's transformation matrix to the vertices.
+    // This is useful for compensating for different coordinate systems (e.g., Z-up vs Y-up).
     const aiScene* scene = importer.ReadFile(filePath.string(),
-                                             aiProcess_Triangulate |
-                                             aiProcess_GenSmoothNormals |
-                                             aiProcess_JoinIdenticalVertices);
+        aiProcess_Triangulate |
+        aiProcess_GenSmoothNormals |  // Overwrite existing normals
+        aiProcess_JoinIdenticalVertices |
+        aiProcess_PreTransformVertices |
+        aiProcess_ImproveCacheLocality  // Optimizes vertex cache (helps with interpolation)
+    );
 
     // Check if the scene was loaded successfully
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {

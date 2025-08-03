@@ -2,9 +2,7 @@
 #define SHADER_CLASS_HEADER
 
 // only for central assignment of the 'debugMode' variable
-#include <config.hpp>
-// uncomment the below and remove the include above
-// bool debugMode = true;
+#include <debug.hpp>
 
 #include <glm/glm.hpp>
 
@@ -23,58 +21,6 @@
 
 float allowShaderCaching = true;
 
-class ShaderCache {
-	private:
-		static filesystem::path shaderManagerFile;
-		static filesystem::path shaderCachePath;
-		static bool cachingEnabled;
-
-	public:
-		// Exceptions
-		class setupFailedException : std::runtime_error { public: explicit setupFailedException (const char* message) : std::runtime_error(message) {} };
-
-		class RetrievalException : std::runtime_error { public: explicit RetrievalException (const char* message) : std::runtime_error(message) {} };
-		class WriteException : std::runtime_error { public: explicit WriteException (const char* message) : std::runtime_error(message) {} };
-
-		class EncodingException : std::runtime_error { public: explicit EncodingException (const char* message) : std::runtime_error(message) {} };
-		class DecodingException : std::runtime_error { public: explicit DecodingException (const char* message) : std::runtime_error(message) {} };
-
-		static void enable(filesystem::path path, filesystem::path managerFile = "shader_cache", bool allowCaching = true /* just here in case it needs an external variable connection */) {
-			if (allowCaching) { cachingEnabled = true; }
-			else {
-				cachingEnabled = false;
-				return;
-			}
-			
-			shaderManagerFile = managerFile;
-			shaderCachePath = path;
-		}
-
-	private:
-		static void ensureCacheExists() {
-			if (!filesystem::exists(shaderCachePath)) {
-				try {
-					filesystem::create_directory(shaderCachePath);
-				}
-				catch (const exception& e) {
-					string error = "Could not create a cache directory: " + (string)e.what();
-					throw setupFailedException(error.c_str());
-				}
-			}
-
-			if (!filesystem::exists(shaderCachePath / shaderManagerFile)) {
-				try {
-					ofstream(shaderCachePath / shaderManagerFile); // automatically closed and destroyed once out of scope.
-				}
-				catch (const exception& e) {
-					string error = "Could not create a cache manager file: " + (string)e.what();
-					throw setupFailedException(error.c_str());
-				}
-			}
-		}
-
-};
-
 class Shader {
 	public:
 
@@ -90,7 +36,7 @@ class Shader {
 		mutable glm::mat4 viewMatrix = glm::mat4(1.0f);
 		mutable glm::mat4 projectionMatrix = glm::mat4(1.0f);
 
-		Shader(const filesystem::path& vertexFilepath, const filesystem::path& fragmentFilepath, bool throwErrors = false, const char* modelMatrixUniformName = "model", const char* viewMatrixUniformName = "view", const char* projectionMatrixUniformName = "projection") {
+		Shader(const std::filesystem::path& vertexFilepath, const std::filesystem::path& fragmentFilepath, bool throwErrors = false, const char* modelMatrixUniformName = "model", const char* viewMatrixUniformName = "view", const char* projectionMatrixUniformName = "projection") {
 			ID = makeShader(vertexFilepath, fragmentFilepath);
 
 			hasModelMatrixUniform = hasProjectionMatrixUniform = hasViewMatrixUniform = false;
@@ -216,9 +162,9 @@ class Shader {
 		}
 
 	private:
-		GLuint makeModule(const filesystem::path& filepath, GLuint module_type) {
+		GLuint makeModule(const std::filesystem::path& filepath, GLuint module_type) {
 			std::ifstream file;
-			stringstream bufferedLines;
+			std::stringstream bufferedLines;
 		
 			if (debugMode) { std::cout << formatProcess("Compiling") << " module '" << formatPath(getFileName(filepath.string())) << "' ... "; }
 		
@@ -228,7 +174,7 @@ class Shader {
 			}
 			else {
 				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
-				cerr << "unable to open " << formatPath(filepath.string()) << "\n" << endl;
+				std::cerr << "unable to open " << formatPath(filepath.string()) << "\n" << std::endl;
 				return 0;
 			}
 		
@@ -247,14 +193,14 @@ class Shader {
 				char errorLog[1024];
 				glGetShaderInfoLog(shaderModule, 1024, NULL, errorLog);
 				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
-				cerr << "Shader Module compilation error:\n" << colorText(errorLog, ANSII_YELLOW) << endl;
+				std::cerr << "Shader Module compilation error:\n" << colorText(errorLog, ANSII_YELLOW) << std::endl;
 			}
-			else if (debugMode && success) { std::cout << formatSuccess("Done") << endl; }
+			else if (debugMode && success) { std::cout << formatSuccess("Done") << std::endl; }
 		
 			return shaderModule;
 		}
 		
-		GLuint makeShader(const filesystem::path& vertexFilepath, const filesystem::path& fragmentFilepath) {
+		GLuint makeShader(const std::filesystem::path& vertexFilepath, const std::filesystem::path& fragmentFilepath) {
 			//To store all the shader modules
 			std::vector<GLuint> modules;
 		
@@ -262,7 +208,7 @@ class Shader {
 			modules.push_back(makeModule(vertexFilepath,  GL_VERTEX_SHADER));
 			modules.push_back(makeModule(fragmentFilepath, GL_FRAGMENT_SHADER));
 		
-			if (debugMode) { cout << formatProcess("Making shader") << " from '" << formatPath(getFileName(vertexFilepath.string())) << "' and '" << formatPath(getFileName(fragmentFilepath.string())) << "' ... "; }
+			if (debugMode) { std::cout << formatProcess("Making shader") << " from '" << formatPath(getFileName(vertexFilepath.string())) << "' and '" << formatPath(getFileName(fragmentFilepath.string())) << "' ... "; }
 		
 			//Attach all the modules then link the program
 			GLuint shader = glCreateProgram();
@@ -278,9 +224,9 @@ class Shader {
 				char errorLog[1024];
 				glGetProgramInfoLog(shader, 1024, NULL, errorLog);
 				if (debugMode) { std::cout << formatError("FAILED") << "\n"; }
-				cerr << "Shader linking error:\n" << colorText(errorLog, ANSII_YELLOW) << '\n';
+				std::cerr << "Shader linking error:\n" << colorText(errorLog, ANSII_YELLOW) << '\n';
 			}
-			else if (debugMode && success) { std::cout << formatSuccess("Done") << endl; }
+			else if (debugMode && success) { std::cout << formatSuccess("Done") << std::endl; }
 		
 			//Modules are now unneeded and can be freed
 			for (GLuint shaderModule : modules) {

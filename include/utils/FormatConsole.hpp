@@ -4,7 +4,7 @@
 #include <string>
 
 // only to enable coloring of text, can sometimes help with clarity, if not needed remove next line and uncomment the following line
-#include <config.hpp>
+#include <debug.hpp>
 // bool prettyOutput = true;
 
 #define ANSII_RESET  "\033[0m"
@@ -20,6 +20,7 @@ std::string formatError(const std::string &error) { return prettyOutput ? ANSII_
 std::string formatPath(const std::string &path) { return prettyOutput ? ANSII_MAGENTA + path + ANSII_RESET : path; }
 std::string formatSuccess(const std::string &sucessMessage) { return prettyOutput ? ANSII_GREEN + sucessMessage + ANSII_RESET : sucessMessage; }
 std::string formatProcess(const std::string &output) { return prettyOutput ? ANSII_BLUE + output + ANSII_RESET : output; }
+std::string formatWarning(const std::string &warningMessage) { return prettyOutput ? ANSII_YELLOW + warningMessage + ANSII_RESET : warningMessage; }
 auto formatRole = formatProcess;
 
 #endif // FORMAT_CONSOLE_TEXT_HEADER

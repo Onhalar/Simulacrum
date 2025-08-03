@@ -1,0 +1,95 @@
+#ifndef FULL_SIMULATION_OBJECT_HEADER
+#define FULL_SIMULATION_OBJECT_HEADER
+
+#include <string>
+
+#include <model.hpp>
+#include <shader.hpp>
+
+#include "physicsObject.hpp"
+
+#include <globals.hpp>
+
+class simulationObject : public physicsObject {
+    private:
+        ShaderID shaderID;
+        ModelID modelId;
+    public:
+        mutable std::string name;
+
+        mutable double vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
+
+        mutable Shader* shader;
+        mutable Model* model;
+
+        simulationObject(ShaderID shaderID, ModelID modelID) {
+            shader = Shaders[shaderID];
+            model = Models[modelID];
+        }
+
+        ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
+
+        void calculateAproximateRadius() {
+
+            if (vertexModelRadius != -1) {
+                if (debugMode) { std::cout << formatWarning("WARNING") << ": Redundant recalculation of vertex radius of " << name << std::endl; }
+
+                return;
+            }
+
+            auto vertices = model->modelData->vertices;
+            // vertices passed will be render-ready so x, y, z, x, y, z, ...
+
+            float minX = vertices[0]; float MaxX = vertices[0];
+            float minY = vertices[1]; float MaxY = vertices[1];
+            float minZ = vertices[2]; float MaxZ = vertices[2];
+
+            for (auto vertex = vertices.begin() + 3; /* 3 items per vertex; x, y, z*/ vertex != vertices.end(); vertex += 3) {
+                minX = std::min( *vertex, minX);
+                MaxX = std::max( *vertex, MaxX);
+
+                minY = std::min( *(vertex + 1), minY);
+                MaxY = std::max( *(vertex + 1), MaxY);
+
+                minZ = std::min( *(vertex + 2), minZ);
+                MaxZ = std::max( *(vertex + 2), MaxZ);
+            }
+
+            float DifferenceX = std::abs(MaxX - minX);
+            float DifferenceY = std::abs(MaxY - minY);
+            float DifferenceZ = std::abs(MaxZ - minZ);
+
+            vertexModelRadius = std::max(DifferenceX, std::max(DifferenceY, DifferenceZ)) * 0.5f;
+        }
+        
+        void normalizeVertices(const float normalizedRadius) {
+            if (vertexModelRadius == -1) { 
+                if (debugMode) { std::cerr << formatError("ERROR") << ": Normalization of " << name << "'s vertiecs attempted before calculating radius - ABORTED" << std::endl; }
+
+                return;
+            }
+
+            float scalingFactor = normalizedRadius / vertexModelRadius;
+
+            scaleVertices(scalingFactor);
+
+            vertexModelRadius = normalizedRadius;
+        }
+
+        void scaleVertices(const float& scaleFactor) {
+            for (auto& verticeAxee : model->modelData->vertices) {
+                verticeAxee *= scaleFactor;
+            }
+        }
+
+        void updateVertexRadius(const double& vertexModelRadius) {
+            this->vertexModelRadius = vertexModelRadius;
+        }
+
+        void draw() {
+            model->draw(shader);
+        }
+
+};
+
+#endif // FULL_SIMULATION_OBJECT_HEADER

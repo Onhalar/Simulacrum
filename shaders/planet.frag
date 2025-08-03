@@ -18,19 +18,18 @@ struct Light {
 layout(std140) uniform LightBlock {
     Light lights[MAX_LIGHTS];  // Array of lights in UBO
     int lightCount;            // The actual number of active lights
-    float lightDistance;        // Falloff factor (can be used to control the effect of distance)
+    float lightFallOff;       // Falloff factor (can be used to control the effect of distance)
 };
 
 void main() {
     vec3 totalAmbient = vec3(0.0);
     vec3 totalDiffuse = vec3(0.0);
 
-    // --- Ambient Lighting (Global or Per-Light) ---
-    // You can have a global ambient light or calculate ambient per light.
-    // For simplicity, we'll calculate per-light ambient here.
-    float ambientStrength = 0.2; // How strong the ambient light is
+    // Calculate simple ambient occlusion factor
+    vec3 norm = normalize(normal);
 
-    vec3 norm = normalize(normal); // Normalize the normal vector (important!)
+    // Base ambient strength (will be modified by AO)
+    float ambientStrength = 0.05;
 
     // Loop through all active lights
     for (int i = 0; i < lightCount; ++i) {
@@ -38,17 +37,23 @@ void main() {
         vec3 currentLightPosition = lights[i].position;
         float currentLightIntensity = lights[i].intensity;
 
-        // Calculate ambient contribution for this light
-        totalAmbient += ambientStrength * currentLightColor * currentLightIntensity;
+        // Calculate distance to light and falloff
+        float distance = length(currentLightPosition - currentPosition);
+        
+        // Enhanced attenuation calculation using lightFallOff uniform
+        float attenuation = 1.0 / (1.0 + 0.1 * lightFallOff * 0.01 * distance * distance);
+        
+        // Apply light intensity to attenuation
+        attenuation *= currentLightIntensity;
 
         // --- Diffuse Lighting ---
-        vec3 lightDir = normalize(currentLightPosition - currentPosition); // Direction from fragment to light
-        float diff = max(dot(norm, lightDir), 0.0); // Calculate dot product, clamp to 0 if negative
-        totalDiffuse += diff * currentLightColor * currentLightIntensity;
+        vec3 lightDir = normalize(currentLightPosition - currentPosition);
+        float diff = max(dot(norm, lightDir), 0.0);
+        totalDiffuse += diff * currentLightColor * attenuation;
     }
 
     // Combine all lighting components
-    vec3 result = (totalAmbient + totalDiffuse) * color; // Multiply by the object's base color
+    vec3 result = max(totalDiffuse, ambientStrength) * color;
 
-    FragColor = vec4(result, 1.0); // Output the final lit color
+    FragColor = vec4(result, 1.0);
 }

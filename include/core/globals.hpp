@@ -2,15 +2,9 @@
 #define GLOBAL_PROJECT_VARIABLE_HEADER
 
 #include <config.hpp>
-#include <shader.hpp>
-#include <unordered_map>
+#include <types.hpp>
+
 #include <string>
-
-#include <shader.hpp>
-#include <model.hpp>
-
-using ShaderList = std::unordered_map<std::string, Shader*>;
-using ModelList = std::unordered_map<std::string, Model*>;
 
 GLFWwindow* mainWindow;
 

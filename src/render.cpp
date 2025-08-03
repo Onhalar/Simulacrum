@@ -1,7 +1,8 @@
 #include <config.hpp>
 #include <globals.hpp>
 
-#include <Timer.hpp>
+//#include <Timer.hpp>
+#include <simObjectList.hpp>
 
 #include <shader.hpp>
 #include <camera.hpp>
@@ -46,7 +47,7 @@ struct ShaderLight {
 struct LightBlockData {
     ShaderLight lights[MAX_LIGHTS]; // Array of lights
     int lightCount;
-    float lightDistance;
+    float lightFallOff;
     float padding[2];
 };
 
@@ -57,7 +58,7 @@ void setupModels() {
     for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(modelPath))) {
         if (file.path().extension() == ".stl") {
             auto filepath = file.path();
-            Models[filepath.stem().string()] = new Model(filepath, glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
+            Models[filepath.stem().string()] = new Model(loadSTLData(filepath), glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
         }
     }
 
@@ -95,7 +96,7 @@ void setupShaders() {
     }
 
     // attempting to make shaders from source files
-    int failed = 0;
+    unsigned int failed = 0;
 
     for (const auto& shaderSource : shaderSourceFiles) {
         if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
@@ -106,30 +107,25 @@ void setupShaders() {
     }
 
     if (debugMode) {
-        std::cout << "\n" << formatProcess("Loaded ") << Shaders.size() << " Shader" << ((Shaders.size() > 1) ? "s" : "") << ((failed > 0) ? "; failed " + failed : "") << std::endl;
+        std::cout << "\n" << formatProcess("Loaded ") << Shaders.size() << " Shader" << ((Shaders.size() > 1u) ? "s" : "") << ((failed > 0u) ? "; failed " + failed : "") << std::endl;
     }
 }
 
 // Function to clean up all dynamically allocated model resources
-void cleanup() {
+void cleanupRender() {
     if (lightBlockUBO) {
         delete lightBlockUBO;
         lightBlockUBO = nullptr;
     }
-
-    for (const auto& model : Models) { delete model.second; }
-    Models.clear();
-
-    for(const auto& shader : Shaders) { delete shader.second; } // destroys class on heap and clears OpenGl binaries
-    Shaders.clear(); // remoces map entries if classes were not cleared before -> dangling pointers
 }
 
 // prototype function; later will be culling based on distance
 void updateLightSources() {
-    int amountOfLights = min(MAX_LIGHTS, (int)lightQue.size());
+    int amountOfLights = std::min(MAX_LIGHTS, (int)lightQue.size());
 
     LightBlockData lightsData;
     lightsData.lightCount = amountOfLights;
+    lightsData.lightFallOff = lightFalloff;
 
     for (int i = 0; i < amountOfLights; i++) {
         lightsData.lights[i].position = lightQue[i]->position;
@@ -146,40 +142,32 @@ void updateLightSources() {
 
 // one shot temporary render setup
 void renderSetup() {
-    lightQue.push_back(new LightObject(glm::vec3(5,2,5), glm::vec3(0.0f, 1.0f, 0.0f), 0.2f));
-    lightQue.push_back(new LightObject(glm::vec3(5,-2,5), glm::vec3(0.0f, 0.0f, 1.0f), 0.4f));
+    lightQue.push_back(new LightObject(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f)); // Red light
+    lightQue.push_back(new LightObject(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 1.0f)); // Green light
+    lightQue.push_back(new LightObject(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f)); // Blue light
 
     updateLightSources();
 }
 
 void render() {
+    static float radians = 0.5;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Only attempt to render if the model instance has been successfully created
 
-    auto planetShader = Shaders["planet"];
-    auto pyrimdModel = Models["pyramid"];
+    Shader* shader = SimObjects["sphere"]->shader;
+    Model* model = SimObjects["sphere"]->model;
 
-    if (pyrimdModel && planetShader && lightBlockUBO) {
-        // Define a model matrix to position and orient the model in the scene
-        glm::mat4 modelMatrix = glm::mat4(1.0f); // Start with an identity matrix
-
-        // Apply rotation to correct orientation (e.g., if model is Z-up and OpenGL is Y-up)
-        modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around X-axis
-
-        // Translate the model back so it's visible in front of the camera
-        //modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, -2.0f));
-
-        // Get camera position from your Camera class
-        glm::vec3 cameraPosition = currentCamera->position;
+    if (shader && model && lightBlockUBO) {
 
         // Activate the shader
-        planetShader->activate();
+        shader->activate();
 
-        // Set the camera position uniform (still needed as it's not in the UBO)
-        planetShader->setUniform("cameraPosition", cameraPosition);
+        shader->applyModelMatrix(glm::rotate(glm::mat4(1), glm::radians(radians), glm::vec3(0.0f, 1.0f, 0.0f)));
+        radians += 0.25;
 
-        pyrimdModel->draw(planetShader, modelMatrix, cameraPosition);
+        model->draw(shader);
     }
 
     glfwSwapBuffers(mainWindow);

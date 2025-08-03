@@ -34,4 +34,4 @@ class LightObject {
         }
 };
 
-#endif
+#endif // LIGHT_OBJECT_CLASS_HEADER

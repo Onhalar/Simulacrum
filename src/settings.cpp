@@ -1,4 +1,5 @@
 #include <config.hpp>
+#include <debug.hpp>
 
 #include <FormatConsole.hpp>
 #include <paths.hpp>
@@ -12,7 +13,7 @@
 #include <updateRunningConfig.hpp>
 
 using Color = tuple<float, float, float, float>;
-using AnyType = variant<float*, int*, bool*, string*, Nanoseconds*, Color*>;
+using AnyType = variant<float*, int*, bool*, string*, std::chrono::nanoseconds*, Color*>;
 using Json = nlohmann::json;
 using JsonSetter = void(*)(AnyType, const char*, const Json&);
 
@@ -34,7 +35,19 @@ struct SettingsEntry {
     }
 };
 
-std::unordered_map<std::string, SettingsEntry> settings;
+std::unordered_map<std::string, SettingsEntry> settings = {
+    {"debugMode",                         SettingsEntry(&debugMode, setBool)},
+    {"maxFrameRate",                      SettingsEntry(&maxFrameRate, setInt)},
+    {"defaultWindowWidth",                SettingsEntry(&defaultWindowWidth, setInt)},
+    {"defaultWindowHeight",               SettingsEntry(&defaultWindowHeight, setInt)},
+    {"minWindowWidth",                    SettingsEntry(&minWindowWidth, setInt)},
+    {"minWindowHeight",                   SettingsEntry(&minWindowHeight, setInt)},
+    {"defaultBackgroundColor",            SettingsEntry(&defaultBackgroundColor, setTuple)},
+    {"prettyOutput",                      SettingsEntry(&prettyOutput, setBool)},
+    {"VSync",                             SettingsEntry(&VSync, setInt)},
+    {"StaticFrameDelayFraction",          SettingsEntry(&staticDelayFraction, setFloat)},
+    {"spinDelayNS",                       SettingsEntry(&spinDelay, setNanoseconds)},
+};
 
 void loadSettings(filesystem::path path) {
     bool showMessages;
@@ -42,19 +55,6 @@ void loadSettings(filesystem::path path) {
         cout << formatProcess("Loading") << " settings '" << formatPath(getFileName(path.string())) << "' ... ";
         showMessages = true;
     }
-
-    // register setting variables
-    settings["debugMode"] = SettingsEntry(&debugMode, setBool);
-    settings["maxFrameRate"] = SettingsEntry(&maxFrameRate, setInt);
-    settings["defaultWindowWidth"] = SettingsEntry(&defaultWindowWidth, setInt);
-    settings["defaultWindowHeight"] = SettingsEntry(&defaultWindowHeight, setInt);
-    settings["minWindowWidth"] = SettingsEntry(&minWindowWidth, setInt);
-    settings["minWindowHeight"] = SettingsEntry(&minWindowHeight, setInt);
-    settings["defaultBackgroundColor"] = SettingsEntry(&defaultBackgroundColor, setTuple);
-    settings["prettyOutput"] = SettingsEntry(&prettyOutput, setBool);
-    settings["VSync"] = SettingsEntry(&VSync, setInt);
-    settings["StaticFrameDelayFraction"] = SettingsEntry(&staticDelayFraction, setFloat);
-    settings["spinDelayNS"] = SettingsEntry(&spinDelay, setNanoseconds);
 
     if (!filesystem::exists(path)) {
         cout << formatError("FAILED") << "\n";
@@ -99,5 +99,5 @@ void setFloat(AnyType variable, const char* jsonNameIndex, const Json& data) {
     *std::get<float*>(variable) = data[jsonNameIndex].get<float>();
 }
 void setNanoseconds(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<Nanoseconds*>(variable) = Nanoseconds(data[jsonNameIndex].get<int>());
+    *std::get<std::chrono::nanoseconds*>(variable) = nanoseconds(data[jsonNameIndex].get<int>());
 }

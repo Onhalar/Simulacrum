@@ -13,10 +13,14 @@ uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-    normal = faceNormal;
-
+    // Transform vertex position to world space
     currentPosition = vec3(model * vec4(vertexPos, 1.0f));
 
+    normal = transpose(inverse(mat3(model))) * faceNormal;
+
+    // Transform vertex to clip space
     gl_Position = projection * view * model * vec4(vertexPos, 1.0f);
+
+    // Pass color through
     color = vertexColor;
 }
