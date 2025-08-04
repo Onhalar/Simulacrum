@@ -29,7 +29,7 @@ void main() {
     vec3 norm = normalize(normal);
 
     // Base ambient strength (will be modified by AO)
-    float ambientStrength = 0.05;
+    float ambientStrength = 0.1;
 
     // Loop through all active lights
     for (int i = 0; i < lightCount; ++i) {

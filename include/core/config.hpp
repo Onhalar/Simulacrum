@@ -18,6 +18,7 @@
 #include <typeindex>
 #include <tuple>
 #include <utility>
+#include <set>
 
 #include <glad/glad.h>
 

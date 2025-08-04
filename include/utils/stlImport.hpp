@@ -15,6 +15,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <assimp/cimport.h>
+#include <assimp/importerdesc.h>    // for aiImporterDesc
+
 #include <types.hpp>
 
 /**
@@ -40,7 +43,7 @@ ModelData* loadSTLData(const std::filesystem::path& filePath) {
     // This is useful for compensating for different coordinate systems (e.g., Z-up vs Y-up).
     const aiScene* scene = importer.ReadFile(filePath.string(),
         aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals |  // Overwrite existing normals
+        aiProcess_GenSmoothNormals |
         aiProcess_JoinIdenticalVertices |
         aiProcess_PreTransformVertices |
         aiProcess_ImproveCacheLocality  // Optimizes vertex cache (helps with interpolation)
@@ -114,6 +117,25 @@ ModelData* loadSTLData(const std::filesystem::path& filePath) {
                 << modelData->indices.size() << formatRole(" indices") << std::endl;
     }
     return modelData;
+}
+
+// get all supported Assimp file extensions
+std::set<std::string> getSupportedAssimpExtensions() {
+    std::set<std::string> extensions;
+
+    size_t formatCount = aiGetImportFormatCount();
+    for (size_t i = 0; i < formatCount; ++i) {
+        const aiImporterDesc* desc = aiGetImportFormatDescription(i);
+        if (desc && desc->mFileExtensions) {
+            std::istringstream iss(desc->mFileExtensions);
+            std::string ext;
+            while (iss >> ext) {
+                extensions.insert("." + ext);
+            }
+        }
+    }
+
+    return extensions;
 }
 
 #endif // STL_MODEL_LOADER_HPP

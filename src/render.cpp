@@ -15,11 +15,10 @@
 #include <VAO.hpp>
 #include <VBO.hpp>
 #include <EBO.hpp>
-#include <stlImport.hpp> // Include the header for loading STL files
+//#include <stlImport.hpp> // Include the header for loading STL files
 #include <paths.hpp> // Assuming projectPath() is defined here
 #include <model.hpp> // Include the Model class header
 #include <lightObject.hpp>
-
 
 void setupShaderMetrices(Shader* shader);
 
@@ -51,12 +50,15 @@ struct LightBlockData {
     float padding[2];
 };
 
-
 // Function to initialize the model data and OpenGL buffers for the main model
 void setupModels() {
 
+    std::set<std::string> availableFormats = getSupportedAssimpExtensions();
+
     for (const auto& file : std::filesystem::recursive_directory_iterator(projectPath(modelPath))) {
-        if (file.path().extension() == ".stl") {
+        
+
+        if (availableFormats.find(file.path().extension().string()) != availableFormats.end()) {
             auto filepath = file.path();
             Models[filepath.stem().string()] = new Model(loadSTLData(filepath), glm::vec3(1.0f, 1.0f, 1.0f)); // White by default
         }
