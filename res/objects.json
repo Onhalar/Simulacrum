@@ -1,0 +1,12 @@
+{
+    "sphere": {
+        "radius": 6378,
+        "mass": {
+            "value": 5.9722,
+            "notation": 21
+        },
+        "shader": "planet",
+        "model": "sphere",
+        "color": [0.0, 0.0, 1.0]
+    }
+}

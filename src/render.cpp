@@ -158,8 +158,12 @@ void render() {
 
     // Only attempt to render if the model instance has been successfully created
 
-    Shader* shader = SimObjects["sphere"]->shader;
-    Model* model = SimObjects["sphere"]->model;
+    if (SimObjects.empty()) {
+        if (debugMode) { std::cout << formatError("ERROR") << ": SimObjects list emtpty... skipping frame." << std::endl; }
+        return;
+    }
+    Shader* shader = (*SimObjects.begin()).second->shader;
+    Model* model = (*SimObjects.begin()).second->model;
 
     if (shader && model && lightBlockUBO) {
 

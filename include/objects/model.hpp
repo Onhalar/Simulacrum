@@ -31,10 +31,10 @@ private:
     VBO* vboNormals;           // VBO for vertex normals
     VBO* vboColors;            // VBO for vertex colors
     EBO* ebo;                  // Element Buffer Object (indices)
-    glm::vec3 objectColor;     // The base color of the object
 
 public:
     ModelData* modelData;      // Raw model data (vertices, normals, indices)
+    glm::vec3 objectColor;     // The base color of the object
 
     /**
      * @brief Constructor for the Model class. It now only stores the raw model
@@ -81,12 +81,7 @@ public:
             ebo = nullptr;
         }
     }
-
-    /**
-     * @brief Creates and populates the OpenGL buffers (VAO, VBOs, EBO) with the
-     * model's data. This function must be called after the OpenGL context is created.
-     * This method is idempotent, it will only buffer the data once.
-     */
+    
     void sendBufferedVertices() {
         if (!modelData && debugMode) {
             std::cerr << formatError("ERROR") << ": ModelData is null, cannot buffer vertices." << std::endl;

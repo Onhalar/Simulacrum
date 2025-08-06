@@ -48,8 +48,11 @@ filesystem::path projectDir;
 string iconPath = "res/icon.png";
 
 // resource paths
-string shaderPath = "shaders/";
-string modelPath = "res/models";
+const std::filesystem::path shaderPath = "shaders/";
+const std::filesystem::path modelPath = "res/models";
+const std::filesystem::path settingsPath = "res/settings.json";
+const std::filesystem::path simObjectsConfigPath = "res/objects.json";
+
 
 // window settings
 int defaultWindowWidth = 500;
@@ -78,8 +81,11 @@ float modelScalingStrength = 1.0f;
 
 // functions
 
-std::string projectPath(const std::string& path) {
+inline std::string projectPath(const std::string& path) {
     return (projectDir / std::filesystem::path(path)).string();
+}
+inline std::string projectPath(const std::filesystem::path& path) {
+    return (projectDir / path).string();
 }
 
 #endif // MAIN_CONFIG_HEADER

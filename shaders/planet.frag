@@ -1,59 +1,59 @@
 #version 330 core
 
-in vec3 color;            // The vertex color (can be used as object's base color)
-in vec3 normal;           // The interpolated normal vector at this fragment (world space)
-in vec3 currentPosition;  // The interpolated position of the current fragment (world space)
+in vec3 color;
+in vec3 normal;
+in vec3 currentPosition;
 
-out vec4 FragColor;       // The output color of the fragment
+out vec4 FragColor;
 
-#define MAX_LIGHTS 4  // Maximum number of lights we will process
+#define MAX_LIGHTS 4
 
-// Light structure definition
 struct Light {
-    vec3 position;   // Position of the light in world space
-    vec4 color;      // Color of the light (includes RGB)
-    float intensity; // Intensity of the light
+    vec3 position;
+    vec4 color;
+    float intensity;
 };
 
 layout(std140) uniform LightBlock {
-    Light lights[MAX_LIGHTS];  // Array of lights in UBO
-    int lightCount;            // The actual number of active lights
-    float lightFallOff;       // Falloff factor (can be used to control the effect of distance)
+    Light lights[MAX_LIGHTS];
+    int lightCount;
+    float lightFallOff;
 };
 
+// Additive blending function
+vec3 blendAdditive(vec3 base, vec3 blend) {
+    return min(base + blend, 1.0);
+}
+
 void main() {
-    vec3 totalAmbient = vec3(0.0);
-    vec3 totalDiffuse = vec3(0.0);
+    vec3 combinedLightColor = vec3(0.0);
+    float totalDiffuse = 0.0;
 
-    // Calculate simple ambient occlusion factor
     vec3 norm = normalize(normal);
-
-    // Base ambient strength (will be modified by AO)
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
 
     // Loop through all active lights
     for (int i = 0; i < lightCount; ++i) {
         vec3 currentLightColor = lights[i].color.rgb;
-        vec3 currentLightPosition = lights[i].position;
-        float currentLightIntensity = lights[i].intensity;
-
-        // Calculate distance to light and falloff
-        float distance = length(currentLightPosition - currentPosition);
-        
-        // Enhanced attenuation calculation using lightFallOff uniform
+        float distance = length(lights[i].position - currentPosition);
         float attenuation = 1.0 / (1.0 + 0.1 * lightFallOff * 0.01 * distance * distance);
-        
-        // Apply light intensity to attenuation
-        attenuation *= currentLightIntensity;
+        attenuation *= lights[i].intensity;
 
-        // --- Diffuse Lighting ---
-        vec3 lightDir = normalize(currentLightPosition - currentPosition);
+        vec3 lightDir = normalize(lights[i].position - currentPosition);
         float diff = max(dot(norm, lightDir), 0.0);
-        totalDiffuse += diff * currentLightColor * attenuation;
+        
+        // Accumulate diffuse intensity
+        totalDiffuse += diff * attenuation;
+        
+        // Blend light colors additively with attenuation
+        combinedLightColor = blendAdditive(combinedLightColor, currentLightColor * diff * attenuation);
     }
 
-    // Combine all lighting components
-    vec3 result = max(totalDiffuse, ambientStrength) * color;
+    // Blend surface color with light colors (70% light, 30% surface)
+    vec3 finalColor = mix(color, combinedLightColor, 0.75);
+
+    // Combine lighting components
+    vec3 result = max(totalDiffuse, ambientStrength) * finalColor;
 
     FragColor = vec4(result, 1.0);
 }

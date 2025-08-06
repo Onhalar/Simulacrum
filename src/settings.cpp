@@ -12,7 +12,6 @@
 
 #include <updateRunningConfig.hpp>
 
-using Color = tuple<float, float, float, float>;
 using AnyType = variant<float*, int*, bool*, string*, std::chrono::nanoseconds*, Color*>;
 using Json = nlohmann::json;
 using JsonSetter = void(*)(AnyType, const char*, const Json&);
@@ -49,14 +48,12 @@ std::unordered_map<std::string, SettingsEntry> settings = {
     {"spinDelayNS",                       SettingsEntry(&spinDelay, setNanoseconds)},
 };
 
-void loadSettings(filesystem::path path) {
-    bool showMessages;
+void loadSettings(std::filesystem::path path) {
     if (debugMode) {
         cout << formatProcess("Loading") << " settings '" << formatPath(getFileName(path.string())) << "' ... ";
-        showMessages = true;
     }
 
-    if (!filesystem::exists(path)) {
+    if (!filesystem::exists(path) && debugMode) {
         cout << formatError("FAILED") << "\n";
         cerr << "unable to open '" << formatPath(path.string()) << "'\n" << endl;
         return;
@@ -67,7 +64,7 @@ void loadSettings(filesystem::path path) {
     file >> data;
     file.close();
 
-    for (auto& entry : data.items()) {
+    for (const auto& entry : data.items()) {
         const char* key = entry.key().c_str();
         if (settings.find(key) != settings.end()) {
             settings[key].setter(settings[key].variable, key, data);
@@ -76,7 +73,7 @@ void loadSettings(filesystem::path path) {
 
     updateRunningConfig::updateAllFromSet();
 
-    if (showMessages) { cout << formatSuccess("Done") << endl; }
+    if (debugMode) { cout << formatSuccess("Done") << endl; }
 }
 
 

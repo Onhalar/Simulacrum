@@ -6,13 +6,11 @@
 
 #include "render.cpp"
 #include "settings.cpp"
-#include "physics.cpp"
+#include "simulation.cpp"
 
 // ***************************************
 // ** ToDo: Add GUI with Dear ImGui   **
 // ****************************************
-
-const filesystem::path settingsPath("res/settings.json");
 
 void createWindow();
 void setupOpenGL();
@@ -22,7 +20,9 @@ void setupShaders();
 void renderSetup();
 void setupModels();
 void setupSimObjects();
-void setupPhysics();
+
+void loadSettings(std::filesystem::path path);
+void loadSimObjects(std::filesystem::path path);
 
 void cleanupRender();
 void cleanup();
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 
     glfwSetFramebufferSizeCallback(mainWindow, resize);
 
-    loadSettings(projectPath(settingsPath.string()));
+    loadSettings(projectPath(settingsPath));
 
     setupOpenGL();
 
@@ -51,7 +51,9 @@ int main(int argc, char **argv) {
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
     renderSetup();
-    setupPhysics();
+
+    loadSimObjects(projectPath(simObjectsConfigPath));
+    setupSimObjects();
 
     mainLoop();
 
