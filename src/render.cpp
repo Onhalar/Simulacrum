@@ -2,7 +2,6 @@
 #include <globals.hpp>
 
 //#include <Timer.hpp>
-#include <simObjectList.hpp>
 
 #include <shader.hpp>
 #include <camera.hpp>
@@ -20,10 +19,20 @@
 #include <model.hpp> // Include the Model class header
 #include <lightObject.hpp>
 
+#include <simObject.hpp>
+
+#include <scenes.hpp>
+
 void setupShaderMetrices(Shader* shader);
 
+inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position, const glm::mat4& modelMatrix) {
+    return glm::translate(modelMatrix, position);
+}
+inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position) {
+    return glm::translate(glm::mat4(1.0f), position);
+}
 
-vector<LightObject*> lightQue;
+std::unordered_map<std::string, LightObject*> lightQue;
 
 Camera* currentCamera;
 
@@ -98,7 +107,7 @@ void setupShaders() {
     }
 
     // attempting to make shaders from source files
-    unsigned int failed = 0;
+    TinyInt failed = 0;
 
     for (const auto& shaderSource : shaderSourceFiles) {
         if (!shaderSource.second.vertex.empty() && !shaderSource.second.fragment.empty()) {
@@ -129,10 +138,15 @@ void updateLightSources() {
     lightsData.lightCount = amountOfLights;
     lightsData.lightFallOff = lightFalloff;
 
-    for (int i = 0; i < amountOfLights; i++) {
-        lightsData.lights[i].position = lightQue[i]->position;
-        lightsData.lights[i].color = glm::vec4(lightQue[i]->color, 1);
-        lightsData.lights[i].intensity = lightQue[i]->intensity;
+    unsigned char lightsAdded = 0;
+    for (const auto& light : lightQue) {
+        if (lightsAdded >= MAX_LIGHTS) { break; }
+
+        lightsData.lights[lightsAdded].position = light.second->position;
+        lightsData.lights[lightsAdded].color = glm::vec4(light.second->color, 1);
+        lightsData.lights[lightsAdded].intensity = light.second->intensity;
+
+        lightsAdded++;
     }
 
     // Update the UBO with the new light data
@@ -144,36 +158,36 @@ void updateLightSources() {
 
 // one shot temporary render setup
 void renderSetup() {
-    lightQue.push_back(new LightObject(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1.0f)); // Red light
-    lightQue.push_back(new LightObject(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 1.0f)); // Green light
-    lightQue.push_back(new LightObject(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f)); // Blue light
+    lightQue["sol"] = new LightObject(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.988, 0.658, 0.011), 1.5f); // sun light
+
 
     updateLightSources();
 }
 
 void render() {
-    static float radians = 0.5;
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Only attempt to render if the model instance has been successfully created
 
-    if (SimObjects.empty()) {
-        if (debugMode) { std::cout << formatError("ERROR") << ": SimObjects list emtpty... skipping frame." << std::endl; }
+    if (Scenes::currentScene.empty()) {
+        if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
         return;
     }
-    Shader* shader = (*SimObjects.begin()).second->shader;
-    Model* model = (*SimObjects.begin()).second->model;
 
-    if (shader && model && lightBlockUBO) {
+    for (const auto& simObject : Scenes::currentScene) {
+        Shader* shader = simObject->shader;
+        Model* model = simObject->model;
 
-        // Activate the shader
         shader->activate();
+        if (simulateObjectRotation) {
+            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, glm::radians(simObject->vertexRotation), glm::vec3(0,1,0)); // temporarily rotate around Z axii
+            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position, simObject->modelMatrix));
+        }
+        else {
+            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position));
+        }
 
-        shader->applyModelMatrix(glm::rotate(glm::mat4(1), glm::radians(radians), glm::vec3(0.0f, 1.0f, 0.0f)));
-        radians += 0.25;
-
-        model->draw(shader);
+        simObject->draw();
     }
 
     glfwSwapBuffers(mainWindow);

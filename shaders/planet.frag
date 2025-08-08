@@ -49,8 +49,8 @@ void main() {
         combinedLightColor = blendAdditive(combinedLightColor, currentLightColor * diff * attenuation);
     }
 
-    // Blend surface color with light colors (70% light, 30% surface)
-    vec3 finalColor = mix(color, combinedLightColor, 0.7);
+    // Blend surface color with light colors (40% light, 60% surface)
+    vec3 finalColor = mix(color, combinedLightColor, 0.4);
 
     // Combine lighting components
     vec3 result = max(totalDiffuse, ambientStrength) * finalColor;

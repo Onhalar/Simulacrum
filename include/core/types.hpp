@@ -10,6 +10,8 @@
 
 using ShaderID = std::string;
 using ModelID = std::string;
+using SimObjectID = std::string;
+using SceneID = std::string;
 
 class units {
     public:
@@ -18,6 +20,7 @@ class units {
 };
 
 using Color = std::tuple<float, float, float, float>;
+using TinyInt = unsigned char; // 0-255
 
 // --- STRUCTS ---
 // structs may be later added into their own separate files

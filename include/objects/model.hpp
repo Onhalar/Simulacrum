@@ -17,7 +17,7 @@
 #include <VBO.hpp>
 #include <EBO.hpp>
 #include <shader.hpp> // For the Shader class
-#include <stlImport.hpp> // For ModelData and loadSTLData
+#include <3DModelImport.hpp> // For ModelData and loadSTLData
 #include <debug.hpp>
 
 /**
@@ -33,18 +33,18 @@ private:
     EBO* ebo;                  // Element Buffer Object (indices)
 
 public:
-    ModelData* modelData;      // Raw model data (vertices, normals, indices)
+    ModelData modelData;      // Raw model data (vertices, normals, indices)
     glm::vec3 objectColor;     // The base color of the object
 
-    /**
-     * @brief Constructor for the Model class. It now only stores the raw model
-     * data and color, and initializes OpenGL buffer pointers to null.
-     * The actual OpenGL buffer creation is deferred to the sendBufferedVertices() method.
-     * @param data A pointer to the ModelData struct containing vertex, normal, and index data.
-     * @param color The base color for the model.
-     */
-    Model(ModelData* data, const glm::vec3& color)
+
+    Model(ModelData data, const glm::vec3& color)
         : modelData(data), objectColor(color), vao(nullptr), vboPositions(nullptr),
+          vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
+    {
+        // Pointers are initialized to nullptr, the OpenGL objects are not created here.
+    }
+
+    Model(const Model& copy) : modelData(copy.modelData), objectColor(copy.objectColor), vao(nullptr), vboPositions(nullptr),
           vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
     {
         // Pointers are initialized to nullptr, the OpenGL objects are not created here.
@@ -56,10 +56,9 @@ public:
     ~Model() {
         // Only delete the resources if they were actually allocated.
         // This makes the destructor safe even if sendBufferedVertices() was never called.
-        if (modelData) {
-            delete modelData;
-            modelData = nullptr;
-        }
+        
+        // model data gets automatically deleted
+
         if (vao) {
             delete vao;
             vao = nullptr;
@@ -83,13 +82,13 @@ public:
     }
     
     void sendBufferedVertices() {
-        if (!modelData && debugMode) {
-            std::cerr << formatError("ERROR") << ": ModelData is null, cannot buffer vertices." << std::endl;
+        if (modelData.indices.empty() && debugMode) {
+            std::cerr << formatError("ERROR") << ": ModelData has no verticies, cannot buffer vertices." << std::endl;
             return;
         }
         if (vao && debugMode) {
-            std::cout << formatWarning("WARNING") << ": Vertices already buffered for this model. Skipping." << std::endl;
-            return;
+            std::cout << formatWarning("WARNING") << ": Rewriting buffered vertices." << std::endl;
+            delete vao;
         }
 
         // Create VAO and bind it
@@ -97,13 +96,13 @@ public:
         vao->bind();
 
         // --- Vertex Positions (location = 0) ---
-        vboPositions = new VBO(modelData->vertices.data(), modelData->vertices.size() * sizeof(GLfloat));
+        vboPositions = new VBO(modelData.vertices.data(), modelData.vertices.size() * sizeof(GLfloat));
         vao->linkAttrib(*vboPositions, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
 
         // --- Vertex Colors (location = 1) ---
         std::vector<GLfloat> colors;
-        colors.reserve(modelData->vertices.size()); // 3 components per vertex
-        for (size_t i = 0; i < modelData->vertices.size() / 3; ++i) {
+        colors.reserve(modelData.vertices.size()); // 3 components per vertex
+        for (size_t i = 0; i < modelData.vertices.size() / 3; ++i) {
             colors.push_back(objectColor.r); // R
             colors.push_back(objectColor.g); // G
             colors.push_back(objectColor.b); // B
@@ -112,11 +111,11 @@ public:
         vao->linkAttrib(*vboColors, 1, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
 
         // --- Normals (location = 2) ---
-        vboNormals = new VBO(modelData->normals.data(), modelData->normals.size() * sizeof(GLfloat));
+        vboNormals = new VBO(modelData.normals.data(), modelData.normals.size() * sizeof(GLfloat));
         vao->linkAttrib(*vboNormals, 2, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
 
         // --- EBO (Indices) ---
-        ebo = new EBO(modelData->indices.data(), modelData->indices.size() * sizeof(GLuint));
+        ebo = new EBO(modelData.indices.data(), modelData.indices.size() * sizeof(GLuint));
 
         // Unbind everything
         vao->unbind();
@@ -133,7 +132,7 @@ public:
      */
     void draw(Shader* shader) {
 
-        if (!vao || !ebo || !modelData) {
+        if (!vao || !ebo || modelData.indices.empty()) {
             // Model not properly loaded or initialized, cannot draw.
             std::cerr << formatError("ERROR") << ": Attempted to draw a model that has not been buffered." << std::endl;
             return;
@@ -143,7 +142,7 @@ public:
 
         vao->bind(); // Bind the VAO
 
-        glDrawElements(GL_TRIANGLES, modelData->indices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, 0);
 
         // Unbind the VAO
         vao->unbind();

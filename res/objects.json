@@ -1,5 +1,5 @@
 {
-    "sphere": {
+    "earth": {
         "radius": 6378,
         "mass": {
             "value": 5.9722,
@@ -7,6 +7,20 @@
         },
         "shader": "planet",
         "model": "sphere",
-        "color": [0.0, 0.0, 1.0]
+        "color": [0.0, 0.0, 1.0],
+        "type": "planet",
+        "rotation": 1600.0
+    },
+    "sol": {
+        "radius": 696340,
+        "mass": {
+            "value": 1.988416,
+            "notation": 30
+        },
+        "shader": "star",
+        "model": "sphere",
+        "color": [0.988, 0.658, 0.011],
+        "type": "star",
+        "rotation": 119.82
     }
 }

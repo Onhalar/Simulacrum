@@ -1,0 +1,14 @@
+{
+    "solarSystem": [
+        {
+            "object": "sol",
+            "position": [0.0, 0.0, 0.0],
+            "velocity": [0.0, 0.0, 0.0]
+        },
+        {
+            "object": "earth",
+            "position": [35.0, 0.0, 5.0],
+            "velocity": [0.0, 1.0, 0.0]
+        }
+    ]
+}

@@ -19,10 +19,10 @@ void mainLoop();
 void setupShaders();
 void renderSetup();
 void setupModels();
-void setupSimObjects();
 
 void loadSettings(std::filesystem::path path);
 void loadSimObjects(std::filesystem::path path);
+void loadPhysicsScene(std::filesystem::path path);
 
 void cleanupRender();
 void cleanup();
@@ -53,7 +53,8 @@ int main(int argc, char **argv) {
     renderSetup();
 
     loadSimObjects(projectPath(simObjectsConfigPath));
-    setupSimObjects();
+
+    loadPhysicsScene(projectPath(physicsScenesPath));
 
     mainLoop();
 
@@ -204,6 +205,9 @@ void mainLoop() {
 }
 
 void cleanup() {
+    delete currentCamera;
+    currentCamera = nullptr;
+
     for (const auto& simObject : SimObjects) { delete simObject.second; }
     SimObjects.clear();
 

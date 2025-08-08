@@ -46,6 +46,7 @@ std::unordered_map<std::string, SettingsEntry> settings = {
     {"VSync",                             SettingsEntry(&VSync, setInt)},
     {"StaticFrameDelayFraction",          SettingsEntry(&staticDelayFraction, setFloat)},
     {"spinDelayNS",                       SettingsEntry(&spinDelay, setNanoseconds)},
+    {"simulateObjectRotation",            SettingsEntry(&simulateObjectRotation, setBool)}
 };
 
 void loadSettings(std::filesystem::path path) {

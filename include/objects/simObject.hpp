@@ -2,6 +2,7 @@
 #define FULL_SIMULATION_OBJECT_HEADER
 
 #include <string>
+#include <unordered_map>
 
 #include <model.hpp>
 #include <shader.hpp>
@@ -17,27 +18,27 @@ class simulationObject : public physicsObject {
     public:
         mutable std::string name;
 
-        mutable double vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
+        double vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
+        float vertexRotation = 0.0; // degrees / second
+
+        double rotationSpeed = -1; // km/h
 
         mutable Shader* shader;
         mutable Model* model;
 
+        glm::mat4 modelMatrix = glm::mat4(1);
+        std::string objectType = "planet";
+
         simulationObject(ShaderID shaderID, ModelID modelID) {
             shader = Shaders[shaderID];
-            model = Models[modelID];
+            model = new Model(*Models[modelID]);
         }
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
 
         void calculateAproximateRadius() {
 
-            if (vertexModelRadius != -1) {
-                if (debugMode) { std::cout << formatWarning("WARNING") << ": Redundant recalculation of vertex radius of " << name << std::endl; }
-
-                return;
-            }
-
-            auto vertices = model->modelData->vertices;
+            auto vertices = model->modelData.vertices;
             // vertices passed will be render-ready so x, y, z, x, y, z, ...
 
             float minX = vertices[0]; float MaxX = vertices[0];
@@ -77,13 +78,9 @@ class simulationObject : public physicsObject {
         }
 
         void scaleVertices(const float& scaleFactor) {
-            for (auto& verticeAxee : model->modelData->vertices) {
+            for (auto& verticeAxee : model->modelData.vertices) {
                 verticeAxee *= scaleFactor;
             }
-        }
-
-        void updateVertexRadius(const double& vertexModelRadius) {
-            this->vertexModelRadius = vertexModelRadius;
         }
 
         void draw() {
@@ -91,5 +88,9 @@ class simulationObject : public physicsObject {
         }
 
 };
+
+using SimObjectList = std::unordered_map<std::string, simulationObject*>;
+
+SimObjectList SimObjects;
 
 #endif // FULL_SIMULATION_OBJECT_HEADER

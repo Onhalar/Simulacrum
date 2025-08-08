@@ -52,6 +52,7 @@ const std::filesystem::path shaderPath = "shaders/";
 const std::filesystem::path modelPath = "res/models";
 const std::filesystem::path settingsPath = "res/settings.json";
 const std::filesystem::path simObjectsConfigPath = "res/objects.json";
+const std::filesystem::path physicsScenesPath = "res/scenes.json";
 
 
 // window settings
@@ -69,15 +70,16 @@ const char* windowName = "Simulacrum project";
 int maxFrameRate = 60;
 int VSync = 1;
 float staticDelayFraction = 0.65f;
+bool simulateObjectRotation = true;
 nanoseconds spinDelay(375); // about 350 - 400 ns
 
 // global shader settings
-float lightFalloff = 0.3f;
+float lightFalloff = 0.001f;
 
 // Model settings
 
-float normalizedModelRadius = 0.5f;
-float modelScalingStrength = 1.0f;
+float normalizedModelRadius = 0.25f;
+float modelScalingStrength = 0.6;
 
 // functions
 
@@ -87,5 +89,9 @@ inline std::string projectPath(const std::string& path) {
 inline std::string projectPath(const std::filesystem::path& path) {
     return (projectDir / path).string();
 }
+
+// physics
+
+#define PI 3.141592653589793
 
 #endif // MAIN_CONFIG_HEADER
