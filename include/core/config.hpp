@@ -72,6 +72,7 @@ int VSync = 1;
 float staticDelayFraction = 0.65f;
 bool simulateObjectRotation = true;
 nanoseconds spinDelay(375); // about 350 - 400 ns
+TinyInt lightUpdateFrameSkip = 2;
 
 // global shader settings
 float lightFalloff = 0.001f;

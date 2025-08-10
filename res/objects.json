@@ -21,6 +21,10 @@
         "model": "sphere",
         "color": [0.988, 0.658, 0.011],
         "type": "star",
-        "rotation": 119.82
+        "rotation": 119.82,
+        "ligth": {
+            "color": [0.988, 0.658, 0.011],
+            "intensity": 1.5
+        }
     }
 }

@@ -9,44 +9,62 @@
 #include <variant>
 #include <unordered_map>
 #include <tuple>
+#include <any>
 
 #include <updateRunningConfig.hpp>
 
-using AnyType = variant<float*, int*, bool*, string*, std::chrono::nanoseconds*, Color*>;
 using Json = nlohmann::json;
-using JsonSetter = void(*)(AnyType, const char*, const Json&);
 
-void setString(AnyType variable, const char* jsonNameIndex, const Json&);
-void setInt(AnyType variable, const char* jsonNameIndex, const Json&);
-void setTuple(AnyType variable, const char* jsonNameIndex, const Json&);
-void setBool(AnyType variable, const char* jsonNameIndex, const Json&);
-void setFloat(AnyType variable, const char* jsonNameIndex, const Json&);
-void setNanoseconds(AnyType variable, const char* jsonNameIndex, const Json&);
+template <typename T>
+using JsonSetter = void(*)(T*, const char*, const Json&);
 
+template <typename T>
 struct SettingsEntry {
-    AnyType variable;
-    JsonSetter setter;
+    T* variable;
+    JsonSetter<T> setter;
 
     SettingsEntry() = default;
-
-    SettingsEntry(AnyType var, JsonSetter set) {
-        variable = var; setter = set;
-    }
+    SettingsEntry(T* var, JsonSetter<T> set) : variable(var), setter(set) {}
 };
 
-std::unordered_map<std::string, SettingsEntry> settings = {
-    {"debugMode",                         SettingsEntry(&debugMode, setBool)},
-    {"maxFrameRate",                      SettingsEntry(&maxFrameRate, setInt)},
-    {"defaultWindowWidth",                SettingsEntry(&defaultWindowWidth, setInt)},
-    {"defaultWindowHeight",               SettingsEntry(&defaultWindowHeight, setInt)},
-    {"minWindowWidth",                    SettingsEntry(&minWindowWidth, setInt)},
-    {"minWindowHeight",                   SettingsEntry(&minWindowHeight, setInt)},
-    {"defaultBackgroundColor",            SettingsEntry(&defaultBackgroundColor, setTuple)},
-    {"prettyOutput",                      SettingsEntry(&prettyOutput, setBool)},
-    {"VSync",                             SettingsEntry(&VSync, setInt)},
-    {"StaticFrameDelayFraction",          SettingsEntry(&staticDelayFraction, setFloat)},
-    {"spinDelayNS",                       SettingsEntry(&spinDelay, setNanoseconds)},
-    {"simulateObjectRotation",            SettingsEntry(&simulateObjectRotation, setBool)}
+template <typename T>
+void setValue(T* variable, const char* jsonNameIndex, const Json& data) {
+    *variable = data[jsonNameIndex].get<T>();
+}
+
+void setTuple(Color* variable, const char* jsonNameIndex, const Json& data) {
+    const auto& bgArray = data[jsonNameIndex];
+    *variable = Color{bgArray[0].get<float>(), bgArray[1].get<float>(), 
+                    bgArray[2].get<float>(), bgArray[3].get<float>()};
+}
+
+void setNanoseconds(std::chrono::nanoseconds* variable, const char* jsonNameIndex, const Json& data) {
+    *variable = std::chrono::nanoseconds(data[jsonNameIndex].get<int>());
+}
+
+using SettingsVariant = std::variant<
+    SettingsEntry<bool>,
+    SettingsEntry<int>,
+    SettingsEntry<float>,
+    SettingsEntry<Color>,
+    SettingsEntry<std::chrono::nanoseconds>,
+    SettingsEntry<unsigned char>
+>;
+
+std::unordered_map<std::string, SettingsVariant> settings = {
+    {"debugMode",                          SettingsEntry(&debugMode, setValue<bool>)},
+    {"maxFrameRate",                       SettingsEntry(&maxFrameRate, setValue<int>)},
+    {"defaultWindowWidth",                 SettingsEntry(&defaultWindowWidth, setValue<int>)},
+    {"defaultWindowHeight",                SettingsEntry(&defaultWindowHeight, setValue<int>)},
+    {"minWindowWidth",                     SettingsEntry(&minWindowWidth, setValue<int>)},
+    {"minWindowHeight",                    SettingsEntry(&minWindowHeight, setValue<int>)},
+    {"defaultBackgroundColor",             SettingsEntry(&defaultBackgroundColor, setTuple)},
+    {"prettyOutput",                       SettingsEntry(&prettyOutput, setValue<bool>)},
+    {"VSync",                              SettingsEntry(&VSync, setValue<int>)},
+    {"StaticFrameDelayFraction",           SettingsEntry(&staticDelayFraction, setValue<float>)},
+    {"spinDelayNS",                        SettingsEntry(&spinDelay, setNanoseconds)},
+    {"simulateObjectRotation",             SettingsEntry(&simulateObjectRotation, setValue<bool>)},
+    {"lightUpdateFrameSkip",               SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}
 };
 
 void loadSettings(std::filesystem::path path) {
@@ -65,37 +83,21 @@ void loadSettings(std::filesystem::path path) {
     file >> data;
     file.close();
 
-    for (const auto& entry : data.items()) {
-        const char* key = entry.key().c_str();
-        if (settings.find(key) != settings.end()) {
-            settings[key].setter(settings[key].variable, key, data);
+    // avantgarde assholes
+    for (auto& entryValue : settings) { // auto& [x, y] -> unpacks std::pair as references
+        
+        auto name = entryValue.first;
+        auto entry = entryValue.second;
+
+        if (data.contains(name)) {
+            // std::visit -> takes a visitor (lambda) and a variant and applies the visitor to the currently active type in variant
+            std::visit([& /*captures all variables in scope by reference*/](auto&& arg /*arguments - entry - settings[i].second.setter(...)*/) { // auto&& universal reference -> both r and l values
+                arg.setter(arg.variable, name.c_str(), data);
+            }, entry);
         }
     }
 
     updateRunningConfig::updateAllFromSet();
 
     if (debugMode) { cout << formatSuccess("Done") << endl; }
-}
-
-
-
-
-void setString(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<std::string*>(variable) = data[jsonNameIndex].get<std::string>();
-}
-void setInt(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<int*>(variable) = data[jsonNameIndex].get<int>();
-}
-void setTuple(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    const auto& bgArray = data[jsonNameIndex];
-    *std::get<Color*>(variable) = (Color){bgArray[0].get<float>(), bgArray[1].get<float>(), bgArray[2].get<float>(), bgArray[3].get<float>()};
-}
-void setBool(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<bool*>(variable) = data[jsonNameIndex].get<bool>();
-}
-void setFloat(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<float*>(variable) = data[jsonNameIndex].get<float>();
-}
-void setNanoseconds(AnyType variable, const char* jsonNameIndex, const Json& data) {
-    *std::get<std::chrono::nanoseconds*>(variable) = nanoseconds(data[jsonNameIndex].get<int>());
 }

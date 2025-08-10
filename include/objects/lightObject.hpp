@@ -12,7 +12,7 @@ class LightObject {
         LightObject (
             glm::vec3 position = glm::vec3(0,0,0),
             glm::vec3 color = glm::vec3(1,0,0),
-            float intensity = 1
+            float intensity = 1.5
         ) {
             this->position = position;
             this->color = color;

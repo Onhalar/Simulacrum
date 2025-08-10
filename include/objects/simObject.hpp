@@ -9,6 +9,8 @@
 
 #include "physicsObject.hpp"
 
+#include <lightObject.hpp>
+
 #include <globals.hpp>
 
 class simulationObject : public physicsObject {
@@ -16,7 +18,7 @@ class simulationObject : public physicsObject {
         ShaderID shaderID;
         ModelID modelId;
     public:
-        mutable std::string name;
+        std::string name;
 
         double vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
         float vertexRotation = 0.0; // degrees / second
@@ -28,6 +30,8 @@ class simulationObject : public physicsObject {
 
         glm::mat4 modelMatrix = glm::mat4(1);
         std::string objectType = "planet";
+
+        LightObject* light = nullptr;
 
         simulationObject(ShaderID shaderID, ModelID modelID) {
             shader = Shaders[shaderID];

@@ -10,6 +10,7 @@
 #include <simObject.hpp>
 
 #include <math.h>
+#include <climits>
 
 #include <simObject.hpp>
 
@@ -17,9 +18,52 @@
 
 using Json = nlohmann::json;
 
+
+// y       = 8   = 1000
+// y - 1   = 7   = 0111
+
+template <typename T>
+bool isPowerOfTwo (const T& number) {
+    static_assert(std::is_unsigned<T>::value, "Type must be unsigned"); // compile time check (static assert); value -> 0/1
+
+    return number != 0 && (number & (number - 1)) == 0;
+}
+
+template <typename T>
+T roundUpToPowerOfTwo(T& number) {
+    static_assert(std::is_unsigned<T>::value, "Type must be unsigned");
+
+    if ( number == 0 ) { return 1; }
+    if ( number == std::numeric_limits<T>::max() ) { return ~(number >> 1); } // (>>) 1111 => (~) 0111 => 1000
+
+    number--; // necesery because of if number is 1
+
+    T temp = 1;
+
+    for (; temp < number;) {
+        temp <<= 1; // shift bit by one space to the left (equivalent *= 2) => 0001 => 0010
+    }
+
+    return temp;
+}
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------==[ SETUP ]==------------------------
+
 void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     //SimObjects["pyramid"] = new simulationObject("planet", "pyramid");
     //SimObjects["sphere"] = new simulationObject("planet", "sphere");
+
+    lightQue.clear();
 
     units::kilometers minObjectRadius = DBL_MAX;
 
@@ -45,8 +89,16 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     }
 
     for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        if (simObject->light != nullptr) {
+            lightQue[simObject->name] = simObject->light;
+        }
+    }
+
+    for (const auto& simObject : Scenes::allScenes[sceneID]) {
         simObject->model->sendBufferedVertices();
     }
+
+    // light positions will be updated in the main loop
 }
 
 void switchSceneAndCalculateObjects(const SceneID& sceneID) {
@@ -97,23 +149,49 @@ void loadSimObjects(std::filesystem::path path) {
             auto color = entryValue["color"];
             SimObjects[entryKey]->model->objectColor = glm::vec3( color[0].get<float>(), color[1].get<float>(), color[2].get<float>() );
         }
+
         if (entryValue.contains("radius")) {
             SimObjects[entryKey]->radius = entryValue["radius"];
         }
+
         if (entryValue.contains("mass") &&
             entryValue["mass"].contains("value") &&
             entryValue["mass"].contains("notation")
         ) {
                 SimObjects[entryKey]->mass = entryValue["mass"]["value"].get<double>() * std::pow(10, entryValue["mass"]["notation"].get<unsigned int>());
         }
+
         if (entryValue.contains("type")) {
             SimObjects[entryKey]->objectType = entryValue["type"].get<std::string>();
         }
+
         if (entryValue.contains("rotation") && SimObjects[entryKey]->radius != -1) {
             SimObjects[entryKey]->rotationSpeed = entryValue["rotation"].get<double>();
         }
         else {
             SimObjects[entryKey]->vertexRotation = 0.003992; //360 * ((earthRotationKmH / (EarthRadius*PI*2)) / 3600) -> approximate Earth's rotation degrees / second
+        }
+
+        if (entryValue.contains("light")) {
+            glm::vec3 color; float intensity;
+            if (entryValue["light"].contains("intensity")) {
+                intensity = entryValue["light"]["intesity"].get<float>();
+            }
+            else {
+                intensity = 1.5f;
+            }
+            
+            if (entryValue["light"].contains("color")){
+                auto lightColor = entryValue["light"]["color"];
+                color = glm::vec3( lightColor[0].get<float>(), lightColor[1].get<float>(), lightColor[2].get<float>() );
+            } else {
+                color = SimObjects[entryKey]->model->objectColor;
+            }
+
+            SimObjects[entryKey]->light = new LightObject(SimObjects[entryKey]->position, color, intensity);            
+        }
+        else if (SimObjects[entryKey]->objectType == "star") {
+            SimObjects[entryKey]->light = new LightObject();
         }
     }
 

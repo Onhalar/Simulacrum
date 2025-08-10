@@ -32,8 +32,6 @@ inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position) {
     return glm::translate(glm::mat4(1.0f), position);
 }
 
-std::unordered_map<std::string, LightObject*> lightQue;
-
 Camera* currentCamera;
 
 // Global UBO for light properties
@@ -130,8 +128,18 @@ void cleanupRender() {
     }
 }
 
+void updateLightSourcePositions() {
+    for (const auto& light : lightQue) {
+        if (SimObjects.find(light.first) != SimObjects.end()) {
+            light.second->position = SimObjects[light.first]->position;
+        }
+    }
+}
+
 // prototype function; later will be culling based on distance
 void updateLightSources() {
+    updateLightSourcePositions();
+
     int amountOfLights = std::min(MAX_LIGHTS, (int)lightQue.size());
 
     LightBlockData lightsData;
@@ -156,13 +164,13 @@ void updateLightSources() {
     lightBlockUBO->bind(LIGHT_UBO_BINDING_POINT);
 }
 
-// one shot temporary render setup
+/* one shot temporary render setup
 void renderSetup() {
     lightQue["sol"] = new LightObject(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.988, 0.658, 0.011), 1.5f); // sun light
 
 
     updateLightSources();
-}
+}*/
 
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

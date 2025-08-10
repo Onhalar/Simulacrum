@@ -17,7 +17,6 @@ void setupOpenGL();
 void mainLoop();
 
 void setupShaders();
-void renderSetup();
 void setupModels();
 
 void loadSettings(std::filesystem::path path);
@@ -50,7 +49,6 @@ int main(int argc, char **argv) {
     // Call setupModels() to load the STL file and prepare its OpenGL buffers
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
-    renderSetup();
 
     loadSimObjects(projectPath(simObjectsConfigPath));
 
@@ -154,6 +152,13 @@ void setupOpenGL() {
 }
 
 void mainLoop() {
+    TinyInt frameCount = 0;
+    auto frameCountOverflowLimit = std::numeric_limits<decltype(frameCount)>::max();
+
+    if (!isPowerOfTwo(lightUpdateFrameSkip)) {
+        lightUpdateFrameSkip = roundUpToPowerOfTwo(lightUpdateFrameSkip);
+    }
+    updateLightSources(); // inital calculation (positions) + sending data to shaders
 
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
@@ -167,6 +172,12 @@ void mainLoop() {
         currentCamera->handleInputs(mainWindow);
         for(auto shader: Shaders) {
             currentCamera->updateProjection(shader.second);
+        }
+
+        // y       = 8   = 1000
+        // y - 1   = 7   = 0111
+        if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
+            updateLightSources();
         }
 
         render();
@@ -196,6 +207,13 @@ void mainLoop() {
             }
         }
 
+        if (frameCount == frameCountOverflowLimit) {
+            frameCount = 0;
+        }
+        else {
+            ++frameCount;
+        }
+
         frameEnd = steady_clock::now(); // Use std::chrono
 
         deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
@@ -207,6 +225,9 @@ void mainLoop() {
 void cleanup() {
     delete currentCamera;
     currentCamera = nullptr;
+
+    for (const auto& LightObject : lightQue) { delete LightObject.second; }
+    lightQue.clear();
 
     for (const auto& simObject : SimObjects) { delete simObject.second; }
     SimObjects.clear();
