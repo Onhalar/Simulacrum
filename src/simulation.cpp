@@ -47,6 +47,21 @@ T roundUpToPowerOfTwo(T& number) {
     return temp;
 }
 
+units::kilometers exponentialScale(const units::kilometers& minValue, const units::kilometers& MaxValue, const units::kilometers& currentValue, const float& maxScale = maxScale) {
+    if (minValue >= MaxValue /*Zero Division handler*/ || currentValue <= minValue) {
+        return 1.0;
+    }
+
+    if (currentValue >= MaxValue) {
+        return maxScale;
+    }
+
+    // Normalize the current value to a 0-1 range.
+    double normalized_val = (currentValue - minValue) / (MaxValue - minValue);
+
+    return std::pow(maxScale, normalized_val);
+}
+
 
 
 
@@ -66,19 +81,30 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     lightQue.clear();
 
     units::kilometers minObjectRadius = DBL_MAX;
+    units::kilometers MaxObjctRadius = DBL_MIN;
 
     for (const auto& simObject : Scenes::allScenes[sceneID]) {
         simObject->calculateAproximateRadius();
         simObject->normalizeVertices(normalizedModelRadius);
+
         minObjectRadius = std::min(simObject->radius, minObjectRadius);
+        MaxObjctRadius = std::max(simObject->radius, MaxObjctRadius);
     }
 
     if (minObjectRadius > 0) { // will be -1 if not all objects are present
         for (const auto& simObject : Scenes::allScenes[sceneID]) {
-            double scaleFactor = (simObject->radius / minObjectRadius);
 
-            simObject->scaleVertices( scaleFactor * modelScalingStrength );
-            simObject->vertexModelRadius = simObject->vertexModelRadius * scaleFactor * modelScalingStrength;
+            double scaleFactor;
+
+            if (scalingMode == scalingType::realistic) {
+                scaleFactor = (simObject->radius / minObjectRadius);
+            }
+            else if (scalingMode == scalingType::simlyfied) {
+                scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
+            }
+
+            simObject->scaleVertices(scaleFactor);
+            simObject->vertexModelRadius = simObject->vertexModelRadius * scaleFactor;
 
             if (simObject->rotationSpeed != -1 && simulateObjectRotation) {
                 double objectCircumference = 2.0 * PI * simObject->radius;

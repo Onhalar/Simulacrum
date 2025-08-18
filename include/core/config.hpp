@@ -79,8 +79,9 @@ float lightFalloff = 0.001f;
 
 // Model settings
 
-float normalizedModelRadius = 0.25f;
-float modelScalingStrength = 0.6;
+float normalizedModelRadius = 0.85f;
+scalingType scalingMode = scalingType::simlyfied;
+float maxScale = 7.5f;
 
 // functions
 

@@ -33,4 +33,11 @@ struct ModelData {
     std::vector<unsigned int> indices;   // Stores indices for indexed drawing
 };
 
+// --- ENUMS ---
+
+enum scalingType {
+    realistic,
+    simlyfied
+};
+
 #endif // GLOBAL_SIMPLE_TYPE_HEADER

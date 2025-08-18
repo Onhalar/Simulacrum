@@ -48,7 +48,8 @@ using SettingsVariant = std::variant<
     SettingsEntry<float>,
     SettingsEntry<Color>,
     SettingsEntry<std::chrono::nanoseconds>,
-    SettingsEntry<unsigned char>
+    SettingsEntry<unsigned char>,
+    SettingsEntry<scalingType>
 >;
 
 std::unordered_map<std::string, SettingsVariant> settings = {
@@ -64,7 +65,9 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"StaticFrameDelayFraction",           SettingsEntry(&staticDelayFraction, setValue<float>)},
     {"spinDelayNS",                        SettingsEntry(&spinDelay, setNanoseconds)},
     {"simulateObjectRotation",             SettingsEntry(&simulateObjectRotation, setValue<bool>)},
-    {"lightUpdateFrameSkip",               SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}
+    {"lightUpdateFrameSkip",               SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)},
+    {"scalingMode",                        SettingsEntry(&scalingMode, setValue<scalingType>)},
+    {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)}
 };
 
 void loadSettings(std::filesystem::path path) {
@@ -83,7 +86,7 @@ void loadSettings(std::filesystem::path path) {
     file >> data;
     file.close();
 
-    // avantgarde assholes
+    // avantgarde asshole
     for (auto& entryValue : settings) { // auto& [x, y] -> unpacks std::pair as references
         
         auto name = entryValue.first;

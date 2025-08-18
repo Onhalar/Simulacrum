@@ -2,14 +2,21 @@
     "prettyOutput": true,
     "debugMode": true,
     "simulateObjectRotation": false,
+
     "defaultWindowWidth": 500,
     "defaultWindowHeight": 500,
+
     "minWindowWidth": 300,
     "minWindowHeight": 300,
+
     "defaultBackground": [0.07, 0.13, 0.17, 1.0],
+
     "maxFrameRate": 60,
     "VSync": 1,
     "StaticFrameDelayFraction": 0.65,
     "spinDelayNS": 375,
-    "lightUpdateFrameSkip": 2
+    "lightUpdateFrameSkip": 2,
+
+    "scalingMode": 1,
+    "simpleMaxScale": 7.5
 }
