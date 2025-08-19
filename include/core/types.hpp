@@ -37,7 +37,7 @@ struct ModelData {
 
 enum scalingType {
     realistic,
-    simlyfied
+    simplified
 };
 
 #endif // GLOBAL_SIMPLE_TYPE_HEADER

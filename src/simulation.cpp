@@ -98,13 +98,15 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
             if (scalingMode == scalingType::realistic) {
                 scaleFactor = (simObject->radius / minObjectRadius);
+                currentScale = (minObjectRadius / normalizedModelRadius);
             }
-            else if (scalingMode == scalingType::simlyfied) {
+            else if (scalingMode == scalingType::simplified) {
                 scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
+                currentScale = (minObjectRadius /* /1 */ + (MaxObjctRadius / maxScale)) / 2.0;
             }
 
             simObject->scaleVertices(scaleFactor);
-            simObject->vertexModelRadius = simObject->vertexModelRadius * scaleFactor;
+            simObject->vertexModelRadius *= scaleFactor;
 
             if (simObject->rotationSpeed != -1 && simulateObjectRotation) {
                 double objectCircumference = 2.0 * PI * simObject->radius;

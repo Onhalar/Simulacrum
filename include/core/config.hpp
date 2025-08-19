@@ -80,8 +80,9 @@ float lightFalloff = 0.001f;
 // Model settings
 
 float normalizedModelRadius = 0.85f;
-scalingType scalingMode = scalingType::simlyfied;
+scalingType scalingMode = scalingType::simplified;
 float maxScale = 7.5f;
+double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 
 // functions
 
