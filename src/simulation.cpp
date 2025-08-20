@@ -18,6 +18,36 @@
 
 using Json = nlohmann::json;
 
+void advanceObjectPositon(simulationObject* simObject) {
+    simObject->position += (simObject->velocity / currentScale) * deltaTime;
+}
+
+void advanceObjectPositions() {
+    for (const auto& simObject : Scenes::currentScene) {
+        advanceObjectPositon(simObject);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------==[ HELPERS ]==------------------------
+
 
 // y       = 8   = 1000
 // y - 1   = 7   = 0111
@@ -65,20 +95,18 @@ units::kilometers exponentialScale(const units::kilometers& minValue, const unit
 
 
 
-
-
-
-
-
-
-
 // ------------------------==[ SETUP ]==------------------------
+
+
+
 
 void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     //SimObjects["pyramid"] = new simulationObject("planet", "pyramid");
     //SimObjects["sphere"] = new simulationObject("planet", "sphere");
 
     lightQue.clear();
+
+    currentScale = 0.0;
 
     units::kilometers minObjectRadius = DBL_MAX;
     units::kilometers MaxObjctRadius = DBL_MIN;
@@ -96,13 +124,13 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
             double scaleFactor;
 
-            if (scalingMode == scalingType::realistic) {
+            if (simulationMode == simulationType::realistic) {
                 scaleFactor = (simObject->radius / minObjectRadius);
-                currentScale = (minObjectRadius / normalizedModelRadius);
+                if (!currentScale) { currentScale = (minObjectRadius / normalizedModelRadius) * renderScaleDistortion; }
             }
-            else if (scalingMode == scalingType::simplified) {
+            else if (simulationMode == simulationType::simplified) {
                 scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
-                currentScale = (minObjectRadius /* /1 */ + (MaxObjctRadius / maxScale)) / 2.0;
+                if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / maxScale)) /2 ) * renderScaleDistortion; }
             }
 
             simObject->scaleVertices(scaleFactor);
@@ -113,6 +141,20 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
                 simObject->vertexRotation = 360.0 * ( ( simObject->rotationSpeed / objectCircumference ) / 3600 ); // degrees per second
             }
+        }
+    }
+    else {
+        currentScale = 1.0;
+    }
+
+    for (const auto& simObject : Scenes::allScenes[sceneID])  {
+        simObject->position = simObject->realPosition / currentScale;
+
+        if (simulationMode == simulationType::realistic) {
+            simObject->velocity = simObject->realVelocity; 
+        }
+        else if (simulationMode == simulationType::simplified) {
+            simObject->velocity = simObject->realVelocity * velocityScaleDistortion;
         }
     }
 
@@ -179,16 +221,12 @@ void loadSimObjects(std::filesystem::path path) {
         }
 
         if (entryValue.contains("radius")) {
-            SimObjects[entryKey]->radius = entryValue["radius"];
+            SimObjects[entryKey]->radius = entryValue["radius"].get<units::kilometers>();
         }
 
-        if (entryValue.contains("mass") &&
-            entryValue["mass"].contains("value") &&
-            entryValue["mass"].contains("notation")
-        ) {
-                SimObjects[entryKey]->mass = entryValue["mass"]["value"].get<double>() * std::pow(10, entryValue["mass"]["notation"].get<unsigned int>());
+        if (entryValue.contains("mass")) {
+            SimObjects[entryKey]->mass = entryValue["mass"].get<units::tons>();
         }
-
         if (entryValue.contains("type")) {
             SimObjects[entryKey]->objectType = entryValue["type"].get<std::string>();
         }
@@ -270,11 +308,11 @@ void loadPhysicsScene(std::filesystem::path path) {
             if (simObject.contains("position")) {
                 if (simObject["position"].size() == 3) {
                     auto position = simObject["position"];
-                    currentSimObject->position = glm::vec3(position[0].get<float>(), position[1].get<float>(), position[2].get<float>());
+                    currentSimObject->realPosition = glm::vec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
                     if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' position has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                    currentSimObject->position = glm::dvec3(0);
+                    currentSimObject->realPosition = glm::dvec3(0);
                 }
             }
             else {
@@ -285,7 +323,7 @@ void loadPhysicsScene(std::filesystem::path path) {
             if (simObject.contains("velocity")) {
                 if (simObject["velocity"].size() == 3) {
                     auto position = simObject["velocity"];
-                    currentSimObject->velocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
+                    currentSimObject->realVelocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
                     if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' velocity has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }

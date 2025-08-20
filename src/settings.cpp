@@ -46,10 +46,11 @@ using SettingsVariant = std::variant<
     SettingsEntry<bool>,
     SettingsEntry<int>,
     SettingsEntry<float>,
+    SettingsEntry<double>,
     SettingsEntry<Color>,
     SettingsEntry<std::chrono::nanoseconds>,
     SettingsEntry<unsigned char>,
-    SettingsEntry<scalingType>
+    SettingsEntry<simulationType>
 >;
 
 std::unordered_map<std::string, SettingsVariant> settings = {
@@ -66,8 +67,13 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"spinDelayNS",                        SettingsEntry(&spinDelay, setNanoseconds)},
     {"simulateObjectRotation",             SettingsEntry(&simulateObjectRotation, setValue<bool>)},
     {"lightUpdateFrameSkip",               SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)},
-    {"scalingMode",                        SettingsEntry(&scalingMode, setValue<scalingType>)},
-    {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)}
+    {"renderDistance",                     SettingsEntry(&renderDistance, setValue<float>)},
+    {"cameraSpeed",                        SettingsEntry(&cameraSpeed, setValue<float>)},
+    {"cameraSensitivity",                  SettingsEntry(&cameraSensitivity, setValue<float>)},
+    {"simulationMode",                     SettingsEntry(&simulationMode, setValue<simulationType>)},
+    {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)},
+    {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
+    {"velocityScaleDistortion",            SettingsEntry(&velocityScaleDistortion, setValue<double>)}
 };
 
 void loadSettings(std::filesystem::path path) {

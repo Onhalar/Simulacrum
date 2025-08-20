@@ -23,7 +23,6 @@
 
 #include <scenes.hpp>
 
-void setupShaderMetrices(Shader* shader);
 
 inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position, const glm::mat4& modelMatrix) {
     return glm::translate(modelMatrix, position);
@@ -31,6 +30,37 @@ inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position, c
 inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position) {
     return glm::translate(glm::mat4(1.0f), position);
 }
+
+void render() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Only attempt to render if the model instance has been successfully created
+
+    if (Scenes::currentScene.empty()) {
+        if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
+        return;
+    }
+
+    for (const auto& simObject : Scenes::currentScene) {
+        Shader* shader = simObject->shader;
+        Model* model = simObject->model;
+
+        shader->activate();
+        if (simulateObjectRotation) {
+            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, glm::radians(simObject->vertexRotation), glm::vec3(0,1,0)); // temporarily rotate around Z axii
+            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(simObject->position) * simObject->modelMatrix );
+        }
+        else {
+            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position));
+        }
+
+        simObject->draw();
+    }
+
+    glfwSwapBuffers(mainWindow);
+}
+
+void setupShaderMetrices(Shader* shader);
 
 Camera* currentCamera;
 
@@ -171,35 +201,6 @@ void renderSetup() {
 
     updateLightSources();
 }*/
-
-void render() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Only attempt to render if the model instance has been successfully created
-
-    if (Scenes::currentScene.empty()) {
-        if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
-        return;
-    }
-
-    for (const auto& simObject : Scenes::currentScene) {
-        Shader* shader = simObject->shader;
-        Model* model = simObject->model;
-
-        shader->activate();
-        if (simulateObjectRotation) {
-            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, glm::radians(simObject->vertexRotation), glm::vec3(0,1,0)); // temporarily rotate around Z axii
-            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position, simObject->modelMatrix));
-        }
-        else {
-            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position));
-        }
-
-        simObject->draw();
-    }
-
-    glfwSwapBuffers(mainWindow);
-}
 
 void resize(GLFWwindow *window, int width, int height) {
     // Ensure the mainShader is active before updating projection

@@ -73,6 +73,10 @@ float staticDelayFraction = 0.65f;
 bool simulateObjectRotation = true;
 nanoseconds spinDelay(375); // about 350 - 400 ns
 TinyInt lightUpdateFrameSkip = 2;
+float renderDistance = 1'000.0f;
+
+float cameraSpeed = 12.5f;
+float cameraSensitivity = 175.0f;
 
 // global shader settings
 float lightFalloff = 0.001f;
@@ -80,9 +84,11 @@ float lightFalloff = 0.001f;
 // Model settings
 
 float normalizedModelRadius = 0.85f;
-scalingType scalingMode = scalingType::simplified;
+simulationType simulationMode = simulationType::simplified;
 float maxScale = 7.5f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
+double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
+double velocityScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater velocity; more -> smaller velocity
 
 // functions
 
@@ -94,6 +100,7 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
+float simulationSpeed = 1.0f;
 
 #define PI 3.141592653589793
 

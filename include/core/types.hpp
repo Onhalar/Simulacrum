@@ -35,7 +35,7 @@ struct ModelData {
 
 // --- ENUMS ---
 
-enum scalingType {
+enum simulationType {
     realistic,
     simplified
 };

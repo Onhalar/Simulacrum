@@ -169,6 +169,7 @@ void mainLoop() {
         // handles scheduled tasks
         //handleSchedule();
         
+        currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed);
         currentCamera->handleInputs(mainWindow);
         for(auto shader: Shaders) {
             currentCamera->updateProjection(shader.second);
@@ -179,6 +180,8 @@ void mainLoop() {
         if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
             updateLightSources();
         }
+
+        // advanceObjectPositions();
 
         render();
 
@@ -217,6 +220,7 @@ void mainLoop() {
         frameEnd = steady_clock::now(); // Use std::chrono
 
         deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
+        deltaTime *= simulationSpeed;
             
         lastTime = frameEnd;
     }

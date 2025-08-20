@@ -26,7 +26,7 @@ class Camera {
         glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
         const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        float cameraSpeed = 10.0f;
+        float cameraSpeed = 12.5f;
         float sensitivity = 175.0f;
 
         float nearClipPlane = 0.1f;
@@ -68,6 +68,26 @@ class Camera {
 
             shader->applyViewMatrix();
             shader->applyProjectionMatrix();
+        }
+        void updateProjection(const int& projectionWidth, const int& projectionHeight, Shader* shader, const float& nearClipPlane, const float& farClipPlane) {
+            shader->activate();
+            
+            width = projectionWidth;
+            height = projectionHeight;
+
+            glViewport(0, 0, projectionWidth, projectionHeight);
+
+            viewMatrix = glm::lookAt(position, position + orientation, UP);
+            projectionMatrix = glm::perspective(glm::radians(FOVdeg), width/(float)height, nearClipPlane, farClipPlane);
+
+            shader->viewMatrix = viewMatrix;
+            shader->projectionMatrix = projectionMatrix;
+
+            shader->applyViewMatrix();
+            shader->applyProjectionMatrix();
+
+            this->nearClipPlane = nearClipPlane;
+            this->farClipPlane = farClipPlane;
         }
         void handleInputs(GLFWwindow* window) {
             static bool controlCamera = false;
@@ -131,6 +151,9 @@ class Camera {
                     position += cameraSpeed * -UP * FdeltaTime;
                 }
             }
+        }
+        void updateCameraValues(const float& renderDistance, const float& sensitivity, const float& speed) {
+            this->farClipPlane = renderDistance; this->sensitivity = sensitivity, this->cameraSpeed = speed;
         }
 };
 

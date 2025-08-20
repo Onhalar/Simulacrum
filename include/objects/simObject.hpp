@@ -7,20 +7,27 @@
 #include <model.hpp>
 #include <shader.hpp>
 
-#include "physicsObject.hpp"
-
 #include <lightObject.hpp>
 
 #include <globals.hpp>
 
-class simulationObject : public physicsObject {
+class simulationObject {
     private:
         ShaderID shaderID;
         ModelID modelId;
     public:
+        glm::vec3 position = glm::vec3(0);
+        glm::dvec3 realPosition = glm::dvec3(0);
+
+        units::kilometers radius = -1.0;
+        units::tons mass = -1.01;
+
+        glm::dvec3 velocity = glm::dvec3(0);
+        glm::dvec3 realVelocity = glm::dvec3(0);
+
         std::string name;
 
-        double vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
+        float vertexModelRadius = -1.0; // -1 is imposible since output is an absolute number
         float vertexRotation = 0.0; // degrees / second
 
         double rotationSpeed = -1; // km/h
