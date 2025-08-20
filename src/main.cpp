@@ -3,10 +3,14 @@
 #include <iostream>
 
 #include <simObject.hpp>
+#include <customMath.hpp>
 
 #include "render.cpp"
 #include "settings.cpp"
 #include "simulation.cpp"
+
+#include "setup/simSetup.cpp"
+#include "setup/renderSetup.cpp"
 
 // ***************************************
 // ** ToDo: Add GUI with Dear ImGui   **
@@ -18,6 +22,8 @@ void mainLoop();
 
 void setupShaders();
 void setupModels();
+
+void setupSimulation();
 
 void loadSettings(std::filesystem::path path);
 void loadSimObjects(std::filesystem::path path);
@@ -43,16 +49,14 @@ int main(int argc, char **argv) {
     glfwSetFramebufferSizeCallback(mainWindow, resize);
 
     loadSettings(projectPath(settingsPath));
-
+    
     setupOpenGL();
 
     // Call setupModels() to load the STL file and prepare its OpenGL buffers
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
 
-    loadSimObjects(projectPath(simObjectsConfigPath));
-
-    loadPhysicsScene(projectPath(physicsScenesPath));
+    setupSimulation();
 
     mainLoop();
 
@@ -65,8 +69,6 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-
 
 void createWindow() {
     GLFWwindow* window;

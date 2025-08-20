@@ -20,4 +20,80 @@ class Scenes {
     }
 };
 
+void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
+    //SimObjects["pyramid"] = new simulationObject("planet", "pyramid");
+    //SimObjects["sphere"] = new simulationObject("planet", "sphere");
+
+    lightQue.clear();
+
+    currentScale = 0.0;
+
+    units::kilometers minObjectRadius = DBL_MAX;
+    units::kilometers MaxObjctRadius = DBL_MIN;
+
+    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        simObject->calculateAproximateRadius();
+        simObject->normalizeVertices(normalizedModelRadius);
+
+        minObjectRadius = std::min(simObject->radius, minObjectRadius);
+        MaxObjctRadius = std::max(simObject->radius, MaxObjctRadius);
+    }
+
+    if (minObjectRadius > 0) { // will be -1 if not all objects are present
+        for (const auto& simObject : Scenes::allScenes[sceneID]) {
+
+            double scaleFactor;
+
+            if (simulationMode == simulationType::realistic) {
+                scaleFactor = (simObject->radius / minObjectRadius);
+                if (!currentScale) { currentScale = (minObjectRadius / normalizedModelRadius) * renderScaleDistortion; }
+            }
+            else if (simulationMode == simulationType::simplified) {
+                scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
+                if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / maxScale)) /2 ) * renderScaleDistortion; }
+            }
+
+            simObject->scaleVertices(scaleFactor);
+            simObject->vertexModelRadius *= scaleFactor;
+
+            if (simObject->rotationSpeed != -1 && simulateObjectRotation) {
+                double objectCircumference = 2.0 * PI * simObject->radius;
+
+                simObject->vertexRotation = 360.0 * ( ( simObject->rotationSpeed / objectCircumference ) / 3600 ); // degrees per second
+            }
+        }
+    }
+    else {
+        currentScale = 1.0;
+    }
+
+    for (const auto& simObject : Scenes::allScenes[sceneID])  {
+        simObject->position = simObject->realPosition / currentScale;
+
+        if (simulationMode == simulationType::realistic) {
+            simObject->velocity = simObject->realVelocity; 
+        }
+        else if (simulationMode == simulationType::simplified) {
+            simObject->velocity = simObject->realVelocity * velocityScaleDistortion;
+        }
+    }
+
+    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        if (simObject->light != nullptr) {
+            lightQue[simObject->name] = simObject->light;
+        }
+    }
+
+    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        simObject->model->sendBufferedVertices();
+    }
+
+    // light positions will be updated in the main loop
+}
+
+void switchSceneAndCalculateObjects(const SceneID& sceneID) {
+    setupSceneObjects(sceneID);
+    Scenes::switchScene(sceneID);
+}
+
 #endif // PHYSICS_SCENE_CLASS_HEADER

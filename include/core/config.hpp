@@ -69,17 +69,17 @@ const char* windowName = "Simulacrum project";
 // render settings
 int maxFrameRate = 60;
 int VSync = 1;
+
 float staticDelayFraction = 0.65f;
 bool simulateObjectRotation = true;
+
 nanoseconds spinDelay(375); // about 350 - 400 ns
 TinyInt lightUpdateFrameSkip = 2;
+
 float renderDistance = 1'000.0f;
 
 float cameraSpeed = 12.5f;
 float cameraSensitivity = 175.0f;
-
-// global shader settings
-float lightFalloff = 0.001f;
 
 // Model settings
 
