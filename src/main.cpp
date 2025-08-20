@@ -25,10 +25,6 @@ void setupModels();
 
 void setupSimulation();
 
-void loadSettings(std::filesystem::path path);
-void loadSimObjects(std::filesystem::path path);
-void loadPhysicsScene(std::filesystem::path path);
-
 void cleanupRender();
 void cleanup();
 

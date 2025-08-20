@@ -10,8 +10,11 @@
 #include <paths.hpp>
 
 #include <math.h>
+#include <optional>
+#include <variant>
 
 using Json = nlohmann::json;
+using errorCode = std::string;
 
 void loadSimObjects(std::filesystem::path path);
 void loadPhysicsScene(std::filesystem::path path);
@@ -22,8 +25,52 @@ void setupSimulation() {
     loadPhysicsScene(projectPath(physicsScenesPath));
 }
 
+std::optional<ShaderID> generateFallbackShaderID () {
+    std::optional<ShaderID> output;
+    if (!Shaders.empty()) {
+        output = (*Shaders.begin()).first;
+    }
+    return output;
+}
+std::optional<ModelID> generateFallbackModelID () {
+    std::optional<ModelID> output;
+    if (!Models.empty()) {
+        output = (*Models.begin()).first;
+    }
+    return output;
+}
 
+std::optional<ShaderID> resolveFallbackShaderID(std::string ObjectName, std::stringstream& debugBuffer, bool isMissing = false) {
+    std::optional<ShaderID> shader;
 
+    debugBuffer << formatError("ERROR") << ": in object '" << formatPath(ObjectName) << "' shader value is " << (isMissing ? "Missing" : "incorrect") << " ... " << formatProcess("Attempting to resolve") << " ... ";
+    auto maybeShader = generateFallbackShaderID();
+    if (maybeShader.has_value()) {
+        shader = maybeShader.value();
+        debugBuffer << formatProcess("Loaded ") << "'" << formatPath(shader.value()) << "' " << formatRole("shader") << std::endl;
+    }
+    else {
+        debugBuffer << formatError("FAILED") <<  " ... Skipping" << std::endl;
+    }
+
+    return shader;
+}
+
+std::optional<ShaderID> resolveFallbackModelID(std::string ObjectName, std::stringstream& debugBuffer, bool isMissing = false) {
+    std::optional<ShaderID> model;
+
+    debugBuffer << formatError("ERROR") << ": in object '" << formatPath(ObjectName) << "' model value is " << (isMissing ? "Missing" : "incorrect") << " ... " << formatProcess("Attempting to resolve") << " ... ";
+    auto maybeModel = generateFallbackModelID();
+    if (maybeModel.has_value()) {
+        model = maybeModel.value();
+        debugBuffer << formatProcess("Loaded ") << "'" << formatPath(model.value()) << "' " << formatRole("model") << std::endl;
+    }
+    else {
+        debugBuffer << formatError("FAILED") <<  " ... Skipping" << std::endl;
+    }
+
+    return model;
+}
 
 void loadSimObjects(std::filesystem::path path) {
     if (debugMode) {
@@ -41,28 +88,57 @@ void loadSimObjects(std::filesystem::path path) {
     file >> data;
     file.close();
 
-    std::string mandatoryData[] = {"shader", "model"};
+    std::stringstream debugBuffer;
 
     for (const auto& entry : data.items()) {
 
         auto entryKey = entry.key();
         auto entryValue = entry.value();
 
-        // check if all mandatory items are present.
-        bool mandatoryDataPresent = true;
-        for (const auto& item : mandatoryData) {
-            if (!entryValue.contains(item)) {
-                mandatoryDataPresent = false;
-                break;
+        ShaderID shader;
+        ModelID model;
+
+        if (entryValue.contains("shader")) {
+            if (Shaders.find(entryValue["shader"]) != Shaders.end()) {
+                shader = entryValue["shader"];
+            }
+            else {
+                auto maybeShader = resolveFallbackShaderID(entryKey, debugBuffer);
+                if (maybeShader.has_value()) {
+                    shader = maybeShader.value();
+                }
+                else { continue; }
             }
         }
-
-        if (!mandatoryDataPresent) {
-            if (debugMode) { std::cerr << formatError("ERROR") << ": in object " << formatRole(entry.key()) << " not all mandatory data is present." << std::endl; }
-            continue;
+        else {
+            auto maybeShader = resolveFallbackShaderID(entryKey, debugBuffer, true);
+            if (maybeShader.has_value()) {
+                shader = maybeShader.value();
+            }
+            else { continue; }
         }
 
-        SimObjects[entryKey] = new simulationObject(entryValue["shader"], entryValue["model"]);
+        if (entryValue.contains("model")) {
+            if (Models.find(entryValue["model"]) != Models.end()) {
+                model = entryValue["model"];
+            }
+            else {
+                auto maybeModel = resolveFallbackModelID(entryKey, debugBuffer);
+                if (maybeModel.has_value()) {
+                    model = maybeModel.value();
+                }
+                else { continue; }
+            }
+        }
+        else {
+            auto maybeModel = resolveFallbackModelID(entryKey, debugBuffer, true);
+            if (maybeModel.has_value()) {
+                model = maybeModel.value();
+            }
+            else { continue; }
+        }
+
+        SimObjects[entryKey] = new simulationObject(shader, model);
 
         if (entryValue.contains("color") && entryValue["color"].size() == 3) {
             auto color = entryValue["color"];
@@ -110,7 +186,12 @@ void loadSimObjects(std::filesystem::path path) {
         }
     }
 
-    if (debugMode) { std::cout << formatSuccess("Done") << std::endl; }
+    std::string debugOutputString = debugBuffer.str();
+    bool debugNecesery = debugOutputString.empty();
+
+    if (debugMode) {
+        std::cout << (debugNecesery ? formatSuccess("Done") : formatWarning("Done with exceptions")) << (debugNecesery ? "" : "\n" + debugOutputString) << std::endl;
+    }
 
 }
 
@@ -142,13 +223,13 @@ void loadPhysicsScene(std::filesystem::path path) {
         for (const auto& simObject : entryValue) {
             
             if (!simObject.contains("object")) {
-                if (debugMode) { debugBuffer << formatError("ERROR") << ": In scene '" << formatRole(sceneID) << "' and object instance not specified ... " << formatWarning("Skipping") << '\n'; }
+                if (debugMode) { debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' and object instance not specified ... " << formatWarning("Skipping") << '\n'; }
                 continue;
             }
 
             SimObjectID objectID = simObject["object"].get<std::string>();
             if (SimObjects.find(objectID) == SimObjects.end()) {
-                if (debugMode) { debugBuffer << formatError("ERROR") << ": Object '" << formatRole(objectID) << "' in scene '" << formatRole(sceneID) << "' ... " << formatWarning("Skipping") << '\n'; }
+                if (debugMode) { debugBuffer << formatError("ERROR") << ": Object '" << formatPath(objectID) << "' in scene '" << formatPath(sceneID) << "' ... " << formatWarning("Skipping") << '\n'; }
                 continue;
             }
             
@@ -160,12 +241,12 @@ void loadPhysicsScene(std::filesystem::path path) {
                     currentSimObject->realPosition = glm::vec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
-                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' position has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
+                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' position has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
                     currentSimObject->realPosition = glm::dvec3(0);
                 }
             }
             else {
-                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' position not found for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
+                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' position not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
                 currentSimObject->position = glm::dvec3(0);
             }
 
@@ -175,12 +256,12 @@ void loadPhysicsScene(std::filesystem::path path) {
                     currentSimObject->realVelocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
-                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' velocity has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
+                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
                     currentSimObject->velocity = glm::dvec3(0);
                 }
             }
             else {
-                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatRole(sceneID) << "' velocity not found for object '" << formatRole(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
+                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
                 currentSimObject->velocity = glm::dvec3(0);
             }
 
@@ -188,7 +269,7 @@ void loadPhysicsScene(std::filesystem::path path) {
         }
 
         if (currentScene.empty()) {
-            debugBuffer << formatError("ERROR") << ": In scene '" << formatRole(sceneID) << "' no objects were found or passed tests ... " << formatError("Skipping") << '\n';
+            debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' no objects were found or passed tests ... " << formatError("Skipping") << '\n';
         }
         else {
             Scenes::allScenes[sceneID] = currentScene;
@@ -197,12 +278,11 @@ void loadPhysicsScene(std::filesystem::path path) {
         
     }
 
-    std::string debugBufferContents = debugBuffer.str();
-    if (debugBufferContents.empty()) {
-        std::cout << formatSuccess("Done") << std::endl;
-    }
-    else {
-        std::cout << formatWarning("Done with exceptions") << '\n' << debugBufferContents << std::endl;
+    std::string debugOutputString = debugBuffer.str();
+    bool debugNecesery = debugOutputString.empty();
+
+    if (debugMode) {
+        std::cout << (debugNecesery ? formatSuccess("Done") : formatWarning("Done with exceptions")) << (debugNecesery ? "" : "\n" + debugOutputString) << std::endl;
     }
 
     // setting up default fallback scene
