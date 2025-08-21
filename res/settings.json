@@ -23,5 +23,5 @@
     "simulationMode": 1,
     "simpleMaxScale": 7.5,
     "renderScaleDistortion": 5.0e1,
-    "velocityScaleDistortion": 5.0e4
+    "phyiscsSubsteps": 32
 }

@@ -46,10 +46,6 @@ units::kilometers exponentialScale(const units::kilometers& minValue, const unit
     return std::pow(maxScale, normalized_val);
 }
 
-void advanceObjectPositon(simulationObject* simObject) {
-    simObject->position += (simObject->velocity / currentScale) * deltaTime;
-}
-
 inline glm::mat4 calcuculateModelMatrixFromPosition(const glm::vec3& position, const glm::mat4& modelMatrix) {
     return glm::translate(modelMatrix, position);
 }

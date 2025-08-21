@@ -16,14 +16,15 @@ class simulationObject {
         ShaderID shaderID;
         ModelID modelId;
     public:
-        glm::vec3 position = glm::vec3(0);
-        glm::dvec3 realPosition = glm::dvec3(0);
+        glm::vec3 position = glm::vec3(0.0f);
+        glm::dvec3 realPosition = glm::dvec3(0.0f);
 
         units::kilometers radius = -1.0;
         units::tons mass = -1.01;
 
-        glm::dvec3 velocity = glm::dvec3(0);
-        glm::dvec3 realVelocity = glm::dvec3(0);
+        glm::dvec3 velocity = glm::dvec3(0.0);
+        glm::dvec3 realVelocity = glm::dvec3(0.0);
+        glm::dvec3 realAcceleration = glm::dvec3(0.0);
 
         std::string name;
 

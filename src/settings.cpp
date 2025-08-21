@@ -50,6 +50,7 @@ using SettingsVariant = std::variant<
     SettingsEntry<Color>,
     SettingsEntry<std::chrono::nanoseconds>,
     SettingsEntry<unsigned char>,
+    SettingsEntry<unsigned int>,
     SettingsEntry<simulationType>
 >;
 
@@ -73,7 +74,7 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"simulationMode",                     SettingsEntry(&simulationMode, setValue<simulationType>)},
     {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)},
     {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
-    {"velocityScaleDistortion",            SettingsEntry(&velocityScaleDistortion, setValue<double>)}
+    {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}
 };
 
 void loadSettings(std::filesystem::path path) {

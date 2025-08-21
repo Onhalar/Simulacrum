@@ -14,6 +14,8 @@ add_executable(
     dependencies/glad.c
 )
 
+target_compile_features(simulacrum PRIVATE cxx_std_20)
+
 target_include_directories(simulacrum PRIVATE
     include/core
     include/OpenGL

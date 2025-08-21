@@ -67,16 +67,11 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
         currentScale = 1.0;
     }
 
-    for (const auto& simObject : Scenes::allScenes[sceneID])  {
-        simObject->position = simObject->realPosition / currentScale;
-
-        if (simulationMode == simulationType::realistic) {
-            simObject->velocity = simObject->realVelocity; 
+    /*for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        if (simulationMode == simulationType::simplified) {
+            simObject->realVelocity *= velocityScaleDistortion;
         }
-        else if (simulationMode == simulationType::simplified) {
-            simObject->velocity = simObject->realVelocity * velocityScaleDistortion;
-        }
-    }
+    }*/
 
     for (const auto& simObject : Scenes::allScenes[sceneID]) {
         if (simObject->light != nullptr) {

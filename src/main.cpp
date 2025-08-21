@@ -164,9 +164,12 @@ void mainLoop() {
         // handles events such as resizing and creating window
         glfwPollEvents();
 
-        // handles scheduled tasks
-        //handleSchedule();
-        
+        // ----==[ PHYSICS ]==----
+
+        simulateStep();
+
+        // ----==[ RENDERING ]==----
+
         currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed);
         currentCamera->handleInputs(mainWindow);
         for(auto shader: Shaders) {
@@ -178,8 +181,6 @@ void mainLoop() {
         if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
             updateLightSources();
         }
-
-        // advanceObjectPositions();
 
         render();
 
@@ -218,7 +219,6 @@ void mainLoop() {
         frameEnd = steady_clock::now(); // Use std::chrono
 
         deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
-        deltaTime *= simulationSpeed;
             
         lastTime = frameEnd;
     }

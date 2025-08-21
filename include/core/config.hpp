@@ -88,7 +88,7 @@ simulationType simulationMode = simulationType::simplified;
 float maxScale = 7.5f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
-double velocityScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater velocity; more -> smaller velocity
+unsigned int phyiscsSubsteps = 2.0;
 
 // functions
 
@@ -100,8 +100,9 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
-float simulationSpeed = 1.0f;
+double simulationSpeed = 5.0e4;
 
 #define PI 3.141592653589793
+#define GRAVITATIONAL_CONSTANT 6.6743e-11 // m³ kg⁻¹ s⁻²
 
 #endif // MAIN_CONFIG_HEADER

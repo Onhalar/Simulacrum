@@ -17,6 +17,9 @@ class units {
     public:
         using kilometers = double;
         using tons = double;
+
+        using meters = double;
+        using kilograms = double;
 };
 
 using Color = std::tuple<float, float, float, float>;
