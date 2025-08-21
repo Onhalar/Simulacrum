@@ -74,7 +74,8 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"simulationMode",                     SettingsEntry(&simulationMode, setValue<simulationType>)},
     {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)},
     {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
-    {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}
+    {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)},
+    {"phyiscsBufferedFrames",              SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)}
 };
 
 void loadSettings(std::filesystem::path path) {

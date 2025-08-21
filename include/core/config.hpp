@@ -88,7 +88,8 @@ simulationType simulationMode = simulationType::simplified;
 float maxScale = 7.5f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
-unsigned int phyiscsSubsteps = 2.0;
+unsigned int phyiscsSubsteps = 2;
+unsigned int phyiscsBufferedFrames = 1;
 
 // functions
 
