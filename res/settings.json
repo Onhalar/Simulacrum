@@ -24,5 +24,5 @@
     "simpleMaxScale": 7.5,
     "renderScaleDistortion": 5.0e1,
     "phyiscsSubsteps": 32,
-    "phyiscsBufferedFrames": 2
+    "phyiscsBufferedFrames": 4
 }

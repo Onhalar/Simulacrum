@@ -101,7 +101,7 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
-double simulationSpeed = 5.0e4;
+double simulationSpeed = 5.0e3;
 
 #define PI 3.141592653589793
 #define GRAVITATIONAL_CONSTANT 6.6743e-11 // m³ kg⁻¹ s⁻²
