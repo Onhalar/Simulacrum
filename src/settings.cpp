@@ -32,10 +32,10 @@ void setValue(T* variable, const char* jsonNameIndex, const Json& data) {
     *variable = data[jsonNameIndex].get<T>();
 }
 
-void setTuple(Color* variable, const char* jsonNameIndex, const Json& data) {
+void setColor(Color* variable, const char* jsonNameIndex, const Json& data) {
     const auto& bgArray = data[jsonNameIndex];
-    *variable = Color{bgArray[0].get<float>(), bgArray[1].get<float>(), 
-                    bgArray[2].get<float>(), bgArray[3].get<float>()};
+    *variable = Color(bgArray[0].get<float>(), bgArray[1].get<float>(), 
+                    bgArray[2].get<float>(), (bgArray.size() > 3 ? bgArray[3].get<float>() : 1.0f));
 }
 
 void setNanoseconds(std::chrono::nanoseconds* variable, const char* jsonNameIndex, const Json& data) {
@@ -61,7 +61,7 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"defaultWindowHeight",                SettingsEntry(&defaultWindowHeight, setValue<int>)},
     {"minWindowWidth",                     SettingsEntry(&minWindowWidth, setValue<int>)},
     {"minWindowHeight",                    SettingsEntry(&minWindowHeight, setValue<int>)},
-    {"defaultBackgroundColor",             SettingsEntry(&defaultBackgroundColor, setTuple)},
+    {"defaultBackgroundColor",             SettingsEntry(&backgroundColor, setColor)},
     {"prettyOutput",                       SettingsEntry(&prettyOutput, setValue<bool>)},
     {"VSync",                              SettingsEntry(&VSync, setValue<int>)},
     {"StaticFrameDelayFraction",           SettingsEntry(&staticDelayFraction, setValue<float>)},
@@ -73,6 +73,7 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"cameraSensitivity",                  SettingsEntry(&cameraSensitivity, setValue<float>)},
     {"simulationMode",                     SettingsEntry(&simulationMode, setValue<simulationType>)},
     {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)},
+    {"normalizedModelRadius",              SettingsEntry(&normalizedModelRadius, setValue<float>)},
     {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
     {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)},
     {"phyiscsBufferedFrames",              SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)},

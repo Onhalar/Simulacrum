@@ -16,7 +16,6 @@
 
 #include <any>
 #include <typeindex>
-#include <tuple>
 #include <utility>
 #include <set>
 
@@ -62,7 +61,7 @@ int defaultWindowHeight = 500;
 int minWindowWidth = 300;
 int minWindowHeight = 300;
 
-Color defaultBackgroundColor = { 0.07f, 0.13f, 0.17f, 1.0f };
+Color backgroundColor(0.07f, 0.13f, 0.17f, 1.0f);
 
 const char* windowName = "Simulacrum project";
 
@@ -86,9 +85,9 @@ float cameraSensitivity = 175.0f;
 
 // Model settings
 
-float normalizedModelRadius = 0.85f;
+float normalizedModelRadius = 1.0f;
 simulationType simulationMode = simulationType::simplified;
-float maxScale = 7.5f;
+float maxScale = 6.0f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
 unsigned int phyiscsSubsteps = 2;

@@ -11,7 +11,7 @@
     "minWindowWidth": 300,
     "minWindowHeight": 300,
 
-    "defaultBackground": [0.07, 0.13, 0.17, 1.0],
+    "defaultBackgroundColor": [0.07, 0.13, 0.17],
 
     "maxFrameRate": 60,
     "VSync": 1,
@@ -23,7 +23,8 @@
     "cameraSpeed": 12.5,
 
     "simulationMode": 1,
-    "simpleMaxScale": 7.5,
+    "simpleMaxScale": 6.0,
+    "normalizedModelRadius": 1.0,
     "renderScaleDistortion": 5.0e1,
     "phyiscsSubsteps": 32,
     "phyiscsBufferedFrames": 4

@@ -122,7 +122,6 @@ void setupOpenGL() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS); // default but good to specify
 
-    // Enable face culling (you already know this part)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -144,8 +143,7 @@ void setupOpenGL() {
     glViewport(0, 0, width, height);
 
     // sets background color defined in header
-    // Assuming 'apply' is a macro or function that correctly calls glClearColor
-    apply(glClearColor, defaultBackgroundColor);
+    glClearColor(backgroundColor.r , backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
     setupShaders();
 

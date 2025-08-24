@@ -4,6 +4,7 @@
 #include <simObject.hpp>
 #include <unordered_map>
 #include <types.hpp>
+#include <customMath.hpp>
 
 #include <set>
 
@@ -28,6 +29,8 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
     currentScale = 0.0;
 
+    renderScaleDistortion = max(renderScaleDistortion, 1.0);
+
     units::kilometers minObjectRadius = DBL_MAX;
     units::kilometers MaxObjctRadius = DBL_MIN;
 
@@ -46,11 +49,11 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
             if (simulationMode == simulationType::realistic) {
                 scaleFactor = (simObject->radius / minObjectRadius);
-                if (!currentScale) { currentScale = (minObjectRadius / normalizedModelRadius) * renderScaleDistortion; }
+                if (!currentScale) { currentScale = (minObjectRadius / (double)normalizedModelRadius) * renderScaleDistortion; }
             }
             else if (simulationMode == simulationType::simplified) {
                 scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
-                if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / maxScale)) /2 ) * renderScaleDistortion; }
+                if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
             }
 
             simObject->scaleVertices(scaleFactor);
@@ -66,12 +69,6 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     else {
         currentScale = 1.0;
     }
-
-    /*for (const auto& simObject : Scenes::allScenes[sceneID]) {
-        if (simulationMode == simulationType::simplified) {
-            simObject->realVelocity *= velocityScaleDistortion;
-        }
-    }*/
 
     for (const auto& simObject : Scenes::allScenes[sceneID]) {
         if (simObject->light != nullptr) {
