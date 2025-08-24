@@ -5,7 +5,7 @@
 
 class UBO {
     public:
-        mutable GLuint ID;
+        GLuint ID;
 
         UBO(GLsizeiptr size, const void* data = nullptr, GLenum usage = GL_DYNAMIC_DRAW) {
             glGenBuffers(1, &ID);

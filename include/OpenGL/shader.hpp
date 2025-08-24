@@ -19,22 +19,20 @@
 
 #include <json.hpp> // external library - likely to cause an error if used separately
 
-float allowShaderCaching = true;
-
 class Shader {
 	public:
 
-		mutable GLuint ID;
+		GLuint ID;
 
-		mutable std::unordered_map<const char*, GLuint> otherUniforms;
+		std::unordered_map<const char*, GLuint> otherUniforms;
 
-		mutable int modelMatrixUniform, projectionMatrixUniform, viewMatrixUniform;
+		int modelMatrixUniform, projectionMatrixUniform, viewMatrixUniform;
 
-		mutable bool hasModelMatrixUniform, hasProjectionMatrixUniform, hasViewMatrixUniform;
+		bool hasModelMatrixUniform, hasProjectionMatrixUniform, hasViewMatrixUniform;
 
-		mutable glm::mat4 modelMatrix = glm::mat4(1.0f);
-		mutable glm::mat4 viewMatrix = glm::mat4(1.0f);
-		mutable glm::mat4 projectionMatrix = glm::mat4(1.0f);
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
+		glm::mat4 projectionMatrix = glm::mat4(1.0f);
 
 		Shader(const std::filesystem::path& vertexFilepath, const std::filesystem::path& fragmentFilepath, bool throwErrors = false, const char* modelMatrixUniformName = "model", const char* viewMatrixUniformName = "view", const char* projectionMatrixUniformName = "projection") {
 			ID = makeShader(vertexFilepath, fragmentFilepath);
@@ -102,11 +100,6 @@ class Shader {
             return true;
 		}
 
-        /**
-         * @brief Sets the binding point for a uniform block in the shader.
-         * @param blockName The name of the uniform block in the shader (e.g., "LightBlock").
-         * @param bindingPoint The binding point to assign to the uniform block.
-         */
         void setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
             GLuint blockIndex = glGetUniformBlockIndex(ID, blockName);
             if (blockIndex != GL_INVALID_INDEX) {

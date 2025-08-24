@@ -7,7 +7,7 @@
 
 class VAO {
     public:
-        mutable GLuint ID;
+        GLuint ID;
 
         VAO() {
             glGenVertexArrays(1, &ID);

@@ -4,6 +4,10 @@
 #include <config.hpp>
 #include <UBO.hpp>
 #include <camera.hpp>
+#include <FBO.hpp>
+#include <unordered_map>
+
+using FBOList = unordered_map<std::string, FBO*>;
 
 // global shader settings
 float lightFalloff = 0.001f;
@@ -15,6 +19,8 @@ UBO* lightBlockUBO = nullptr;
 const GLuint LIGHT_UBO_BINDING_POINT = 0; // Choose a binding point for the LightBlock UBO
 
 Camera* currentCamera;
+
+FBOList FBOs;
 
 struct ShaderLight {
     glm::vec3 position;

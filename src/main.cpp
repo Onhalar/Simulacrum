@@ -24,6 +24,7 @@ void setupShaders();
 void setupModels();
 
 void setupSimulation();
+void setupFBOs();
 
 void cleanupRender();
 void cleanup();
@@ -51,6 +52,8 @@ int main(int argc, char **argv) {
     // Call setupModels() to load the STL file and prepare its OpenGL buffers
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
+
+    setupFBOs();
 
     setupSimulation();
 

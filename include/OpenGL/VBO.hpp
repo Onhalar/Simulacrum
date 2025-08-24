@@ -5,7 +5,7 @@
 
 class VBO {
     public:
-        mutable GLuint ID;
+        GLuint ID;
         
         VBO(GLfloat* vertices, GLsizeiptr size) {
             glGenBuffers(1, &ID);

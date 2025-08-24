@@ -70,6 +70,8 @@ const char* windowName = "Simulacrum project";
 int maxFrameRate = 60;
 int VSync = 1;
 
+bool doPostProcess = true;
+
 float staticDelayFraction = 0.65f;
 bool simulateObjectRotation = true;
 

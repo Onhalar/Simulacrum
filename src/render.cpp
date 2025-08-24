@@ -11,6 +11,8 @@
 #include <lightObject.hpp>
 #include <simObject.hpp>
 
+#include <FBO.hpp>
+
 #include <scenes.hpp>
 #include <customMath.hpp>
 #include <renderDefinitions.hpp>
@@ -18,11 +20,25 @@
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    static FBO* postProcessFBO;
+    static Shader* postProcessShader;
+
+    if (!doPostProcess || Shaders.find("postProcess") == Shaders.end()) { doPostProcess = false; }
+    else {
+        postProcessFBO = FBOs["postProcess"];
+        postProcessShader = Shaders["postProcess"];
+    }
+
     // Only attempt to render if the model instance has been successfully created
 
     if (Scenes::currentScene.empty()) {
         if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
         return;
+    }
+
+    if (doPostProcess) {
+        postProcessFBO->bind();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     for (const auto& simObject : Scenes::currentScene) {
@@ -41,7 +57,19 @@ void render() {
         simObject->draw();
     }
 
+    if (doPostProcess) {
+        postProcessFBO->unbind();
+        postProcessFBO->draw(postProcessShader);
+    }
+
     glfwSwapBuffers(mainWindow);
+}
+
+void setupFBOs() {
+    int width, height;
+    glfwGetFramebufferSize(mainWindow, &width, &height);
+
+    FBOs["postProcess"] = new FBO(width, height);
 }
 
 // Function to clean up all dynamically allocated model resources
@@ -88,7 +116,11 @@ void updateLightSources() {
     lightBlockUBO->bind(LIGHT_UBO_BINDING_POINT);
 }
 
+
 void resize(GLFWwindow *window, int width, int height) {
+    // Set the viewport first
+    glViewport(0, 0, width, height);
+    
     // Ensure the mainShader is active before updating projection
     for (const auto& shaderPair : Shaders) {
         auto shader = shaderPair.second;
@@ -96,5 +128,9 @@ void resize(GLFWwindow *window, int width, int height) {
             shader->activate();
             currentCamera->updateProjection(width, height, shader);
         }
+    }
+
+    for (const auto& FBO : FBOs) {
+        FBO.second->resize(width, height);
     }
 }

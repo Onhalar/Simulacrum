@@ -49,8 +49,8 @@ void simulateStep() {
             glm::dvec3 avgPosition = startPosition + (simObject->realPosition - startPosition) / (double)phyiscsBufferedFrames;
             advanceObjectPosition(simObject, avgPosition);
 
-            std::cout << "velocity: " << simObject->realVelocity.x << ", " <<simObject->realVelocity.y << ", " <<simObject->realVelocity.z << std::endl;
-            std::cout << "deltaTime: " << deltaTime << " simulationSpeed: " << simulationSpeed << std::endl;
+            //std::cout << "velocity: " << simObject->realVelocity.x << ", " <<simObject->realVelocity.y << ", " <<simObject->realVelocity.z << std::endl;
+            //std::cout << "deltaTime: " << deltaTime << " simulationSpeed: " << simulationSpeed << std::endl;
         }
     }
 

@@ -7,8 +7,8 @@
 
 class Texture {
     public:
-        mutable GLuint ID;
-        mutable GLenum type;
+        GLuint ID;
+        GLenum type;
 
         Texture(const char* image, GLenum textureType, GLenum slot, GLenum format, GLenum pixelType) {
             // Assigns the type of the texture ot the texture object

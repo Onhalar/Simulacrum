@@ -2,6 +2,7 @@
     "prettyOutput": true,
     "debugMode": true,
     "simulateObjectRotation": true,
+    "doPostProcess": true,
 
     "defaultWindowWidth": 500,
     "defaultWindowHeight": 500,
