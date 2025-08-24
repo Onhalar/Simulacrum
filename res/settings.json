@@ -3,6 +3,7 @@
     "debugMode": true,
     "simulateObjectRotation": true,
     "doPostProcess": true,
+    "doFXAA": true,
 
     "defaultWindowWidth": 500,
     "defaultWindowHeight": 500,

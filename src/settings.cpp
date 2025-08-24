@@ -76,7 +76,8 @@ std::unordered_map<std::string, SettingsVariant> settings = {
     {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
     {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)},
     {"phyiscsBufferedFrames",              SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)},
-    {"doPostProcess",                      SettingsEntry(&doPostProcess, setValue<bool>)}
+    {"doPostProcess",                      SettingsEntry(&doPostProcess, setValue<bool>)},
+    {"doFXAA",                             SettingsEntry(&doFXAA, setValue<bool>)}
 };
 
 void loadSettings(std::filesystem::path path) {

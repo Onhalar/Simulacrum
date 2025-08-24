@@ -24,7 +24,7 @@ class Shader {
 
 		GLuint ID;
 
-		std::unordered_map<const char*, GLuint> otherUniforms;
+		std::unordered_map<const char*, int> otherUniforms;
 
 		int modelMatrixUniform, projectionMatrixUniform, viewMatrixUniform;
 
@@ -60,43 +60,57 @@ class Shader {
 
 		// tries to find it if it's already set, elsewere looks for it in the shader if not found returns; shader needs to be activated first
 		bool setUniform(const char* name, glm::mat4 data, bool structMode = false) {
+			this->activate();
 			GLuint uniformID = getUniformID(name, structMode);
-			if (uniformID == -1) {
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
                 return false;
             }
 			glUniformMatrix4fv(otherUniforms[name], 1, GL_FALSE, glm::value_ptr(data));
             return true;
 		}
 		bool setUniform(const char* name, glm::vec3 data, bool structMode = false) {
+			this->activate();
 			GLuint uniformID = getUniformID(name, structMode);
-			if (uniformID == -1) {
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
                 return false;
             }
 			glUniform3fv(otherUniforms[name], 1, glm::value_ptr(data));
             return true;
 		}
 		bool setUniform(const char* name, glm::vec4 data, bool structMode = false) {
+			this->activate();
 			GLuint uniformID = getUniformID(name, structMode);
-			if (uniformID == -1) {
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
                 return false;
             }
 			glUniform4fv(otherUniforms[name], 1, glm::value_ptr(data));
             return true;
 		}
 		bool setUniform(const char* name, GLfloat data, bool structMode = false) {
+			this->activate();
 			GLuint uniformID = getUniformID(name, structMode);
-			if (uniformID == -1) {
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
                 return false;
             }
 			glUniform1f(otherUniforms[name], data);
             return true;
 		}
 		bool setUniform(const char* name, GLint data, bool structMode = false) {
+			this->activate();
 			GLuint uniformID = getUniformID(name, structMode);
-			if (uniformID == -1) {
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
                 return false;
             }
 			glUniform1i(otherUniforms[name], data);
+            return true;
+		}
+		bool setUniform(const char* name, glm::vec2 data, bool structMode = false) {
+			this->activate();
+			GLuint uniformID = getUniformID(name, structMode);
+			if (uniformID == -1 || uniformID == GL_INVALID_INDEX) {
+                return false;
+            }
+			glUniform2fv(otherUniforms[name], 1, glm::value_ptr(data));
             return true;
 		}
 

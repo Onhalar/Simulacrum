@@ -23,8 +23,7 @@ void render() {
     static FBO* postProcessFBO;
     static Shader* postProcessShader;
 
-    if (!doPostProcess || Shaders.find("postProcess") == Shaders.end()) { doPostProcess = false; }
-    else {
+    if (doPostProcess) {
         postProcessFBO = FBOs["postProcess"];
         postProcessShader = Shaders["postProcess"];
     }
@@ -59,17 +58,27 @@ void render() {
 
     if (doPostProcess) {
         postProcessFBO->unbind();
+
         postProcessFBO->draw(postProcessShader);
     }
 
     glfwSwapBuffers(mainWindow);
 }
 
-void setupFBOs() {
+void setupPostProcess() {
+    if (!doPostProcess || Shaders.find("postProcess") == Shaders.end()) {
+        doPostProcess = false;
+        return;
+    }
+
     int width, height;
     glfwGetFramebufferSize(mainWindow, &width, &height);
 
     FBOs["postProcess"] = new FBO(width, height);
+    Shaders["postProcess"]->setUniform("resolution", glm::vec2(width, height));
+
+    Shaders["postProcess"]->setUniform("enableFXAA", doFXAA);
+
 }
 
 // Function to clean up all dynamically allocated model resources
@@ -132,5 +141,9 @@ void resize(GLFWwindow *window, int width, int height) {
 
     for (const auto& FBO : FBOs) {
         FBO.second->resize(width, height);
+    }
+
+    if (doPostProcess) {
+        Shaders["postProcess"]->setUniform("resolution", glm::vec2(width, height));
     }
 }

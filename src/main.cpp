@@ -24,7 +24,7 @@ void setupShaders();
 void setupModels();
 
 void setupSimulation();
-void setupFBOs();
+void setupPostProcess();
 
 void cleanupRender();
 void cleanup();
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     // This must be called after OpenGL context is created and GLAD is loaded.
     setupModels();
 
-    setupFBOs();
+    setupPostProcess();
 
     setupSimulation();
 
