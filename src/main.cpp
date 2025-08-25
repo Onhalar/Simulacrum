@@ -152,7 +152,6 @@ void setupOpenGL() {
 
 void mainLoop() {
     TinyInt frameCount = 0;
-    auto frameCountOverflowLimit = std::numeric_limits<decltype(frameCount)>::max();
 
     if (!isPowerOfTwo(lightUpdateFrameSkip)) {
         lightUpdateFrameSkip = roundUpToPowerOfTwo(lightUpdateFrameSkip);
@@ -181,7 +180,7 @@ void mainLoop() {
 
             // y       = 8   = 1000
             // y - 1   = 7   = 0111
-            if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
+            if ( (frameCount & (lightUpdateFrameSkip - 1)) == 0 ) {
                 updateLightSources();
             }
 
@@ -214,12 +213,7 @@ void mainLoop() {
             }
         }
 
-        if (frameCount == frameCountOverflowLimit) {
-            frameCount = 0;
-        }
-        else {
-            ++frameCount;
-        }
+        ++frameCount; // does not need to be checked unsigned types wrap around.
 
         frameEnd = steady_clock::now();
 
