@@ -165,27 +165,31 @@ void mainLoop() {
         // handles events such as resizing and creating window
         glfwPollEvents();
 
-        // ----==[ PHYSICS ]==----
+        if (!isMinimized) { // Custom Actions
 
-        simulateStep();
+            // ----==[ PHYSICS ]==----
 
-        // ----==[ RENDERING ]==----
+            simulateStep();
 
-        currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed);
-        currentCamera->handleInputs(mainWindow);
-        for(auto shader: Shaders) {
-            currentCamera->updateProjection(shader.second);
+            // ----==[ RENDERING ]==----
+
+            currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed);
+            currentCamera->handleInputs(mainWindow);
+            for(auto shader: Shaders) {
+                currentCamera->updateProjection(shader.second);
+            }
+
+            // y       = 8   = 1000
+            // y - 1   = 7   = 0111
+            if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
+                updateLightSources();
+            }
+
+            render();
+
         }
 
-        // y       = 8   = 1000
-        // y - 1   = 7   = 0111
-        if (frameCount & (lightUpdateFrameSkip - 1) == 0) {
-            updateLightSources();
-        }
-
-        render();
-
-        static steady_clock::time_point lastTime; // Use std::chrono
+        static steady_clock::time_point lastTime;
 
         // here just so everything doesn't fly 10 000 km off the screen
         static bool isFirstFrame = true;
@@ -194,18 +198,18 @@ void mainLoop() {
             isFirstFrame = false;
         }
 
-        auto frameEnd = steady_clock::now(); // Use std::chrono
-        auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart); // Use std::chrono
+        auto frameEnd = steady_clock::now();
+        auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
 
         if (elapsed < frameDuration && !VSync) {
-            std::this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction); // Use std::this_thread
+            std::this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction);
 
             // spin delay for frames
             if (staticDelayFraction < 1.0f) {
                 while (true)
                 {
-                    std::this_thread::sleep_for(spinDelay); // Use std::this_thread
-                    if (steady_clock::now() >= frameStart + frameDuration) { break; } // Use std::chrono
+                    std::this_thread::sleep_for(spinDelay);
+                    if (steady_clock::now() >= frameStart + frameDuration) { break; }
                 }
             }
         }
@@ -217,7 +221,7 @@ void mainLoop() {
             ++frameCount;
         }
 
-        frameEnd = steady_clock::now(); // Use std::chrono
+        frameEnd = steady_clock::now();
 
         deltaTime = duration_cast<nanoseconds>(frameEnd - lastTime).count() / 1'000'000'000.0;
             
@@ -228,6 +232,9 @@ void mainLoop() {
 void cleanup() {
     delete currentCamera;
     currentCamera = nullptr;
+
+    for (const auto& FBO : FBOs) { delete FBO.second; }
+    FBOs.clear();
 
     for (const auto& LightObject : lightQue) { delete LightObject.second; }
     lightQue.clear();

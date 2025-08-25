@@ -127,6 +127,12 @@ void updateLightSources() {
 
 
 void resize(GLFWwindow *window, int width, int height) {
+    if ((width | height) == 0) {
+        isMinimized = true;
+        return;
+    }
+    else { isMinimized = false; }
+
     // Set the viewport first
     glViewport(0, 0, width, height);
     
