@@ -45,11 +45,26 @@ if(WIN32)
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3.a")
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/assimp/binaries/libassimp_win.a")
     target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/libz/libz_win.a")
-else()
-    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
-    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/assimp/binaries/libassimp_mint.a")
-    target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/libz/libz_mint.a")
+elseif(UNIX)
+    # Check if /etc/os-release mentions Debian or Ubuntu
+    execute_process(
+        COMMAND cat /etc/os-release
+        OUTPUT_VARIABLE OS_RELEASE_CONTENT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if(OS_RELEASE_CONTENT MATCHES "ID=(debian|ubuntu)")
+        message(STATUS "Detected Debian-based Linux")
+        target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/GLFW/libglfw3-compiled-mint.a")
+        target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/assimp/binaries/libassimp_mint.a")
+        target_link_libraries(simulacrum "${CMAKE_SOURCE_DIR}/dependencies/libz/libz_mint.a")
+    else()
+        message(WARNING "Precompiled packages not avaialbe for your system! Please make sure you have all necsery packages installed.")
+        target_link_libraries(simulacrum glfw)
+        target_link_libraries(simulacrum assimp)
+    endif()
 endif()
+
 
 if(WIN32)
     # did not have the time to test this yet so here goes
