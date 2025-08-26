@@ -33,9 +33,7 @@ void setValue(T* variable, const char* jsonNameIndex, const Json& data) {
 }
 
 void setColor(Color* variable, const char* jsonNameIndex, const Json& data) {
-    const auto& bgArray = data[jsonNameIndex];
-    *variable = Color(bgArray[0].get<float>(), bgArray[1].get<float>(), 
-                    bgArray[2].get<float>(), (bgArray.size() > 3 ? bgArray[3].get<float>() : 1.0f));
+    *variable = Color(data[jsonNameIndex].get<std::string>());
 }
 
 void setNanoseconds(std::chrono::nanoseconds* variable, const char* jsonNameIndex, const Json& data) {

@@ -11,7 +11,7 @@
     "minWindowWidth": 300,
     "minWindowHeight": 300,
 
-    "defaultBackgroundColor": [0.07, 0.13, 0.17],
+    "defaultBackgroundColor": "#12212B",
 
     "maxFrameRate": 60,
     "VSync": 1,

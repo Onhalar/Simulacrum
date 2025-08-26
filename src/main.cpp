@@ -143,7 +143,7 @@ void setupOpenGL() {
     glViewport(0, 0, width, height);
 
     // sets background color defined in header
-    glClearColor(backgroundColor.r , backgroundColor.g, backgroundColor.b, backgroundColor.a);
+    glClearColor(backgroundColor.decR , backgroundColor.decG, backgroundColor.decB, backgroundColor.a);
 
     setupShaders();
 

@@ -7,13 +7,12 @@
 
 #include <glm/glm.hpp>
 #include <glad/glad.h>
+#include <color.hpp>
 
 using ShaderID = std::string;
 using ModelID = std::string;
 using SimObjectID = std::string;
 using SceneID = std::string;
-
-using Color = glm::vec4;
 
 class units {
     public:
