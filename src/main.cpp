@@ -4,6 +4,7 @@
 
 #include <simObject.hpp>
 #include <customMath.hpp>
+#include <physicsThread.hpp>
 
 #include "render.cpp"
 #include "settings.cpp"
@@ -158,6 +159,9 @@ void mainLoop() {
     }
     updateLightSources(); // inital calculation (positions) + sending data to shaders
 
+    // ----==[ PHYSICS ]==----
+    physicsThread = std::thread(physicsThreadFunction);
+
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
 
@@ -165,10 +169,6 @@ void mainLoop() {
         glfwPollEvents();
 
         if (!isMinimized) { // Custom Actions
-
-            // ----==[ PHYSICS ]==----
-
-            simulateStep();
 
             // ----==[ RENDERING ]==----
 
@@ -224,6 +224,10 @@ void mainLoop() {
 }
 
 void cleanup() {
+    physicsRunning = false; 
+    physicsThread.join();
+
+
     delete currentCamera;
     currentCamera = nullptr;
 

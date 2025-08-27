@@ -7,8 +7,8 @@
         },
         {
             "object": "earth",
-            "position": [1.5137e8, 0.0, 0.0],
-            "velocity": [0.0, 0.0, 33.5]
+            "position": [1.496e8, 0.0, 0.0],
+            "velocity": [0.0, 0.0, 29.5]
         }
     ]
 }

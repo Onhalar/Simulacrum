@@ -17,6 +17,8 @@
 #include <customMath.hpp>
 #include <renderDefinitions.hpp>
 
+#include <physicsThread.hpp>
+
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -44,13 +46,20 @@ void render() {
         Shader* shader = simObject->shader;
         Model* model = simObject->model;
 
+
+        glm::dvec3 renderPos;
+        {
+            std::lock_guard<std::mutex> lock(physicsMutex);
+            renderPos = simObject->position; // copy safe position
+        }
+
         shader->activate();
         if (simulateObjectRotation) {
             simObject->modelMatrix = glm::rotate(simObject->modelMatrix, glm::radians(simObject->vertexRotation), glm::vec3(0,1,0)); // temporarily rotate around Z axii
-            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(simObject->position) * simObject->modelMatrix );
+            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix );
         }
         else {
-            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(simObject->position));
+            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(renderPos));
         }
 
         simObject->draw();

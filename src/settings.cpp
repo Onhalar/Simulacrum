@@ -77,7 +77,8 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"renderScaleDistortion",              {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
     {"physicsSubsteps",                    {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
     {"physicsBufferedFrames",              {"PHYSICS", SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)}},
-    {"simulateObjectRotation",             {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}}
+    {"simulateObjectRotation",             {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}},
+    {"physicsSteps",                       {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}}
 };
 
 void loadSettings(std::filesystem::path path) {
