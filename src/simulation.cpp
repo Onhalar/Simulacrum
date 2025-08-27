@@ -64,8 +64,8 @@ void simulateStep() {
     phyiscsBufferedFrames = std::max(1u, phyiscsBufferedFrames);
 
     for (const auto& simObject : Scenes::currentScene) {
-
-        if (firstFrame) { simObject->realVelocity *= physicsDeltaTime * simulationSpeed; }
+        
+        if (firstFrame) { simObject->realVelocity *= physicsDeltaTime * simulationSpeed / (double)phyiscsBufferedFrames; }
 
         glm::dvec3 startPosition = simObject->realPosition;
 
