@@ -49,7 +49,7 @@ string iconPath = "res/icon.png";
 // resource paths
 const std::filesystem::path shaderPath = "shaders/";
 const std::filesystem::path modelPath = "res/models";
-const std::filesystem::path settingsPath = "res/settings.json";
+const std::filesystem::path settingsPath = "res/settings.conf";
 const std::filesystem::path simObjectsConfigPath = "res/objects.json";
 const std::filesystem::path physicsScenesPath = "res/scenes.json";
 

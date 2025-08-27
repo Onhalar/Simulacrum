@@ -4,40 +4,37 @@
 #include <FormatConsole.hpp>
 #include <paths.hpp>
 
-#include <json.hpp>
+#include <simpleToml.hpp>
 
 #include <variant>
 #include <unordered_map>
 #include <tuple>
 #include <any>
 
-#include <updateRunningConfig.hpp>
-
-using Json = nlohmann::json;
 
 template <typename T>
-using JsonSetter = void(*)(T*, const char*, const Json&);
+using TomlSetter = void(*)(T*, const char*, const char*, Toml&);
 
 template <typename T>
 struct SettingsEntry {
     T* variable;
-    JsonSetter<T> setter;
+    TomlSetter<T> setter;
 
     SettingsEntry() = default;
-    SettingsEntry(T* var, JsonSetter<T> set) : variable(var), setter(set) {}
+    SettingsEntry(T* var, TomlSetter<T> set) : variable(var), setter(set) {}
 };
 
 template <typename T>
-void setValue(T* variable, const char* jsonNameIndex, const Json& data) {
-    *variable = data[jsonNameIndex].get<T>();
+void setValue(T* variable, const char* TomlCategory, const char* TomlEntry, Toml& data) {
+    *variable = data[TomlCategory][TomlEntry].get<T>();
 }
 
-void setColor(Color* variable, const char* jsonNameIndex, const Json& data) {
-    *variable = Color(data[jsonNameIndex].get<std::string>());
+void setColor(Color* variable, const char* TomlCategory, const char* TomlEntry, Toml& data) {
+    *variable = Color((std::string)data[TomlCategory][TomlEntry]);
 }
 
-void setNanoseconds(std::chrono::nanoseconds* variable, const char* jsonNameIndex, const Json& data) {
-    *variable = std::chrono::nanoseconds(data[jsonNameIndex].get<int>());
+void setNanoseconds(std::chrono::nanoseconds* variable, const char* TomlCategory, const char* TomlEntry, Toml& data) {
+    *variable = std::chrono::nanoseconds(data[TomlCategory][TomlEntry].get<int>());
 }
 
 using SettingsVariant = std::variant<
@@ -52,31 +49,35 @@ using SettingsVariant = std::variant<
     SettingsEntry<simulationType>
 >;
 
-std::unordered_map<std::string, SettingsVariant> settings = {
-    {"debugMode",                          SettingsEntry(&debugMode, setValue<bool>)},
-    {"maxFrameRate",                       SettingsEntry(&maxFrameRate, setValue<int>)},
-    {"defaultWindowWidth",                 SettingsEntry(&defaultWindowWidth, setValue<int>)},
-    {"defaultWindowHeight",                SettingsEntry(&defaultWindowHeight, setValue<int>)},
-    {"minWindowWidth",                     SettingsEntry(&minWindowWidth, setValue<int>)},
-    {"minWindowHeight",                    SettingsEntry(&minWindowHeight, setValue<int>)},
-    {"defaultBackgroundColor",             SettingsEntry(&backgroundColor, setColor)},
-    {"prettyOutput",                       SettingsEntry(&prettyOutput, setValue<bool>)},
-    {"VSync",                              SettingsEntry(&VSync, setValue<int>)},
-    {"StaticFrameDelayFraction",           SettingsEntry(&staticDelayFraction, setValue<float>)},
-    {"spinDelayNS",                        SettingsEntry(&spinDelay, setNanoseconds)},
-    {"simulateObjectRotation",             SettingsEntry(&simulateObjectRotation, setValue<bool>)},
-    {"lightUpdateFrameSkip",               SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)},
-    {"renderDistance",                     SettingsEntry(&renderDistance, setValue<float>)},
-    {"cameraSpeed",                        SettingsEntry(&cameraSpeed, setValue<float>)},
-    {"cameraSensitivity",                  SettingsEntry(&cameraSensitivity, setValue<float>)},
-    {"simulationMode",                     SettingsEntry(&simulationMode, setValue<simulationType>)},
-    {"simpleMaxScale",                     SettingsEntry(&maxScale, setValue<float>)},
-    {"normalizedModelRadius",              SettingsEntry(&normalizedModelRadius, setValue<float>)},
-    {"renderScaleDistortion",              SettingsEntry(&renderScaleDistortion, setValue<double>)},
-    {"phyiscsSubsteps",                    SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)},
-    {"phyiscsBufferedFrames",              SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)},
-    {"doPostProcess",                      SettingsEntry(&doPostProcess, setValue<bool>)},
-    {"doFXAA",                             SettingsEntry(&doFXAA, setValue<bool>)}
+std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> settings = {
+    {"debugMode",                          {"DEBUG", SettingsEntry(&debugMode, setValue<bool>)}},
+    {"prettyOutput",                       {"DEBUG", SettingsEntry(&prettyOutput, setValue<bool>)}},
+
+    {"defaultWindowWidth",                 {"WINDOW", SettingsEntry(&defaultWindowWidth, setValue<int>)}},
+    {"defaultWindowHeight",                {"WINDOW", SettingsEntry(&defaultWindowHeight, setValue<int>)}},
+    {"minWindowWidth",                     {"WINDOW", SettingsEntry(&minWindowWidth, setValue<int>)}},
+    {"minWindowHeight",                    {"WINDOW", SettingsEntry(&minWindowHeight, setValue<int>)}},
+    {"defaultBackgroundColor",             {"WINDOW", SettingsEntry(&backgroundColor, setColor)}},
+
+    {"maxFrameRate",                       {"RENDER", SettingsEntry(&maxFrameRate, setValue<int>)}},
+    {"VSync",                              {"RENDER", SettingsEntry(&VSync, setValue<int>)}},
+    {"StaticFrameDelayFraction",           {"RENDER", SettingsEntry(&staticDelayFraction, setValue<float>)}},
+    {"spinDelayNS",                        {"RENDER", SettingsEntry(&spinDelay, setNanoseconds)}},
+    {"doPostProcess",                      {"RENDER", SettingsEntry(&doPostProcess, setValue<bool>)}},
+    {"doFXAA",                             {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
+    {"lightUpdateFrameSkip",               {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
+
+    {"renderDistance",                     {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
+    {"cameraSpeed",                        {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},
+    {"cameraSensitivity",                  {"CAMERA", SettingsEntry(&cameraSensitivity, setValue<float>)}},
+
+    {"simulationMode",                     {"PHYSICS", SettingsEntry(&simulationMode, setValue<simulationType>)}},
+    {"simpleMaxScale",                     {"PHYSICS", SettingsEntry(&maxScale, setValue<float>)}},
+    {"normalizedModelRadius",              {"PHYSICS", SettingsEntry(&normalizedModelRadius, setValue<float>)}},
+    {"renderScaleDistortion",              {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
+    {"physicsSubsteps",                    {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
+    {"physicsBufferedFrames",              {"PHYSICS", SettingsEntry(&phyiscsBufferedFrames, setValue<unsigned int>)}},
+    {"simulateObjectRotation",             {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}}
 };
 
 void loadSettings(std::filesystem::path path) {
@@ -91,7 +92,7 @@ void loadSettings(std::filesystem::path path) {
     }
 
     ifstream file(path);
-    Json data;
+    Toml data;
     file >> data;
     file.close();
 
@@ -99,17 +100,16 @@ void loadSettings(std::filesystem::path path) {
     for (auto& entryValue : settings) { // auto& [x, y] -> unpacks std::pair as references
         
         auto name = entryValue.first;
-        auto entry = entryValue.second;
+        auto entry = entryValue.second.second;
+        auto category = entryValue.second.first;
 
-        if (data.contains(name)) {
+        if (data.valueExists(name)) {
             // std::visit -> takes a visitor (lambda) and a variant and applies the visitor to the currently active type in variant
             std::visit([& /*captures all variables in scope by reference*/](auto&& arg /*arguments - entry - settings[i].second.setter(...)*/) { // auto&& universal reference -> both r and l values
-                arg.setter(arg.variable, name.c_str(), data);
+                arg.setter(arg.variable, category.c_str(), name.c_str(), data);
             }, entry);
         }
     }
-
-    updateRunningConfig::updateAllFromSet();
 
     if (debugMode) { cout << formatSuccess("Done") << endl; }
 }
