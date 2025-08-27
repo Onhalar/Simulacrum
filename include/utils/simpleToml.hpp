@@ -120,7 +120,7 @@ class Toml {
         }
 
         void internalize(std::string tomlData) {
-            std::regex pairPattern(R"((\w+)\s*=\s*([0-9]+\.[0-9]+e[0-9]+|[0-9]+\.[0-9]+|\w+))");
+            std::regex pairPattern(R"((\w+)\s*=\s*([[+-]?[0-9]+\.[0-9]+[eE][0-9]+|[+-]?[0-9]+\.[0-9]+|[+-]?[0-9]|\w+))");
             std::regex categoryPattern(R"(\[(\w+)\])");
 
             if (tomlData == "") { throw std::invalid_argument("empty TOML data"); }
