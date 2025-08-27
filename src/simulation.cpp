@@ -36,20 +36,20 @@ void physicsThreadFunction() {
 
     while (physicsRunning) {
         auto currentTime = steady_clock::now();
-        duration<double> frameTime = currentTime - previousTime;
+        duration<double> frameTime = currentTime - previousTime; // time elapsed since the previous loop iteration
         previousTime = currentTime;
 
-        accumulator += frameTime.count();
+        accumulator += frameTime.count(); // add elapsed time to the unprocessed-physics-time accumulator
 
-        while (accumulator >= physicsDeltaTime) {
+        while (accumulator >= physicsDeltaTime) { // while there's at least one full physics step worth of time available
             {
                 std::lock_guard<std::mutex> lock(physicsMutex);
-                simulateStep(); // update physics
+                simulateStep(); // advance simulation by one fixed physics step (physicsDeltaTime)
             }
-            accumulator -= physicsDeltaTime;
+            accumulator -= physicsDeltaTime; // consume one physics step's worth of accumulated time
         }
 
-        std::this_thread::sleep_for(milliseconds(1)); // avoid 100% CPU
+        std::this_thread::sleep_for(milliseconds(1)); // tiny sleep to avoid busy-waiting the CPU
     }
 }
 
