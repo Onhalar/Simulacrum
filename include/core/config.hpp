@@ -91,7 +91,6 @@ float maxScale = 6.0f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
 unsigned int phyiscsSubsteps = 2;
-unsigned int phyiscsBufferedFrames = 1;
 
 // functions
 
@@ -103,7 +102,7 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
-double simulationSpeed = 5.0e3;
+double simulationSpeed = 2.5e5;
 float physicsSteps = 60.0f; // amount of physics steps per second
 
 #define PI 3.141592653589793

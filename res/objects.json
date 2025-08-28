@@ -10,7 +10,7 @@
     },
     "sol": {
         "radius": 696340,
-        "mass": 1.988416e30,
+        "mass": 1.988416e27,
         "shader": "star",
         "model": "sphere",
         "color": "#fca803",
@@ -27,6 +27,7 @@
         "shader": "planet",
         "model": "sphere",
         "color": "#a2a8ae",
+        "type": "planet",
         "rotation": 1.022
     }
 }

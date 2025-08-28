@@ -9,17 +9,16 @@
             {
                 "object": "earth",
                 "position": [1.496e8, 0.0, 0.0],
-                "velocity": [0.0, 0.0, 29.5]
+                "velocity": [-5.931674617, 29.771, 0.0]
             },
             {
                 "object": "moon",
                 "position": [1.499844e8, 0, 0],
-                "velocity": [0, 0, 28.28]
+                "velocity": [0, 0, 31.0]
             }
         ],
         "groups": [
-            ["sol", "earth"],
-            ["earth", "moon"]
+            ["sol", "earth"]
         ]
     }
 }

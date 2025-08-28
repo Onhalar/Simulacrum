@@ -52,50 +52,37 @@ void physicsThreadFunction() {
     }
 }
 
-
 bool firstFrame = true;
 
 // Master Simulation Step Function
 void simulateStep() {
 
-    if (deltaTime == 0.0) { return; }
+    /*if (firstFrame) {
+        for (auto& simObject : Scenes::currentScene->objects) { simObject->realVelocity *= simulationSpeed; }
+        firstFrame = false;
+    }*/
 
-    phyiscsBufferedFrames = std::max(1u, phyiscsBufferedFrames);
+    if (deltaTime == 0.0) { return; }
 
     for (unsigned int groupID = 0; groupID < Scenes::currentScene->groups.size(); ++groupID) {
         const auto& currentGroup = Scenes::currentScene->groups[groupID];
 
         for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
-            
-            if (firstFrame) { simObject->realVelocity *= physicsDeltaTime * simulationSpeed / (double)phyiscsBufferedFrames; }
 
-            glm::dvec3 startPosition = simObject->realPosition;
-
-            for (int bufferedFrame = 0; bufferedFrame < phyiscsBufferedFrames; bufferedFrame++) {
-                for (int step = 0; step < phyiscsSubsteps; step++) {
-                    calcGravVelocity(simObject, groupID);
-                    advanceObjectPosition(simObject);
-                }
-            }
-
-            if (phyiscsBufferedFrames > 1) {
-                // compute the average position over buffered frames
-                glm::dvec3 avgPosition = startPosition + (simObject->realPosition - startPosition) / (double)phyiscsBufferedFrames;
-                advanceObjectPosition(simObject, avgPosition);
-
-                //std::cout << "velocity: " << simObject->realVelocity.x << ", " <<simObject->realVelocity.y << ", " <<simObject->realVelocity.z << std::endl;
-                //std::cout << "deltaTime: " << deltaTime << " simulationSpeed: " << simulationSpeed << std::endl;
+            for (int step = 0; step < phyiscsSubsteps; step++) {
+                calcGravVelocity(simObject, groupID);
+                advanceObjectPosition(simObject);
             }
         }
     }
-
-    firstFrame = false;
 }
 
 // -----------------===[ Helper Functions ]===-----------------
 
 inline void advanceObjectPosition(simulationObject* simObject) {
-    auto deltaSubStep = ((physicsDeltaTime * simulationSpeed) / (double)phyiscsSubsteps);
+    double deltaSubStep = physicsDeltaTime  * simulationSpeed / (double)phyiscsSubsteps;
+
+    //printVec3("acceleration", simObject->realAcceleration * physicsDeltaTime);
 
     simObject->realVelocity += simObject->realAcceleration * deltaSubStep;
 

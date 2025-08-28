@@ -48,6 +48,24 @@ class simulationObject {
         simulationObject(const simulationObject& original) {
             this->shader = original.shader;
             this->model = original.model;
+
+            this->mass = original.mass;
+            this->light = original.light;
+            this->objectType = original.objectType;
+
+            this->realAcceleration = original.realAcceleration;
+            this->realPosition = original.realPosition;
+            this->realVelocity = original.realVelocity;
+
+            this->modelMatrix = original.modelMatrix;
+            this->vertexModelRadius = original.vertexModelRadius;
+            this->position = original.position;
+            this->radius = original.radius;
+            this->rotationSpeed = original.rotationSpeed;
+            this->vertexRotation = original.vertexRotation;
+
+            this->modelId = original.modelId;
+            this->shaderID = original.shaderID;
         }
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
