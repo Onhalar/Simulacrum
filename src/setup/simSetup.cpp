@@ -13,6 +13,7 @@
 #include <optional>
 #include <variant>
 
+#include <color.hpp>
 #include <unordered_set>
 
 using Json = nlohmann::json;
@@ -142,9 +143,9 @@ void loadSimObjects(std::filesystem::path path) {
 
         SimObjects[entryKey] = new simulationObject(shader, model);
 
-        if (entryValue.contains("color") && entryValue["color"].size() == 3) {
-            auto color = entryValue["color"];
-            SimObjects[entryKey]->model->objectColor = glm::vec3( color[0].get<float>(), color[1].get<float>(), color[2].get<float>() );
+        if (entryValue.contains("color")) {
+            auto color = Color(entryValue["color"].get<std::string>());
+            SimObjects[entryKey]->model->objectColor = glm::vec3( color.decR, color.decG, color.decB );
         }
 
         if (entryValue.contains("radius")) {
@@ -175,8 +176,8 @@ void loadSimObjects(std::filesystem::path path) {
             }
             
             if (entryValue["light"].contains("color")){
-                auto lightColor = entryValue["light"]["color"];
-                color = glm::vec3( lightColor[0].get<float>(), lightColor[1].get<float>(), lightColor[2].get<float>() );
+                auto lightColor = Color(entryValue["light"]["color"].get<std::string>());
+                color = glm::vec3( lightColor.decR, lightColor.decG, lightColor.decB );
             } else {
                 color = SimObjects[entryKey]->model->objectColor;
             }
