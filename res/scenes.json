@@ -1,14 +1,25 @@
 {
-    "solarSystem": [
-        {
-            "object": "sol",
-            "position": [0.0, 0.0, 0.0],
-            "velocity": [0.0, 0.0, 0.0]
-        },
-        {
-            "object": "earth",
-            "position": [1.496e8, 0.0, 0.0],
-            "velocity": [0.0, 0.0, 29.5]
-        }
-    ]
+    "solarSystem": {
+        "objects": [
+            {
+                "object": "sol",
+                "position": [0.0, 0.0, 0.0],
+                "velocity": [0.0, 0.0, 0.0]
+            },
+            {
+                "object": "earth",
+                "position": [1.496e8, 0.0, 0.0],
+                "velocity": [0.0, 0.0, 29.5]
+            },
+            {
+                "object": "moon",
+                "position": [1.499844e8, 0, 0],
+                "velocity": [0, 0, 28.28]
+            }
+        ],
+        "groups": [
+            ["sol", "earth"],
+            ["earth", "moon"]
+        ]
+    }
 }

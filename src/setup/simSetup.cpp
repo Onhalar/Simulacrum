@@ -13,6 +13,8 @@
 #include <optional>
 #include <variant>
 
+#include <unordered_set>
+
 using Json = nlohmann::json;
 using errorCode = std::string;
 
@@ -218,9 +220,12 @@ void loadPhysicsScene(std::filesystem::path path) {
         auto sceneID = entry.key();
         auto entryValue = entry.value();
 
-        scene currentScene;
+        std::unordered_map<std::string, simulationObject*> objectCache;
 
-        for (const auto& simObject : entryValue) {
+        scene* currentScene = new scene();
+
+        // ToDo: add checking clause
+        for (const auto& simObject : entryValue["objects"]) {
             
             if (!simObject.contains("object")) {
                 if (debugMode) { debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' and object instance not specified ... " << formatWarning("Skipping") << '\n'; }
@@ -233,7 +238,8 @@ void loadPhysicsScene(std::filesystem::path path) {
                 continue;
             }
             
-            simulationObject* currentSimObject = SimObjects[objectID];
+            simulationObject* currentSimObject = new simulationObject(*SimObjects[objectID]);
+            objectCache[objectID] = currentSimObject;
 
             if (simObject.contains("position")) {
                 if (simObject["position"].size() == 3) {
@@ -265,15 +271,39 @@ void loadPhysicsScene(std::filesystem::path path) {
                 currentSimObject->velocity = glm::dvec3(0);
             }
 
-            currentScene.insert(currentSimObject);
+            currentScene->objects.insert(currentSimObject);
         }
 
-        if (currentScene.empty()) {
+        // setting up groups
+        if (entryValue.contains("groups") && !entryValue["groups"].empty()){
+            for (const auto& group : entryValue["groups"]) {
+                std::unordered_set<simulationObject*> currentGroup;
+
+                for (const auto& groupMember : group) {
+                    if (objectCache.find(groupMember) != objectCache.end()) {
+                        currentGroup.insert(objectCache[groupMember]);
+                    }
+                }
+
+                if (!currentGroup.empty()) { currentScene->groups.push_back(currentGroup); }
+            }
+        }
+
+        if (currentScene->groups.empty() && !objectCache.empty()) {
+            std::unordered_set<simulationObject*> currentGroup;
+
+            for (auto& [key, object] : objectCache) {
+                currentGroup.insert(object);
+            }
+
+            currentScene->groups.push_back(currentGroup);
+        }
+
+        if (currentScene->objects.empty()) {
             debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' no objects were found or passed tests ... " << formatError("Skipping") << '\n';
         }
         else {
             Scenes::allScenes[sceneID] = currentScene;
-            currentScene.clear(); // likely not necesery but just to be sure
         }
         
     }

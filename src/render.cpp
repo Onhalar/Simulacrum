@@ -32,7 +32,7 @@ void render() {
 
     // Only attempt to render if the model instance has been successfully created
 
-    if (Scenes::currentScene.empty()) {
+    if (Scenes::currentScene->objects.empty()) {
         if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
         return;
     }
@@ -42,7 +42,7 @@ void render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    for (const auto& simObject : Scenes::currentScene) {
+    for (const auto& simObject : Scenes::currentScene->objects) {
         Shader* shader = simObject->shader;
         Model* model = simObject->model;
 
@@ -88,14 +88,6 @@ void setupPostProcess() {
 
     Shaders["postProcess"]->setUniform("enableFXAA", doFXAA);
 
-}
-
-// Function to clean up all dynamically allocated model resources
-void cleanupRender() {
-    if (lightBlockUBO) {
-        delete lightBlockUBO;
-        lightBlockUBO = nullptr;
-    }
 }
 
 void updateLightSourcePositions() {

@@ -3,18 +3,25 @@
 
 #include <simObject.hpp>
 #include <unordered_map>
+#include <unordered_set>
+#include <vector>
 #include <types.hpp>
 #include <customMath.hpp>
 
-#include <set>
 
-using scene = std::set<simulationObject*>;
-using sceneList = std::unordered_map<std::string, scene>;
+using sceneGroup = std::unordered_set<simulationObject*>;
+
+struct scene {
+    std::unordered_set<simulationObject*> objects;
+    std::vector<sceneGroup> groups;
+};
+
+using sceneList = std::unordered_map<std::string, scene*>;
 
 class Scenes {
     public:
         inline static sceneList allScenes; // inline propperly initializes it for some reason
-        inline static scene currentScene;
+        inline static scene* currentScene;
 
     static void switchScene(SceneID sceneID) {
         currentScene = allScenes[sceneID];
@@ -34,7 +41,7 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     units::kilometers minObjectRadius = DBL_MAX;
     units::kilometers MaxObjctRadius = DBL_MIN;
 
-    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+    for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         simObject->calculateAproximateRadius();
         simObject->normalizeVertices(normalizedModelRadius);
 
@@ -43,7 +50,7 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     }
 
     if (minObjectRadius > 0) { // will be -1 if not all objects are present
-        for (const auto& simObject : Scenes::allScenes[sceneID]) {
+        for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
 
             double scaleFactor;
 
@@ -70,13 +77,13 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
         currentScale = 1.0;
     }
 
-    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+    for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         if (simObject->light != nullptr) {
             lightQue[simObject->name] = simObject->light;
         }
     }
 
-    for (const auto& simObject : Scenes::allScenes[sceneID]) {
+    for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         simObject->model->sendBufferedVertices();
     }
 

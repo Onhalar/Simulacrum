@@ -45,6 +45,10 @@ class simulationObject {
             shader = Shaders[shaderID];
             model = new Model(*Models[modelID]);
         }
+        simulationObject(const simulationObject& original) {
+            this->shader = original.shader;
+            this->model = original.model;
+        }
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
 

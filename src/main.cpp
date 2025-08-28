@@ -5,6 +5,7 @@
 #include <simObject.hpp>
 #include <customMath.hpp>
 #include <physicsThread.hpp>
+#include <renderDefinitions.hpp>
 
 #include "render.cpp"
 #include "settings.cpp"
@@ -27,7 +28,6 @@ void setupModels();
 void setupSimulation();
 void setupPostProcess();
 
-void cleanupRender();
 void cleanup();
 
 int main(int argc, char **argv) {
@@ -61,7 +61,6 @@ int main(int argc, char **argv) {
     mainLoop();
 
     // Call cleanup() to free all allocated model resources before exiting
-    cleanupRender();
     cleanup();
 
     glfwDestroyWindow(mainWindow);
@@ -225,11 +224,27 @@ void mainLoop() {
 
 void cleanup() {
     physicsRunning = false; 
-    physicsThread.join();
-
+    if (physicsThread.joinable()) { physicsThread.join(); }
 
     delete currentCamera;
     currentCamera = nullptr;
+
+    if (lightBlockUBO) {
+        delete lightBlockUBO;
+        lightBlockUBO = nullptr;
+    }
+
+    for (auto& [key, lightObject] : lightQue) {
+        delete lightObject;
+        lightObject = nullptr;
+    }
+    lightQue.clear();
+
+    for (auto& [key, scene] : Scenes::allScenes) {
+        delete scene;
+    }
+    Scenes::allScenes.clear();
+    Scenes::currentScene = nullptr;
 
     for (const auto& FBO : FBOs) { delete FBO.second; }
     FBOs.clear();

@@ -21,8 +21,7 @@
 inline void advanceObjectPosition(simulationObject* simObject);
 inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 realPosition);
 
-void calcGravVelocity(simulationObject* currentObject);
-void calculateVelocity(simulationObject* simObject);
+void calcGravVelocity(simulationObject* currentObject, unsigned int groupID);
 
 void simulateStep();
 
@@ -63,26 +62,30 @@ void simulateStep() {
 
     phyiscsBufferedFrames = std::max(1u, phyiscsBufferedFrames);
 
-    for (const auto& simObject : Scenes::currentScene) {
-        
-        if (firstFrame) { simObject->realVelocity *= physicsDeltaTime * simulationSpeed / (double)phyiscsBufferedFrames; }
+    for (unsigned int groupID = 0; groupID < Scenes::currentScene->groups.size(); ++groupID) {
+        const auto& currentGroup = Scenes::currentScene->groups[groupID];
 
-        glm::dvec3 startPosition = simObject->realPosition;
+        for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
+            
+            if (firstFrame) { simObject->realVelocity *= physicsDeltaTime * simulationSpeed / (double)phyiscsBufferedFrames; }
 
-        for (int bufferedFrame = 0; bufferedFrame < phyiscsBufferedFrames; bufferedFrame++) {
-            for (int step = 0; step < phyiscsSubsteps; step++) {
-                calcGravVelocity(simObject);
-                advanceObjectPosition(simObject);
+            glm::dvec3 startPosition = simObject->realPosition;
+
+            for (int bufferedFrame = 0; bufferedFrame < phyiscsBufferedFrames; bufferedFrame++) {
+                for (int step = 0; step < phyiscsSubsteps; step++) {
+                    calcGravVelocity(simObject, groupID);
+                    advanceObjectPosition(simObject);
+                }
             }
-        }
 
-        if (phyiscsBufferedFrames > 1) {
-            // compute the average position over buffered frames
-            glm::dvec3 avgPosition = startPosition + (simObject->realPosition - startPosition) / (double)phyiscsBufferedFrames;
-            advanceObjectPosition(simObject, avgPosition);
+            if (phyiscsBufferedFrames > 1) {
+                // compute the average position over buffered frames
+                glm::dvec3 avgPosition = startPosition + (simObject->realPosition - startPosition) / (double)phyiscsBufferedFrames;
+                advanceObjectPosition(simObject, avgPosition);
 
-            //std::cout << "velocity: " << simObject->realVelocity.x << ", " <<simObject->realVelocity.y << ", " <<simObject->realVelocity.z << std::endl;
-            //std::cout << "deltaTime: " << deltaTime << " simulationSpeed: " << simulationSpeed << std::endl;
+                //std::cout << "velocity: " << simObject->realVelocity.x << ", " <<simObject->realVelocity.y << ", " <<simObject->realVelocity.z << std::endl;
+                //std::cout << "deltaTime: " << deltaTime << " simulationSpeed: " << simulationSpeed << std::endl;
+            }
         }
     }
 
@@ -112,10 +115,10 @@ inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 realPo
     simObject->realAcceleration = glm::dvec3(0.0);
 }
 
-void calcGravVelocity(simulationObject* currentObject) {
+void calcGravVelocity(simulationObject* currentObject, unsigned int groupID) {
     glm::dvec3 fullGravPullAcceleration = glm::dvec3(0.0);
 
-    for (const auto& simObject : Scenes::currentScene) {
+    for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
         // Skip self-gravity
         if (currentObject == simObject) { continue; }
         

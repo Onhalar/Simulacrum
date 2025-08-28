@@ -4,7 +4,7 @@
         "mass": 5.9722e21,
         "shader": "planet",
         "model": "sphere",
-        "color": [0.0, 0.0, 1.0],
+        "color": "#0000ff",
         "type": "planet",
         "rotation": 1600.0
     },
@@ -13,12 +13,20 @@
         "mass": 1.988416e30,
         "shader": "star",
         "model": "sphere",
-        "color": [0.988, 0.658, 0.011],
+        "color": "#fca803",
         "type": "star",
         "rotation": 119.82,
         "ligth": {
-            "color": [0.988, 0.658, 0.011],
+            "color": "#fca803",
             "intensity": 1.5
         }
+    },
+    "moon": {
+        "radius": 1737.4,
+        "mass": 7.34767309e19,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#a2a8ae",
+        "rotation": 1.022
     }
 }
