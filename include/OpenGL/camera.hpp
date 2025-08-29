@@ -152,8 +152,8 @@ class Camera {
                 }
             }
         }
-        void updateCameraValues(const float& renderDistance, const float& sensitivity, const float& speed) {
-            this->farClipPlane = renderDistance; this->sensitivity = sensitivity, this->cameraSpeed = speed;
+        void updateCameraValues(const float& renderDistance, const float& sensitivity, const float& speed, const float& fovDeg) {
+            this->farClipPlane = renderDistance; this->sensitivity = sensitivity, this->cameraSpeed = speed; this->FOVdeg = fovDeg;
         }
 };
 

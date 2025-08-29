@@ -8,6 +8,9 @@
 #include <types.hpp>
 #include <customMath.hpp>
 
+#include <renderDefinitions.hpp>
+#include <math.h>
+
 
 using sceneGroup = std::unordered_set<simulationObject*>;
 
@@ -90,9 +93,25 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     // light positions will be updated in the main loop
 }
 
+void adjustCameraToScene(const SceneID& sceneID) {
+    double maxDistance = 0.0;
+
+    for (const auto& object : Scenes::allScenes[sceneID]->objects) {
+        if (object->realPosition != glm::dvec3(0.0)) {
+            double distance = glm::distance(glm::dvec3(0.0), object->realPosition);
+            maxDistance = (distance > maxDistance? distance : maxDistance);
+        }
+    }
+
+    maxDistance /= currentScale;
+
+    currentCamera->position.z = (maxDistance / std::tan(glm::radians(currentCamera->FOVdeg) / 2.0));
+}
+
 void switchSceneAndCalculateObjects(const SceneID& sceneID) {
     setupSceneObjects(sceneID);
     Scenes::switchScene(sceneID);
+    adjustCameraToScene(sceneID);
 }
 
 #endif // PHYSICS_SCENE_CLASS_HEADER

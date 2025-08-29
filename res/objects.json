@@ -20,14 +20,5 @@
             "color": "#fca803",
             "intensity": 1.5
         }
-    },
-    "moon": {
-        "radius": 1737.4,
-        "mass": 7.34767309e19,
-        "shader": "planet",
-        "model": "sphere",
-        "color": "#a2a8ae",
-        "type": "planet",
-        "rotation": 1.022
     }
 }

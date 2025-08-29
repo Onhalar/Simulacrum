@@ -171,7 +171,7 @@ void mainLoop() {
 
             // ----==[ RENDERING ]==----
 
-            currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed);
+            currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed, fovDeg);
             currentCamera->handleInputs(mainWindow);
             for(auto shader: Shaders) {
                 currentCamera->updateProjection(shader.second);

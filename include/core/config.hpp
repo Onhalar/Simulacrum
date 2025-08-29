@@ -82,6 +82,7 @@ float renderDistance = 1'000.0f;
 
 float cameraSpeed = 12.5f;
 float cameraSensitivity = 175.0f;
+float fovDeg = 45.0f;
 
 // Model settings
 
