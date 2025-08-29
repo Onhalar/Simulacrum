@@ -71,6 +71,7 @@ int VSync = 1;
 
 bool doPostProcess = true;
 bool doFXAA = true;
+bool inverseColors = false;
 
 float staticDelayFraction = 0.65f;
 bool simulateObjectRotation = true;

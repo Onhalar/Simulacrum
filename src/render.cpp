@@ -87,6 +87,7 @@ void setupPostProcess() {
     Shaders["postProcess"]->setUniform("resolution", glm::vec2(width, height));
 
     Shaders["postProcess"]->setUniform("enableFXAA", doFXAA);
+    Shaders["postProcess"]->setUniform("inverseColors", inverseColors);
 
 }
 

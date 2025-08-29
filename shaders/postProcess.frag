@@ -7,6 +7,7 @@ uniform sampler2D screenTexture;
 
 uniform vec2 resolution;
 uniform bool enableFXAA = true;
+uniform bool inverseColors = false;
 
 // FXAA Constants
 #define FXAA_REDUCE_MIN (1.0/128.0)
@@ -65,6 +66,8 @@ void main() {
     vec4 outColor = texture(screenTexture, textureUV);
 
     if (enableFXAA) { outColor = applyFXAA(screenTexture, textureUV, resolution); }
+
+    if (inverseColors) { outColor = vec4(1.0 - outColor.rgb, 1.0); }
 
     FragColor = outColor;
 }

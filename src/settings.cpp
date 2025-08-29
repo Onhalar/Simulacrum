@@ -66,6 +66,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"doPostProcess",                      {"RENDER", SettingsEntry(&doPostProcess, setValue<bool>)}},
     {"doFXAA",                             {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
     {"lightUpdateFrameSkip",               {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
+    {"inverseColors",                      {"RENDER", SettingsEntry(&inverseColors, setValue<bool>)}},
 
     {"renderDistance",                     {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
     {"cameraSpeed",                        {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},
