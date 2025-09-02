@@ -95,15 +95,20 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
 
 void adjustCameraToScene(const SceneID& sceneID) {
     double maxDistance = 0.0;
+    double objectVertRadius = 0.0;
 
     for (const auto& object : Scenes::allScenes[sceneID]->objects) {
         if (object->realPosition != glm::dvec3(0.0)) {
             double distance = glm::distance(glm::dvec3(0.0), object->realPosition);
-            maxDistance = (distance > maxDistance? distance : maxDistance);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                objectVertRadius = object->vertexModelRadius;
+            }
         }
     }
 
     maxDistance /= currentScale;
+    maxDistance += objectVertRadius;
 
     currentCamera->position.z = (maxDistance / std::tan(glm::radians(currentCamera->FOVdeg) / 2.0));
 }
