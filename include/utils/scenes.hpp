@@ -17,6 +17,17 @@ using sceneGroup = std::unordered_set<simulationObject*>;
 struct scene {
     std::unordered_set<simulationObject*> objects;
     std::vector<sceneGroup> groups;
+
+    ~scene() {
+        for (auto* simObject : objects) {
+            if (!simObject) {
+                delete simObject;
+                simObject = nullptr;
+            }
+        }
+        objects.clear();
+        groups.clear();
+    }
 };
 
 using sceneList = std::unordered_map<std::string, scene*>;
@@ -109,6 +120,8 @@ void adjustCameraToScene(const SceneID& sceneID) {
 
     maxDistance /= currentScale;
     maxDistance += objectVertRadius;
+
+    maxDistance *= (1 + sceneZoomModifier);
 
     currentCamera->position.z = (maxDistance / std::tan(glm::radians(currentCamera->FOVdeg) / 2.0));
 }

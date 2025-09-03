@@ -72,6 +72,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"cameraSpeed",                        {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},
     {"cameraSensitivity",                  {"CAMERA", SettingsEntry(&cameraSensitivity, setValue<float>)}},
     {"cameraFOV",                          {"CAMERA", SettingsEntry(&fovDeg, setValue<float>)}},
+    {"sceneZoomModifier",                  {"CAMERA", SettingsEntry(&sceneZoomModifier, setValue<float>)}},
 
     {"simulationMode",                     {"PHYSICS", SettingsEntry(&simulationMode, setValue<simulationType>)}},
     {"simpleMaxScale",                     {"PHYSICS", SettingsEntry(&maxScale, setValue<float>)}},

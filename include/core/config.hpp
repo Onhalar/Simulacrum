@@ -85,6 +85,8 @@ float cameraSpeed = 12.5f;
 float cameraSensitivity = 175.0f;
 float fovDeg = 45.0f;
 
+float sceneZoomModifier = 0.05;
+
 // Model settings
 
 float normalizedModelRadius = 1.0f;
