@@ -19,8 +19,9 @@ struct scene {
     std::vector<sceneGroup> groups;
 
     ~scene() {
+        // objecs contain class copies need to be deleted separately.
         for (auto* simObject : objects) {
-            if (!simObject) {
+            if (simObject) {
                 delete simObject;
                 simObject = nullptr;
             }
