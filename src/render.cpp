@@ -55,8 +55,8 @@ void render() {
 
         shader->activate();
         if (simulateObjectRotation) {
-            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, glm::radians(simObject->vertexRotation), glm::vec3(0,1,0)); // temporarily rotate around Z axii
-            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix );
+            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0,1,0)); // temporarily rotate around Z axii
+            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ );
         }
         else {
             shader->applyModelMatrix(calcuculateModelMatrixFromPosition(renderPos));
