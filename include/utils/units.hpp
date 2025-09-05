@@ -5,7 +5,7 @@
 
 class units{
     private:
-        enum unitID : unsigned char {
+        enum unitID : signed char {
             BASE = 0,       // BASE eg. g
             BASE_3 = 3,     // BASE ^ 3 eg. kg
             BASE_6 = 6      // BASE ^ 6 eg. t
