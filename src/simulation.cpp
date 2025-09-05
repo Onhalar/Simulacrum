@@ -111,9 +111,9 @@ void calcGravVelocity(simulationObject* currentObject, unsigned int groupID) {
         
         // Get distance in simulation units and convert to meters
         units::meters distance = glm::distance(currentObject->realPosition, simObject->realPosition) * 1'000.0;
-        units::kilograms comparisonObjectMass = simObject->mass * 1'000.0;
+        units::kilograms comparisonObjectMass = units::manual_cast<units::kilograms>(simObject->mass, 1'000.0);
         
-        double gravitationalAcceleration = GRAVITATIONAL_CONSTANT * (comparisonObjectMass) / (distance * distance);
+        double gravitationalAcceleration = GRAVITATIONAL_CONSTANT * (comparisonObjectMass) / (double)(distance * distance);
         
         glm::dvec3 direction = glm::normalize(simObject->realPosition - currentObject->realPosition);
 

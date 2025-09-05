@@ -149,11 +149,11 @@ void loadSimObjects(std::filesystem::path path) {
         }
 
         if (entryValue.contains("radius")) {
-            SimObjects[entryKey]->radius = entryValue["radius"].get<units::kilometers>();
+            SimObjects[entryKey]->radius = (units::kilometers)entryValue["radius"].get<double>();
         }
 
         if (entryValue.contains("mass")) {
-            SimObjects[entryKey]->mass = entryValue["mass"].get<units::tons>();
+            SimObjects[entryKey]->mass = (units::tons)entryValue["mass"].get<double>();
         }
         if (entryValue.contains("type")) {
             SimObjects[entryKey]->objectType = entryValue["type"].get<std::string>();

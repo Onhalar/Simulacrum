@@ -8,20 +8,13 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <color.hpp>
+#include <units.hpp>
 
 using ShaderID = std::string;
 using ModelID = std::string;
 using SimObjectID = std::string;
 using SceneID = std::string;
 
-class units {
-    public:
-        using kilometers = double;
-        using tons = double;
-
-        using meters = double;
-        using kilograms = double;
-};
 
 using TinyInt = unsigned char; // 0-255
 

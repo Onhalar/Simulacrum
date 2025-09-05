@@ -82,7 +82,7 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
             simObject->vertexModelRadius *= scaleFactor;
 
             if (simObject->rotationSpeed != -1 && simulateObjectRotation) {
-                double objectCircumference = 2.0 * PI * simObject->radius;
+                double objectCircumference = 2.0 * PI * (double)simObject->radius;
 
                 simObject->vertexRotation = 360.0 * ( ( simObject->rotationSpeed / objectCircumference ) / 3600 ); // degrees per second
             }
