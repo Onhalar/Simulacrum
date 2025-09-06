@@ -31,7 +31,7 @@ T roundUpToPowerOfTwo(T& number) {
     return temp;
 }
 
-units::kilometers exponentialScale(const units::kilometers& minValue, const units::kilometers& MaxValue, const units::kilometers& currentValue, const float& maxScale = maxScale) {
+units::kilometers exponentialScale(const units::kilometers& minValue, const units::kilometers& MaxValue, const units::kilometers& currentValue, const float& maxScale) {
     if (minValue >= MaxValue /*Zero Division handler*/ || currentValue <= minValue) {
         return 1.0;
     }

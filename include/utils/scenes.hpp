@@ -1,6 +1,7 @@
 #ifndef PHYSICS_SCENE_CLASS_HEADER
 #define PHYSICS_SCENE_CLASS_HEADER
 
+#include "config.hpp"
 #include <simObject.hpp>
 #include <unordered_map>
 #include <unordered_set>
@@ -74,7 +75,7 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
                 if (!currentScale) { currentScale = (minObjectRadius / (double)normalizedModelRadius) * renderScaleDistortion; }
             }
             else if (simulationMode == simulationType::simplified) {
-                scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius);
+                scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius, maxScale);
                 if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
             }
 
