@@ -1,4 +1,5 @@
 #include <config.hpp>
+#include <filesystem>
 #include <globals.hpp>
 #include <iostream>
 
@@ -6,6 +7,7 @@
 #include <customMath.hpp>
 #include <physicsThread.hpp>
 #include <renderDefinitions.hpp>
+#include <string>
 
 #include "imgui.h"
 #include "render.cpp" // provides render as well as GUI
@@ -164,24 +166,37 @@ void setupGui() {
     style.FrameRounding = frameRounding;     // Buttons, sliders, etc.
 
     // Making Fonts
-    ImFontConfig config;
     io.Fonts->Clear();
-    
-    // large
-    config.SizePixels = fontSize * 1.1f;
-    Fonts["large"] = io.Fonts->AddFontDefault(&config);  // Large size
-        
-    //larger
-    config.SizePixels = fontSize * 1.35f;
-    Fonts["larger"] = io.Fonts->AddFontDefault(&config);
+    ImFontConfig config;
 
-    //largest
-    config.SizePixels = fontSize * 1.5f;
-    Fonts["largest"] = io.Fonts->AddFontDefault(&config);
+    std::string fontPath = projectPath(resourcePath / fontFile);
 
-    // default
-    config.SizePixels = fontSize;
-    io.Fonts->AddFontDefault(&config);
+    if (std::filesystem::exists((std::filesystem::path)fontPath)) {
+        config.OversampleH = 2;
+        config.OversampleV = 2;
+
+        Fonts["large"] = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize * 1.1f, &config);
+        Fonts["larger"] = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize * 1.35f, &config);
+        Fonts["largest"] = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize * 1.5f, &config);
+        Fonts["normal"] = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize, &config);
+    }
+    else {
+        // large
+        config.SizePixels = fontSize * 1.1f;
+        Fonts["large"] = io.Fonts->AddFontDefault(&config);
+            
+        //larger
+        config.SizePixels = fontSize * 1.35f;
+        Fonts["larger"] = io.Fonts->AddFontDefault(&config);
+
+        //largest
+        config.SizePixels = fontSize * 1.5f;
+        Fonts["largest"] = io.Fonts->AddFontDefault(&config);
+
+        // default
+        config.SizePixels = fontSize;
+        Fonts["normal"] = io.Fonts->AddFontDefault(&config);
+    }
 
     // Enable keyboard and gamepad controls (optional)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;

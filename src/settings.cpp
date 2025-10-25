@@ -6,6 +6,7 @@
 
 #include <simpleToml.hpp>
 
+#include <string>
 #include <variant>
 #include <unordered_map>
 #include <tuple>
@@ -46,22 +47,23 @@ using SettingsVariant = std::variant<
     SettingsEntry<std::chrono::nanoseconds>,
     SettingsEntry<unsigned char>,
     SettingsEntry<unsigned int>,
-    SettingsEntry<simulationType>
+    SettingsEntry<simulationType>,
+    SettingsEntry<std::string>
 >;
 
 std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> settings = {
-    {"debugMode",                          {"DEBUG", SettingsEntry(&debugMode, setValue<bool>)}},
-    {"prettyOutput",                       {"DEBUG", SettingsEntry(&prettyOutput, setValue<bool>)}},
+    {"debugMode",                         {"DEBUG", SettingsEntry(&debugMode, setValue<bool>)}},
+    {"prettyOutput",                      {"DEBUG", SettingsEntry(&prettyOutput, setValue<bool>)}},
 
-    {"defaultWindowWidth",                 {"WINDOW", SettingsEntry(&defaultWindowWidth, setValue<int>)}},
-    {"defaultWindowHeight",                {"WINDOW", SettingsEntry(&defaultWindowHeight, setValue<int>)}},
-    {"minWindowWidth",                     {"WINDOW", SettingsEntry(&minWindowWidth, setValue<int>)}},
-    {"minWindowHeight",                    {"WINDOW", SettingsEntry(&minWindowHeight, setValue<int>)}},
-    {"defaultBackgroundColor",             {"WINDOW", SettingsEntry(&backgroundColor, setColor)}},
+    {"defaultWindowWidth",                {"WINDOW", SettingsEntry(&defaultWindowWidth, setValue<int>)}},
+    {"defaultWindowHeight",               {"WINDOW", SettingsEntry(&defaultWindowHeight, setValue<int>)}},
+    {"minWindowWidth",                    {"WINDOW", SettingsEntry(&minWindowWidth, setValue<int>)}},
+    {"minWindowHeight",                   {"WINDOW", SettingsEntry(&minWindowHeight, setValue<int>)}},
+    {"defaultBackgroundColor",            {"WINDOW", SettingsEntry(&backgroundColor, setColor)}},
 
-    {"maxFrameRate",                       {"RENDER", SettingsEntry(&maxFrameRate, setValue<int>)}},
-    {"VSync",                              {"RENDER", SettingsEntry(&VSync, setValue<int>)}},
-    {"StaticFrameDelayFraction",           {"RENDER", SettingsEntry(&staticDelayFraction, setValue<float>)}},
+    {"maxFrameRate",                      {"RENDER", SettingsEntry(&maxFrameRate, setValue<int>)}},
+    {"VSync",                             {"RENDER", SettingsEntry(&VSync, setValue<int>)}},
+    {"StaticFrameDelayFraction",          {"RENDER", SettingsEntry(&staticDelayFraction, setValue<float>)}},
     {"spinDelayNS",                       {"RENDER", SettingsEntry(&spinDelay, setNanoseconds)}},
     {"doPostProcess",                     {"RENDER", SettingsEntry(&doPostProcess, setValue<bool>)}},
     {"doFXAA",                            {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
@@ -84,7 +86,8 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
 
     {"fontSize",                          {"GUI", SettingsEntry(&fontSize, setValue<float>)}},
     {"windowRounding",                    {"GUI", SettingsEntry(&windowRounding, setValue<float>)}},
-    {"frameRounding",                     {"GUI", SettingsEntry(&frameRounding, setValue<float>)}}
+    {"frameRounding",                     {"GUI", SettingsEntry(&frameRounding, setValue<float>)}},
+    {"fontFile",                          {"GUI", SettingsEntry(&fontFile, setValue<std::string>)}}
 };
 
 void loadSettings(std::filesystem::path path) {

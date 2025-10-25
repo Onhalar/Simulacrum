@@ -36,11 +36,13 @@ filesystem::path projectDir;
 string iconPath = "res/icon.png";
 
 // resource paths
-const std::filesystem::path shaderPath = "shaders/";
-const std::filesystem::path modelPath = "res/models";
-const std::filesystem::path settingsPath = "res/settings.conf";
-const std::filesystem::path simObjectsConfigPath = "res/objects.json";
-const std::filesystem::path physicsScenesPath = "res/scenes.json";
+inline const std::filesystem::path shaderPath = "shaders/";
+inline const std::filesystem::path resourcePath = "res/";
+
+inline const std::filesystem::path modelPath = resourcePath/"models";
+inline const std::filesystem::path settingsPath = resourcePath/"settings.conf";
+inline const std::filesystem::path simObjectsConfigPath = resourcePath/"objects.json";
+inline const std::filesystem::path physicsScenesPath = resourcePath/"scenes.json";
 
 
 // window settings
@@ -81,6 +83,8 @@ float sceneZoomModifier = 0.05;
 float fontSize = 15.0f;
 float windowRounding = 8.0f;
 float frameRounding = 4.0f;
+std::string fontFile = "mandalore.otf";
+
 // Model settings
 
 float normalizedModelRadius = 1.0f;

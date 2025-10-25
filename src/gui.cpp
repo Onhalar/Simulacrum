@@ -207,6 +207,8 @@ void renderSettingsMenu() {
 void renderSimSpeedDisplay() {
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
 
+    ImGui::PushFont(Fonts["normal"]);
+
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGui::Begin("simspeedDisplay", nullptr, 
                 ImGuiWindowFlags_NoTitleBar | 
@@ -218,6 +220,8 @@ void renderSimSpeedDisplay() {
     ImGui::Text("%ix", (int)simulationSpeed);
     ImGui::PopFont();
 
+    ImGui::PopFont();
+
     ImGui::End();
 }
 
@@ -225,6 +229,8 @@ void renderSimSpeedDisplay() {
 void renderSceneGraph() {
     // Get the viewport size to position in top right
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x - 10, 10), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+
+    ImGui::PushFont(Fonts["normal"]);
 
     ImGui::SetNextWindowBgAlpha(0.35f); // Semi-transparent so you can see through it
     ImGui::Begin("sceneGraph", nullptr, 
@@ -246,6 +252,8 @@ void renderSceneGraph() {
         }
         ImGui::TreePop();
     }
+
+    ImGui::PopFont();
 
     ImGui::End();
 }
