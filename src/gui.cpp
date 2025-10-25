@@ -1,4 +1,3 @@
-#include "GLFW/glfw3.h"
 #include <config.hpp>
 #include <debug.hpp>
 #include <globals.hpp>
