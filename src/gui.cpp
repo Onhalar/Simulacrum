@@ -134,7 +134,7 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        static double min = 1.0, max = 2.5e5, simulationSpeedLocal = simulationSpeed;
+        static double min = 1.0, max = 5.0e5, simulationSpeedLocal = simulationSpeed;
 
         ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.2fx");
 
