@@ -12,6 +12,17 @@ add_executable(
 
     # dependencies
     dependencies/glad.c
+
+    # ImGui core files
+    dependencies/imgui/imgui.cpp
+    dependencies/imgui/imgui_demo.cpp
+    dependencies/imgui/imgui_draw.cpp
+    dependencies/imgui/imgui_tables.cpp
+    dependencies/imgui/imgui_widgets.cpp
+    
+    # ImGui backend files
+    dependencies/imgui/backends/imgui_impl_glfw.cpp
+    dependencies/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 target_compile_features(simulacrum PRIVATE cxx_std_20)
@@ -23,6 +34,8 @@ target_include_directories(simulacrum PRIVATE
     include/objects
 
     dependencies
+    dependencies/imgui
+    dependencies/imgui/backends
     )
 
 # Set the output directory for the executable to "bin" inside the build folder
