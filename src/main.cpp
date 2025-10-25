@@ -159,19 +159,29 @@ void setupGui() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+
+    // Making Fonts
     ImFontConfig config;
+    io.Fonts->Clear();
+    
+    // large
+    config.SizePixels = fontSize * 1.1f;
+    Fonts["large"] = io.Fonts->AddFontDefault(&config);  // Large size
+        
+    //larger
+    config.SizePixels = fontSize * 1.25f;
+    Fonts["larger"] = io.Fonts->AddFontDefault(&config);
+
+    // default
     config.SizePixels = fontSize;
     io.Fonts->AddFontDefault(&config);
-    
+
     // Enable keyboard and gamepad controls (optional)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    // Alternative styles:
-    // ImGui::StyleColorsLight();
-    // ImGui::StyleColorsClassic();
     
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
@@ -256,6 +266,9 @@ void cleanup() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    //ImGUI will destroy its fonts by itself - ImGui::DestroyContext();
+    Fonts.clear();
 
     physicsRunning = false; 
     if (physicsThread.joinable()) { physicsThread.join(); }

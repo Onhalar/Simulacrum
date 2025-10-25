@@ -32,6 +32,8 @@ class Camera {
         float nearClipPlane = 0.1f;
         float farClipPlane = 100.0f;
 
+        bool focused = false;
+
         int width, height;
 
         float FOVdeg = 45.0f;
@@ -90,19 +92,18 @@ class Camera {
             this->farClipPlane = farClipPlane;
         }
         void handleInputs(GLFWwindow* window) {
-            static bool controlCamera = false;
 
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera && !supressCameraControls) {
-                controlCamera = true;
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !focused && !supressCameraControls) {
+                focused = true;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glfwSetCursorPos(window, (width / 2), (height / 2));
             }
-            else if (glfwGetKey(window, GLFW_KEY_ESCAPE) && controlCamera) {
-                controlCamera = false;
+            else if (glfwGetKey(window, GLFW_KEY_ESCAPE) && focused) {
+                focused = false;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
 
-            if (controlCamera) {
+            if (focused) {
                 double mouseX, mouseY;
                 glfwGetCursorPos(window, &mouseX, &mouseY);
 

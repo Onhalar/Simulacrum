@@ -1,37 +1,200 @@
-#include <cmath>
+#include <config.hpp>
 #include <debug.hpp>
 #include <globals.hpp>
 #include <renderDefinitions.hpp>
+#include <physicsThread.hpp>
 
-// ImGui includes
+// 3rd party headers
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <glm/geometric.hpp>
 
 // use to display the current scene
 #include <scenes.hpp>
-#include <sstream>
 
-void updateDefaultFontSize(const float& fontSize) {
-    static ImFontConfig config;
-    static ImGuiIO& io = ImGui::GetIO();
+#include <map>
+#include <chrono>
 
-    config.SizePixels = fontSize;
-    io.Fonts->AddFontDefault(&config);
-}
+
+std::map<std::string, ImFont*> Fonts = {};
+
+ImGuiIO *io;
+
+
+void renderSceneGraph();
+void renderSimSpeedDisplay();
+void renderSettingsMenu();
+
 
 void renderGui() {
+    io = &ImGui::GetIO();
+
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Get the viewport size to position in top right
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - 10, 10), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+    // Render setup
+    renderSimSpeedDisplay();
+    renderSceneGraph();
+
+    renderSettingsMenu();
+
+    // Rendering
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+
+
+void renderSettingsMenu() {
+    static bool showSettings = false;
+    static bool wasPressed = false;
     
+    // Detect single key press (not held)
+    bool isPressed = glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+    if (isPressed && !wasPressed) {
+        showSettings = !showSettings;
+    }
+    wasPressed = isPressed | currentCamera->focused;
+
+    if (!showSettings) {
+        ImGui::SetNextWindowBgAlpha(0.35f);
+        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+
+        ImGui::Begin("SettingsMenuButton", nullptr, 
+                ImGuiWindowFlags_NoTitleBar | 
+                ImGuiWindowFlags_NoResize | 
+                ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoMove);
+
+        static ImVec4 transparent(0.0f, 0.0f, 0.0f, 0.0f);
+
+        ImGui::PushStyleColor(ImGuiCol_Button, transparent);
+
+        if (ImGui::Button("Menu")) { showSettings = true; }
+
+        ImGui::PopStyleColor();
+
+        ImGui::End();
+    }
+
+    // Only render if settings should be shown
+    if (!showSettings) { return; }
+
+    // Center the window
+    ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.9f, io->DisplaySize.y * 0.9f), ImGuiCond_Always);
+    
+    ImGui::PushFont(Fonts["larger"]);
+    ImGui::Begin("Settings", &showSettings, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::PopFont();
+
+    ImGui::PushFont(Fonts["large"]);
+
+    if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        ImGui::Checkbox("VSync", (bool*)&VSync);
+        if (!VSync) {
+            static int lastMaxFPS = maxFrameRate;
+
+            ImGui::SliderInt("Max FPS", &maxFrameRate, 10, 300, "%i FPS");
+
+            if (lastMaxFPS != maxFrameRate) {
+                frameDuration = nanoseconds(1'000'000'000 / maxFrameRate);
+                lastMaxFPS = maxFrameRate;
+            }
+        }
+
+        ImGui::Checkbox("Post Process", &doPostProcess);
+
+        if (doPostProcess) {
+            // FixMe: This is kinda a hack, consider rewriting
+            static bool doFXAALocal = doFXAA, inverseColorsLocal = inverseColors;
+
+            ImGui::Checkbox("FXAA", &doFXAALocal);
+            ImGui::Checkbox("Inverse colors", &inverseColorsLocal);
+
+            if (doFXAALocal != doFXAA && Shaders.find("postProcess") != Shaders.end()) {
+                doFXAA = doFXAALocal;
+                Shaders["postProcess"]->activate();
+                Shaders["postProcess"]->setUniform("enableFXAA", doFXAA);
+            }
+
+            if (inverseColorsLocal != inverseColors && Shaders.find("postProcess") != Shaders.end()) {
+                inverseColors = inverseColorsLocal;
+                Shaders["postProcess"]->activate();
+                Shaders["postProcess"]->setUniform("inverseColors", inverseColors);
+            }
+        }
+
+        ImGui::SliderFloat("Render Distance (Vertex distance)", &renderDistance, 100.0f, 50'000.0f, "%.0f Vd");
+    }
+    
+    if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        static double min = 1.0, max = 2.5e5, simulationSpeedLocal = simulationSpeed;
+
+        ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.2fx");
+
+        if (simulationSpeedLocal != simulationSpeed) {
+            std::lock_guard<std::mutex> lock(physicsMutex);
+            simulationSpeed = simulationSpeedLocal;
+        }
+
+
+        static unsigned int phyiscsSubstepsLocal = phyiscsSubsteps;
+
+        ImGui::SliderInt("Physics SubSteps", (int*)&phyiscsSubstepsLocal, 1, 32);
+
+        if (phyiscsSubstepsLocal != phyiscsSubsteps) {
+            std::lock_guard<std::mutex> lock(physicsMutex);
+            phyiscsSubsteps = phyiscsSubstepsLocal;
+        }
+
+        
+        ImGui::Checkbox("Simulate object rotation", &simulateObjectRotation);
+        ImGui::Text("Physics FPS: %.0f", physicsSteps);
+    }
+    
+    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+        ImGui::SliderFloat("FOV", &fovDeg, 30.0f, 120.0f, "%.2f Deg");
+        ImGui::SliderFloat("Sensitivity", &cameraSensitivity, 50.0f, 300.0f, "%.0f");
+        ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 100.0f, "%.0f");
+    }
+    
+    ImGui::PopFont();
+
+    ImGui::End();
+}
+
+
+void renderSimSpeedDisplay() {
+    ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGui::Begin("simspeedDisplay", nullptr, 
+                ImGuiWindowFlags_NoTitleBar | 
+                ImGuiWindowFlags_NoResize | 
+                ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoMove);
+        
+    ImGui::PushFont(Fonts["larger"]);
+    ImGui::Text("%ix", (int)simulationSpeed);
+    ImGui::PopFont();
+
+    ImGui::End();
+}
+
+
+void renderSceneGraph() {
+    // Get the viewport size to position in top right
+    ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x - 10, 10), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+
     ImGui::SetNextWindowBgAlpha(0.35f); // Semi-transparent so you can see through it
-    ImGui::Begin("Overlay", nullptr, 
+    ImGui::Begin("sceneGraph", nullptr, 
                 ImGuiWindowFlags_NoTitleBar | 
                 ImGuiWindowFlags_NoResize | 
                 ImGuiWindowFlags_AlwaysAutoResize |
@@ -41,17 +204,10 @@ void renderGui() {
     if (ImGui::TreeNode(Scenes::currentSceneID.c_str())) {
         for (const auto& object :Scenes::currentScene->objects) {
             if (ImGui::TreeNode(object->name.c_str())) {
-                std::stringstream massBuffer;
-                std::stringstream radiusBuffer;
-                std::stringstream velocityBuffer;
 
-                massBuffer << "Mass: " << object->mass << " t";
-                radiusBuffer << "Radius: " << object->radius << " km";
-                velocityBuffer << "Velocity: " << std::sqrt( (object->realVelocity.x * object->realVelocity.x) + (object->realVelocity.y * object->realVelocity.y) + (object->realVelocity.z * object->realVelocity.z) ) << " km/s";
-
-                ImGui::BulletText(massBuffer.str().c_str());
-                ImGui::BulletText(radiusBuffer.str().c_str());
-                ImGui::BulletText(velocityBuffer.str().c_str());
+                ImGui::BulletText("Mass: %g t", (double)object->mass);
+                ImGui::BulletText("Radius: %.0f km", (double)object->radius);
+                ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->realVelocity));
                 ImGui::TreePop();
             }
         }
@@ -59,15 +215,11 @@ void renderGui() {
     }
 
     ImGui::End();
-
-    // Rendering
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 // checks if the mouse is above a ui element if so, disables camera controls for the frame
 void GuiCameraInterruption() {
-    if (ImGui::IsAnyItemActive() || ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
+    if (ImGui::IsAnyItemActive() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
         supressCameraControls = true;
     }
-}
+} 

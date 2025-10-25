@@ -76,7 +76,10 @@ float fovDeg = 45.0f;
 
 float sceneZoomModifier = 0.05;
 
+
+// GUI
 float fontSize = 15.0f;
+bool showGui = true;
 
 // Model settings
 

@@ -15,7 +15,6 @@ add_executable(
 
     # ImGui core files
     dependencies/imgui/imgui.cpp
-    dependencies/imgui/imgui_demo.cpp
     dependencies/imgui/imgui_draw.cpp
     dependencies/imgui/imgui_tables.cpp
     dependencies/imgui/imgui_widgets.cpp

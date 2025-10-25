@@ -80,7 +80,10 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"renderScaleDistortion",              {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
     {"physicsSubsteps",                    {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
     {"simulateObjectRotation",             {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}},
-    {"physicsSteps",                       {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}}
+    {"physicsSteps",                       {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}},
+
+    {"fontSize",                           {"GUI", SettingsEntry(&fontSize, setValue<float>)}},
+    {"showGui",                            {"GUI", SettingsEntry(&showGui, setValue<bool>)}}
 };
 
 void loadSettings(std::filesystem::path path) {
