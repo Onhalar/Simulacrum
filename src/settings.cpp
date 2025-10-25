@@ -62,28 +62,29 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"maxFrameRate",                       {"RENDER", SettingsEntry(&maxFrameRate, setValue<int>)}},
     {"VSync",                              {"RENDER", SettingsEntry(&VSync, setValue<int>)}},
     {"StaticFrameDelayFraction",           {"RENDER", SettingsEntry(&staticDelayFraction, setValue<float>)}},
-    {"spinDelayNS",                        {"RENDER", SettingsEntry(&spinDelay, setNanoseconds)}},
-    {"doPostProcess",                      {"RENDER", SettingsEntry(&doPostProcess, setValue<bool>)}},
-    {"doFXAA",                             {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
-    {"lightUpdateFrameSkip",               {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
-    {"inverseColors",                      {"RENDER", SettingsEntry(&inverseColors, setValue<bool>)}},
+    {"spinDelayNS",                       {"RENDER", SettingsEntry(&spinDelay, setNanoseconds)}},
+    {"doPostProcess",                     {"RENDER", SettingsEntry(&doPostProcess, setValue<bool>)}},
+    {"doFXAA",                            {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
+    {"lightUpdateFrameSkip",              {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
+    {"inverseColors",                     {"RENDER", SettingsEntry(&inverseColors, setValue<bool>)}},
 
-    {"renderDistance",                     {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
-    {"cameraSpeed",                        {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},
-    {"cameraSensitivity",                  {"CAMERA", SettingsEntry(&cameraSensitivity, setValue<float>)}},
-    {"cameraFOV",                          {"CAMERA", SettingsEntry(&fovDeg, setValue<float>)}},
-    {"sceneZoomModifier",                  {"CAMERA", SettingsEntry(&sceneZoomModifier, setValue<float>)}},
+    {"renderDistance",                    {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
+    {"cameraSpeed",                       {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},
+    {"cameraSensitivity",                 {"CAMERA", SettingsEntry(&cameraSensitivity, setValue<float>)}},
+    {"cameraFOV",                         {"CAMERA", SettingsEntry(&fovDeg, setValue<float>)}},
+    {"sceneZoomModifier",                 {"CAMERA", SettingsEntry(&sceneZoomModifier, setValue<float>)}},
 
-    {"simulationMode",                     {"PHYSICS", SettingsEntry(&simulationMode, setValue<simulationType>)}},
-    {"simpleMaxScale",                     {"PHYSICS", SettingsEntry(&maxScale, setValue<float>)}},
-    {"normalizedModelRadius",              {"PHYSICS", SettingsEntry(&normalizedModelRadius, setValue<float>)}},
-    {"renderScaleDistortion",              {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
-    {"physicsSubsteps",                    {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
-    {"simulateObjectRotation",             {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}},
-    {"physicsSteps",                       {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}},
+    {"simulationMode",                    {"PHYSICS", SettingsEntry(&simulationMode, setValue<simulationType>)}},
+    {"simpleMaxScale",                    {"PHYSICS", SettingsEntry(&maxScale, setValue<float>)}},
+    {"normalizedModelRadius",             {"PHYSICS", SettingsEntry(&normalizedModelRadius, setValue<float>)}},
+    {"renderScaleDistortion",             {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
+    {"physicsSubsteps",                   {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
+    {"simulateObjectRotation",            {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}},
+    {"physicsSteps",                      {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}},
 
-    {"fontSize",                           {"GUI", SettingsEntry(&fontSize, setValue<float>)}},
-    {"showGui",                            {"GUI", SettingsEntry(&showGui, setValue<bool>)}}
+    {"fontSize",                          {"GUI", SettingsEntry(&fontSize, setValue<float>)}},
+    {"windowRounding",                    {"GUI", SettingsEntry(&windowRounding, setValue<float>)}},
+    {"frameRounding",                     {"GUI", SettingsEntry(&frameRounding, setValue<float>)}}
 };
 
 void loadSettings(std::filesystem::path path) {

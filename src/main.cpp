@@ -159,6 +159,9 @@ void setupGui() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = windowRounding;    // Window corners
+    style.FrameRounding = frameRounding;     // Buttons, sliders, etc.
 
     // Making Fonts
     ImFontConfig config;
@@ -169,8 +172,12 @@ void setupGui() {
     Fonts["large"] = io.Fonts->AddFontDefault(&config);  // Large size
         
     //larger
-    config.SizePixels = fontSize * 1.25f;
+    config.SizePixels = fontSize * 1.35f;
     Fonts["larger"] = io.Fonts->AddFontDefault(&config);
+
+    //largest
+    config.SizePixels = fontSize * 1.5f;
+    Fonts["largest"] = io.Fonts->AddFontDefault(&config);
 
     // default
     config.SizePixels = fontSize;

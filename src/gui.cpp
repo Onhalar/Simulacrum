@@ -1,3 +1,4 @@
+#include "GLFW/glfw3.h"
 #include <config.hpp>
 #include <debug.hpp>
 #include <globals.hpp>
@@ -49,17 +50,17 @@ void renderGui() {
 
 
 void renderSettingsMenu() {
-    static bool showSettings = false;
+    static bool showMenu = false;
     static bool wasPressed = false;
     
     // Detect single key press (not held)
     bool isPressed = glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS;
     if (isPressed && !wasPressed) {
-        showSettings = !showSettings;
+        showMenu = !showMenu;
     }
     wasPressed = isPressed | currentCamera->focused;
 
-    if (!showSettings) {
+    if (!showMenu) {
         ImGui::SetNextWindowBgAlpha(0.35f);
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
 
@@ -73,7 +74,7 @@ void renderSettingsMenu() {
 
         ImGui::PushStyleColor(ImGuiCol_Button, transparent);
 
-        if (ImGui::Button("Menu")) { showSettings = true; }
+        if (ImGui::Button("Menu")) { showMenu = true; }
 
         ImGui::PopStyleColor();
 
@@ -81,15 +82,48 @@ void renderSettingsMenu() {
     }
 
     // Only render if settings should be shown
-    if (!showSettings) { return; }
+    if (!showMenu || currentCamera->focused) { showMenu = false; return; }
 
     // Center the window
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.9f, io->DisplaySize.y * 0.9f), ImGuiCond_Always);
     
     ImGui::PushFont(Fonts["larger"]);
-    ImGui::Begin("Settings", &showSettings, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin("Menu", &showMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
     ImGui::PopFont();
+
+    // OPTIONS
+
+    ImGui::PushFont(Fonts["largest"]);
+    ImGui::Text("Options");
+    ImGui::PopFont();
+
+    ImGui::Spacing();
+
+    ImGui::PushFont(Fonts["larger"]);
+
+    if (ImGui::Button("Load Scene")) {
+        // ToDo: Add scene Switching code here
+    }
+
+    ImGui::SameLine(0.0f, 10.0f);
+    if (ImGui::Button("Quit")) {
+        glfwSetWindowShouldClose(mainWindow, true);
+    }
+
+    ImGui::PopFont();
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // SETTINGS
+
+    ImGui::PushFont(Fonts["largest"]);
+    ImGui::Text("Settings");
+    ImGui::PopFont();
+
+    ImGui::Spacing();
 
     ImGui::PushFont(Fonts["large"]);
 

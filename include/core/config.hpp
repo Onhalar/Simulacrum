@@ -79,8 +79,8 @@ float sceneZoomModifier = 0.05;
 
 // GUI
 float fontSize = 15.0f;
-bool showGui = true;
-
+float windowRounding = 8.0f;
+float frameRounding = 4.0f;
 // Model settings
 
 float normalizedModelRadius = 1.0f;
