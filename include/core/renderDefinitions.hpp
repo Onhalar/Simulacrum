@@ -10,17 +10,17 @@
 using FBOList = unordered_map<std::string, FBO*>;
 
 // global shader settings
-float lightFalloff = 0.001f;
+inline float lightFalloff = 0.001f;
 #define MAX_LIGHTS 4 // Define MAX_LIGHTS to match the shader
 
 // Global UBO for light properties
-UBO* lightBlockUBO = nullptr;
+inline UBO* lightBlockUBO = nullptr;
 
 const GLuint LIGHT_UBO_BINDING_POINT = 0; // Choose a binding point for the LightBlock UBO
 
-Camera* currentCamera;
+inline Camera* currentCamera;
 
-FBOList FBOs;
+inline FBOList FBOs;
 
 struct ShaderLight {
     glm::vec3 position;

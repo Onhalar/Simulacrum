@@ -21,6 +21,8 @@
 #include <types.hpp>
 #include <paths.hpp>
 
+#include <set>
+
 /**
  * @brief Loads an STL model from the specified file path and extracts its vertex positions, normals, and indices.
  *

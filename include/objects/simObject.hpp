@@ -66,6 +66,8 @@ class simulationObject {
 
             this->modelId = original.modelId;
             this->shaderID = original.shaderID;
+
+            this->name = original.name;
         }
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.

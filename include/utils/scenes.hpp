@@ -38,9 +38,11 @@ class Scenes {
     public:
         inline static sceneList allScenes; // inline propperly initializes it for some reason
         inline static scene* currentScene;
+        inline static SceneID currentSceneID;
 
     static void switchScene(SceneID sceneID) {
         currentScene = allScenes[sceneID];
+        currentSceneID = sceneID;
     }
 };
 

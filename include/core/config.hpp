@@ -1,23 +1,12 @@
 #ifndef MAIN_CONFIG_HEADER
 #define MAIN_CONFIG_HEADER
 
-#include <iostream>
-#include <map>
 #include <unordered_map>
-#include <vector>
 
 #include <filesystem>
 #include <string>
-#include <fstream>
-#include <sstream>
 
 #include <chrono>
-#include <thread>
-
-#include <any>
-#include <typeindex>
-#include <utility>
-#include <set>
 
 #include <glad/glad.h>
 
@@ -87,6 +76,8 @@ float fovDeg = 45.0f;
 
 float sceneZoomModifier = 0.05;
 
+float fontSize = 15.0f;
+
 // Model settings
 
 float normalizedModelRadius = 1.0f;
@@ -94,6 +85,8 @@ simulationType simulationMode = simulationType::simplified;
 float maxScale = 6.0f;
 double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
 double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
+
+
 unsigned int phyiscsSubsteps = 2;
 
 // functions

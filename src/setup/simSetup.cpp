@@ -11,7 +11,6 @@
 
 #include <math.h>
 #include <optional>
-#include <variant>
 
 #include <color.hpp>
 #include <unordered_set>
@@ -143,6 +142,8 @@ void loadSimObjects(std::filesystem::path path) {
 
         SimObjects[entryKey] = new simulationObject(shader, model);
 
+        SimObjects[entryKey]->name = entryKey;
+
         if (entryValue.contains("color")) {
             auto color = Color(entryValue["color"].get<std::string>());
             SimObjects[entryKey]->model->objectColor = glm::vec3( color.decR, color.decG, color.decB );
@@ -187,6 +188,7 @@ void loadSimObjects(std::filesystem::path path) {
         else if (SimObjects[entryKey]->objectType == "star") {
             SimObjects[entryKey]->light = new LightObject();
         }
+
     }
 
     std::string debugOutputString = debugBuffer.str();

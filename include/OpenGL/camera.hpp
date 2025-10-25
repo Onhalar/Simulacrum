@@ -92,7 +92,7 @@ class Camera {
         void handleInputs(GLFWwindow* window) {
             static bool controlCamera = false;
 
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera) {
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !controlCamera && !supressCameraControls) {
                 controlCamera = true;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glfwSetCursorPos(window, (width / 2), (height / 2));

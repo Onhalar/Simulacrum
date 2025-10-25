@@ -10,10 +10,6 @@
 #include <simObject.hpp>
 #include <customMath.hpp>
 
-#include <climits>
-
-#include <simObject.hpp>
-
 #include <scenes.hpp>
 
 #include <physicsThread.hpp>

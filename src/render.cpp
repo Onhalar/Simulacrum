@@ -19,6 +19,10 @@
 
 #include <physicsThread.hpp>
 
+#include "gui.cpp"
+
+void renderGui(); // function in gui.cpp
+
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -70,6 +74,8 @@ void render() {
 
         postProcessFBO->draw(postProcessShader);
     }
+
+    renderGui();
 
     glfwSwapBuffers(mainWindow);
 }

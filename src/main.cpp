@@ -7,8 +7,8 @@
 #include <physicsThread.hpp>
 #include <renderDefinitions.hpp>
 
-#include "gui.cpp"
-#include "render.cpp"
+#include "imgui.h"
+#include "render.cpp" // provides render as well as GUI
 #include "settings.cpp"
 #include "simulation.cpp"
 
@@ -25,8 +25,8 @@ void setupModels();
 void setupSimulation();
 void setupPostProcess();
 
-void setupImGui();
-void renderImGui();
+void setupGui();
+void GuiCameraInterruption();
 
 void cleanup();
 
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     setupOpenGL();
 
     // Setup ImGui after OpenGL context is ready
-    setupImGui();
+    setupGui();
 
     // Call setupModels() to load the STL file and prepare its OpenGL buffers
     // This must be called after OpenGL context is created and GLAD is loaded.
@@ -153,11 +153,15 @@ void setupOpenGL() {
     glfwSwapInterval(VSync);
 }
 
-void setupImGui() {
+void setupGui() {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImFontConfig config;
+    config.SizePixels = fontSize;
+    io.Fonts->AddFontDefault(&config);
     
     // Enable keyboard and gamepad controls (optional)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -171,64 +175,7 @@ void setupImGui() {
     
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 430");
-}
-
-void renderImGui() {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    
-    // Example ImGui window - you can customize this
-    {
-        ImGui::Begin("Simulation Control");
-        
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
-                    1000.0f / ImGui::GetIO().Framerate, 
-                    ImGui::GetIO().Framerate);
-        
-        ImGui::Separator();
-        
-        // Add your custom UI elements here
-        // Example: control camera settings
-        static float fov = fovDeg;
-        if (ImGui::SliderFloat("FOV", &fov, 30.0f, 120.0f)) {
-            fovDeg = fov;
-        }
-        
-        static float sensitivity = cameraSensitivity;
-        if (ImGui::SliderFloat("Camera Sensitivity", &sensitivity, 0.1f, 10.0f)) {
-            cameraSensitivity = sensitivity;
-        }
-        
-        static float speed = cameraSpeed;
-        if (ImGui::SliderFloat("Camera Speed", &speed, 0.1f, 20.0f)) {
-            cameraSpeed = speed;
-        }
-        
-        ImGui::Separator();
-        
-        // Physics controls
-        ImGui::Text("Physics:");
-        ImGui::Text("Physics Running: %s", physicsRunning ? "Yes" : "No");
-        
-        ImGui::Separator();
-        
-        // Scene information
-        ImGui::Text("Scenes: %zu", Scenes::allScenes.size());
-        ImGui::Text("SimObjects: %zu", SimObjects.size());
-        ImGui::Text("Lights: %zu", lightQue.size());
-        
-        ImGui::End();
-    }
-    
-    // Show ImGui demo window (optional - great for learning)
-    // ImGui::ShowDemoWindow();
-    
-    // Rendering
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void mainLoop() {
@@ -244,6 +191,7 @@ void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
+        supressCameraControls = false;
 
         // handles events such as resizing and creating window
         glfwPollEvents();
@@ -251,7 +199,8 @@ void mainLoop() {
         if (!isMinimized) { // Custom Actions
 
             // ----==[ RENDERING ]==----
-
+            GuiCameraInterruption();
+            
             currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed, fovDeg);
             currentCamera->handleInputs(mainWindow);
             for(auto shader: Shaders) {
@@ -265,10 +214,6 @@ void mainLoop() {
             }
 
             render();
-            
-            // Render ImGui on top of everything
-            renderImGui();
-
         }
 
         static steady_clock::time_point lastTime;
