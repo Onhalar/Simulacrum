@@ -1,7 +1,7 @@
 #include <config.hpp>
 #include <filesystem>
 #include <globals.hpp>
-#include <iostream>
+#include <state.hpp>
 
 #include <simObject.hpp>
 #include <customMath.hpp>
@@ -9,10 +9,12 @@
 #include <renderDefinitions.hpp>
 #include <string>
 
-#include "imgui.h"
+#include <imgui.h>
+
 #include "render.cpp" // provides render as well as GUI
 #include "settings.cpp"
 #include "simulation.cpp"
+#include "input.cpp"
 
 #include "setup/simSetup.cpp"
 #include "setup/renderSetup.cpp"
@@ -24,8 +26,9 @@ void mainLoop();
 void setupShaders();
 void setupModels();
 
-void setupSimulation();
 void setupPostProcess();
+
+void setupSimulation();
 
 void setupGui();
 void GuiCameraInterruption();
@@ -33,6 +36,7 @@ void GuiCameraInterruption();
 void cleanup();
 
 int main(int argc, char **argv) {
+    mainState = state::starting;
 
     // attemps to extract current file location from call args
     if (filesystem::exists(argv[0])) {
@@ -62,10 +66,12 @@ int main(int argc, char **argv) {
     setupPostProcess();
 
     setupSimulation();
+    mainState = state::running;
 
     mainLoop();
 
     // Call cleanup() to free all allocated model resources before exiting
+    mainState = state::stopping;
     cleanup();
 
     glfwDestroyWindow(mainWindow);
@@ -218,7 +224,6 @@ void mainLoop() {
     }
     updateLightSources(); // inital calculation (positions) + sending data to shaders
 
-    // ----==[ PHYSICS ]==----
     physicsThread = std::thread(physicsThreadFunction);
 
     while (!glfwWindowShouldClose(mainWindow)) {
@@ -228,10 +233,12 @@ void mainLoop() {
         // handles events such as resizing and creating window
         glfwPollEvents();
 
-        if (!isMinimized) { // Custom Actions
+        if (!isMinimized && shouldRender) { // Custom Actions
 
             // ----==[ RENDERING ]==----
             GuiCameraInterruption();
+
+            handleInputs();
             
             currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed, fovDeg);
             currentCamera->handleInputs(mainWindow);

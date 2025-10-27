@@ -1,5 +1,8 @@
+#include "state.hpp"
+#include <chrono>
 #include <config.hpp>
 #include <globals.hpp>
+#include <thread>
 #include <types.hpp>
 
 #include <debug.hpp>
@@ -13,6 +16,7 @@
 #include <scenes.hpp>
 
 #include <physicsThread.hpp>
+#include <unistd.h>
 
 inline void advanceObjectPosition(simulationObject* simObject);
 inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 realPosition);
@@ -23,6 +27,7 @@ void simulateStep();
 
 void physicsThreadFunction() {
     using namespace std::chrono;
+    bool wasPaused = false;
 
     physicsDeltaTime = 1.0 / (double)physicsSteps;
 
@@ -30,6 +35,10 @@ void physicsThreadFunction() {
     double accumulator = 0.0;
 
     while (physicsRunning) {
+
+        if (pausePhysicsThread) { std::this_thread::sleep_for(chrono::microseconds(100)); wasPaused = true; continue;}
+        else if (wasPaused) { previousTime = steady_clock::now(); wasPaused = false; }
+
         auto currentTime = steady_clock::now();
         duration<double> frameTime = currentTime - previousTime; // time elapsed since the previous loop iteration
         previousTime = currentTime;

@@ -1,3 +1,4 @@
+#include "state.hpp"
 #include <config.hpp>
 #include <debug.hpp>
 #include <globals.hpp>
@@ -49,15 +50,6 @@ void renderGui() {
 
 
 void renderSettingsMenu() {
-    static bool showMenu = false;
-    static bool wasPressed = false;
-    
-    // Detect single key press (not held)
-    bool isPressed = glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS;
-    if (isPressed && !wasPressed) {
-        showMenu = !showMenu;
-    }
-    wasPressed = isPressed | currentCamera->focused;
 
     if (!showMenu) {
         ImGui::SetNextWindowBgAlpha(0.35f);
@@ -78,10 +70,15 @@ void renderSettingsMenu() {
         ImGui::PopStyleColor();
 
         ImGui::End();
+
     }
 
     // Only render if settings should be shown
-    if (!showMenu || currentCamera->focused) { showMenu = false; return; }
+    if (!showMenu) { return; }
+    if (currentCamera->focused) {
+        showMenu = false;
+        if (mainState == state::paused) { transitionState(state::running); }
+    }
 
     // Center the window
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -217,7 +214,10 @@ void renderSimSpeedDisplay() {
                 ImGuiWindowFlags_NoMove);
         
     ImGui::PushFont(Fonts["larger"]);
-    ImGui::Text("%ix", (int)simulationSpeed);
+
+    if (mainState == state::paused) { ImGui::Text("P A U S E D"); }
+    else { ImGui::Text("%ix", (int)simulationSpeed); }
+
     ImGui::PopFont();
 
     ImGui::PopFont();

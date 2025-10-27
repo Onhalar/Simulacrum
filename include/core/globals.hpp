@@ -19,5 +19,7 @@ inline nanoseconds frameDuration(1'000'000'000 / maxFrameRate); // 1,000,000 μs
 
 inline bool isMinimized = false;
 inline bool supressCameraControls = false;
+inline bool shouldRender = true;
+inline bool showMenu = false;
 
 #endif // GLOBAL_PROJECT_VARIABLE_HEADER

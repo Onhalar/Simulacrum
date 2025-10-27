@@ -5,14 +5,15 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <unistd.h>
 
-std::mutex physicsMutex;
-std::condition_variable physicsCV;
-std::atomic<bool> physicsRunning(true);
-std::atomic<bool> physicsStepReady(false);
+inline std::mutex physicsMutex;
+inline std::condition_variable physicsCV;
+inline std::atomic<bool> physicsRunning(true);
+inline std::atomic<bool> pausePhysicsThread(false);
 
-double physicsDeltaTime;
+inline double physicsDeltaTime;
 
-std::thread physicsThread;
+inline std::thread physicsThread;
 
 #endif // PHYSICS_THREAD_HEADER

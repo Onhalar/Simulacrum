@@ -2,7 +2,6 @@
 #define GLOBAL_SIMPLE_TYPE_HEADER
 
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include <glm/glm.hpp>
