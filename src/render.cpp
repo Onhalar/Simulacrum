@@ -192,12 +192,12 @@ void enterFullscreen() {
 }
 
 void exitFullscreen() {
-       if (!fullscreen) { return; }
+    if (!fullscreen) { return; }
        
-       // Restore windowed mode with saved position and size
-       glfwSetWindowMonitor(mainWindow, nullptr, oldPosition.x, oldPosition.y,oldSize.x, oldSize.y, GLFW_DONT_CARE);
+    // Restore windowed mode with saved position and size
+    glfwSetWindowMonitor(mainWindow, nullptr, oldPosition.x, oldPosition.y,oldSize.x, oldSize.y, GLFW_DONT_CARE);
 
-       resize(mainWindow, oldSize.x, oldSize.y);
+    resize(mainWindow, oldSize.x, oldSize.y);
        
-       fullscreen = false;
-   }
+    fullscreen = false;
+}
