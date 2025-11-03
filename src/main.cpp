@@ -229,7 +229,8 @@ void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
-        supressCameraControls = false;
+        if (showScenePicker) { supressCameraControls = true; } // don't use cameara when switching scene
+        else { supressCameraControls = false; }
 
         // handles events such as resizing and creating window
         glfwPollEvents();

@@ -78,6 +78,8 @@ void renderScenePicker() {
 
             showScenePicker = false;
             transitionState(state::running);
+
+            if (showMenu) { showMenu = false; } // ensures clear first look
         }
     }
 
