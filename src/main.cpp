@@ -66,7 +66,8 @@ int main(int argc, char **argv) {
     setupPostProcess();
 
     setupSimulation();
-    mainState = state::running;
+
+    transitionState(state::paused); // here so that the physics thread can be started but scene does not have to be loaded yet
 
     mainLoop();
 
@@ -233,7 +234,7 @@ void mainLoop() {
         // handles events such as resizing and creating window
         glfwPollEvents();
 
-        if (!isMinimized && shouldRender) { // Custom Actions
+        if (!isMinimized) { // Custom Actions
 
             // ----==[ RENDERING ]==----
 
@@ -284,7 +285,7 @@ void mainLoop() {
             }
         }
 
-        ++frameCount; // does not need to be checked unsigned types wrap around.
+        ++frameCount; // does not need to be checked, unsigned types wrap around.
 
         frameEnd = steady_clock::now();
 

@@ -19,6 +19,8 @@ enum state : unsigned char {
 inline state mainState = state::starting;
 
 inline void transitionState(state newState) {
+    if (newState == mainState) { return; }
+
     if (mainState == state::running) {
         if (newState == state::paused) {
             pausePhysicsThread = true;
@@ -26,7 +28,6 @@ inline void transitionState(state newState) {
         }
         else if (newState == state::loading) {
             pausePhysicsThread = true;
-            shouldRender = false;
             mainState = state::loading;
         }
     }
@@ -43,11 +44,13 @@ inline void transitionState(state newState) {
     else if (mainState == state::loading) {
         if (newState == state::running || newState == state::paused) {
             pausePhysicsThread = false;
-            shouldRender = true;
         }
     }
     else if (mainState == state::starting) {
-        throw std::invalid_argument("Cannot change state during startup.");
+        if (newState == state::paused) {
+            pausePhysicsThread = true;
+            mainState = state::paused;
+        }
     }
 
     // Any current state

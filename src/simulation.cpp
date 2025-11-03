@@ -25,7 +25,7 @@ void calcGravVelocity(simulationObject* currentObject, unsigned int groupID);
 
 void simulateStep();
 
-void physicsThreadFunction() {
+void physicsThreadFunction() {    
     using namespace std::chrono;
     bool wasPaused = false;
 
@@ -36,7 +36,7 @@ void physicsThreadFunction() {
 
     while (physicsRunning) {
 
-        if (pausePhysicsThread) { std::this_thread::sleep_for(chrono::microseconds(100)); wasPaused = true; continue;}
+        if (pausePhysicsThread) { std::this_thread::sleep_for(chrono::microseconds(100)); wasPaused = true; continue; }
         else if (wasPaused) { previousTime = steady_clock::now(); wasPaused = false; }
 
         auto currentTime = steady_clock::now();
@@ -61,11 +61,6 @@ bool firstFrame = true;
 
 // Master Simulation Step Function
 void simulateStep() {
-
-    /*if (firstFrame) {
-        for (auto& simObject : Scenes::currentScene->objects) { simObject->realVelocity *= simulationSpeed; }
-        firstFrame = false;
-    }*/
 
     if (deltaTime == 0.0) { return; }
 

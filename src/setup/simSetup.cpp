@@ -322,8 +322,9 @@ void loadPhysicsScene(std::filesystem::path path) {
     if (Scenes::allScenes.empty()) {
         if (debugMode) { std::cout << formatWarning("WARNING") << ": No scenes were loaded / found" << std::endl; }
     }
-    else {
+    // temporarily disabled since the scenes will now go through scene picker
+    /*else {
         switchSceneAndCalculateObjects( (*Scenes::allScenes.begin()).first );
-    }
+    }*/
 
 }

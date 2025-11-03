@@ -19,8 +19,8 @@ inline nanoseconds frameDuration(1'000'000'000 / maxFrameRate); // 1,000,000 μs
 
 inline bool isMinimized = false;
 inline bool supressCameraControls = false;
-inline bool shouldRender = true;
 inline bool showMenu = false;
+inline bool showScenePicker = true; // has to be TRUE to avoid initial segfaults
 
 inline int windowWidth = defaultWindowWidth, windowHeight = defaultWindowHeight;
 

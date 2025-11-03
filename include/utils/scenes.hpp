@@ -46,7 +46,7 @@ class Scenes {
     }
 };
 
-void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
+inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     //SimObjects["pyramid"] = new simulationObject("planet", "pyramid");
     //SimObjects["sphere"] = new simulationObject("planet", "sphere");
 
@@ -108,7 +108,7 @@ void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
     // light positions will be updated in the main loop
 }
 
-void adjustCameraToScene(const SceneID& sceneID) {
+inline void adjustCameraToScene(const SceneID& sceneID) {
     double maxDistance = 0.0;
     double objectVertRadius = 0.0;
 
@@ -130,7 +130,8 @@ void adjustCameraToScene(const SceneID& sceneID) {
     currentCamera->position.z = (maxDistance / std::tan(glm::radians(currentCamera->FOVdeg) / 2.0));
 }
 
-void switchSceneAndCalculateObjects(const SceneID& sceneID) {
+inline void switchSceneAndCalculateObjects(const SceneID& sceneID) {
+    if (Scenes::currentSceneID == sceneID) { return; }
     setupSceneObjects(sceneID);
     Scenes::switchScene(sceneID);
     adjustCameraToScene(sceneID);

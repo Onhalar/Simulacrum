@@ -27,53 +27,55 @@ void renderGui(); // function in gui.cpp
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    static FBO* postProcessFBO;
-    static Shader* postProcessShader;
+    if (Scenes::currentScene) {
+        static FBO* postProcessFBO;
+        static Shader* postProcessShader;
 
-    if (doPostProcess) {
-        postProcessFBO = FBOs["postProcess"];
-        postProcessShader = Shaders["postProcess"];
-    }
-
-    // Only attempt to render if the model instance has been successfully created
-
-    if (Scenes::currentScene->objects.empty()) {
-        if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
-        return;
-    }
-
-    if (doPostProcess) {
-        postProcessFBO->bind();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    for (const auto& simObject : Scenes::currentScene->objects) {
-        Shader* shader = simObject->shader;
-        Model* model = simObject->model;
-
-
-        glm::dvec3 renderPos;
-        {
-            std::lock_guard<std::mutex> lock(physicsMutex);
-            renderPos = simObject->position; // copy safe position
+        if (doPostProcess) {
+            postProcessFBO = FBOs["postProcess"];
+            postProcessShader = Shaders["postProcess"];
         }
 
-        shader->activate();
-        if (simulateObjectRotation) {
-            simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0,1,0)); // temporarily rotate around Z axii
-            shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ );
-        }
-        else {
-            shader->applyModelMatrix(calcuculateModelMatrixFromPosition(renderPos));
+        // Only attempt to render if the model instance has been successfully created
+
+        if (Scenes::currentScene->objects.empty()) {
+            if (debugMode) { std::cout << formatError("ERROR") << ": current scene list emtpty... skipping frame." << std::endl; }
+            return;
         }
 
-        simObject->draw();
-    }
+        if (doPostProcess) {
+            postProcessFBO->bind();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
 
-    if (doPostProcess) {
-        postProcessFBO->unbind();
+        for (const auto& simObject : Scenes::currentScene->objects) {
+            Shader* shader = simObject->shader;
+            Model* model = simObject->model;
 
-        postProcessFBO->draw(postProcessShader);
+
+            glm::dvec3 renderPos;
+            {
+                std::lock_guard<std::mutex> lock(physicsMutex);
+                renderPos = simObject->position; // copy safe position
+            }
+
+            shader->activate();
+            if (simulateObjectRotation) {
+                simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0,1,0)); // temporarily rotate around Z axii
+                shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ );
+            }
+            else {
+                shader->applyModelMatrix(calcuculateModelMatrixFromPosition(renderPos));
+            }
+
+            simObject->draw();
+        }
+
+        if (doPostProcess) {
+            postProcessFBO->unbind();
+
+            postProcessFBO->draw(postProcessShader);
+        }
     }
 
     renderGui();

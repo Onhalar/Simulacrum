@@ -1,9 +1,11 @@
-#include "state.hpp"
+#include <state.hpp>
 #include <config.hpp>
 #include <debug.hpp>
 #include <globals.hpp>
+
 #include <renderDefinitions.hpp>
 #include <physicsThread.hpp>
+#include <scenes.hpp>
 
 // 3rd party headers
 #include <imgui/imgui.h>
@@ -16,6 +18,7 @@
 
 #include <map>
 #include <chrono>
+#include <string>
 
 
 std::map<std::string, ImFont*> Fonts = {};
@@ -26,7 +29,7 @@ ImGuiIO *io;
 void renderSceneGraph();
 void renderSimSpeedDisplay();
 void renderSettingsMenu();
-
+void renderScenePicker();
 
 void renderGui() {
     io = &ImGui::GetIO();
@@ -37,10 +40,13 @@ void renderGui() {
     ImGui::NewFrame();
 
     // Render setup
-    renderSimSpeedDisplay();
-    renderSceneGraph();
+    if (!showScenePicker) {
+        renderSimSpeedDisplay();
+        renderSceneGraph();
 
-    renderSettingsMenu();
+        renderSettingsMenu();
+    }
+    else { renderScenePicker(); }
 
     // Rendering
     ImGui::Render();
@@ -48,6 +54,35 @@ void renderGui() {
 }
 
 
+
+
+
+void renderScenePicker() {
+    transitionState(state::paused);
+
+    ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always);
+    
+    ImGui::PushFont(Fonts["larger"]);
+    ImGui::Begin("Scene Picker", &showScenePicker, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::PopFont();
+
+    for (const auto scene : Scenes::allScenes) {
+        ImGui::Text(scene.first.c_str());
+
+        std::string button_label = "Switch##" + scene.first;
+
+        ImGui::SameLine(0.0f, 10.0f);
+        if (ImGui::Button(button_label.c_str())) {
+            switchSceneAndCalculateObjects(scene.first);
+
+            showScenePicker = false;
+            transitionState(state::running);
+        }
+    }
+
+    ImGui::End();
+}
 
 void renderSettingsMenu() {
 
@@ -99,7 +134,7 @@ void renderSettingsMenu() {
     ImGui::PushFont(Fonts["larger"]);
 
     if (ImGui::Button("Load Scene")) {
-        // ToDo: Add scene Switching code here
+        showScenePicker = true;
     }
 
     ImGui::SameLine(0.0f, 10.0f);
