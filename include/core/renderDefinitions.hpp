@@ -37,4 +37,7 @@ struct LightBlockData {
     float padding[2];
 };
 
+void enterFullscreen();
+void exitFullscreen();
+
 #endif // RENDER_DEFINITIONS

@@ -4,8 +4,6 @@
 #include <filesystem>
 #include <string>
 
-#include <config.hpp>
-
 inline std::string getFileName(const std::string& path) {
     return std::filesystem::path(path).filename().string();
 }

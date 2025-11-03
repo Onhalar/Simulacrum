@@ -125,6 +125,13 @@ void renderSettingsMenu() {
 
     if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen)) {
 
+        static bool fullscreenLocal = fullscreen;
+        ImGui::Checkbox("FullScreen", &fullscreenLocal);
+        if (fullscreenLocal != fullscreen) {
+            if (fullscreenLocal) { enterFullscreen(); } // fullscreen flag is managed by theese functions directly for maximum consistency
+            else { exitFullscreen(); }
+        }
+
         ImGui::Checkbox("VSync", (bool*)&VSync);
         if (!VSync) {
             static int lastMaxFPS = maxFrameRate;

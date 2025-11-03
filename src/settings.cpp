@@ -9,8 +9,6 @@
 #include <string>
 #include <variant>
 #include <unordered_map>
-#include <tuple>
-#include <any>
 
 
 template <typename T>
@@ -69,6 +67,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"doFXAA",                            {"RENDER", SettingsEntry(&doFXAA, setValue<bool>)}},
     {"lightUpdateFrameSkip",              {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
     {"inverseColors",                     {"RENDER", SettingsEntry(&inverseColors, setValue<bool>)}},
+    {"fullscreen",                        {"RENDER", SettingsEntry(&fullscreen, setValue<bool>)}},
 
     {"renderDistance",                    {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
     {"cameraSpeed",                       {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},

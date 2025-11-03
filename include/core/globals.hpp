@@ -22,4 +22,6 @@ inline bool supressCameraControls = false;
 inline bool shouldRender = true;
 inline bool showMenu = false;
 
+inline int windowWidth = defaultWindowWidth, windowHeight = defaultWindowHeight;
+
 #endif // GLOBAL_PROJECT_VARIABLE_HEADER

@@ -30,10 +30,10 @@ using namespace std;
 using namespace chrono;
 
 // project directory
-filesystem::path projectDir;
+inline filesystem::path projectDir;
 
 // main icon path
-string iconPath = "res/icon.png";
+inline string iconPath = "res/icon.png";
 
 // resource paths
 inline const std::filesystem::path shaderPath = "shaders/";
@@ -46,55 +46,58 @@ inline const std::filesystem::path physicsScenesPath = resourcePath/"scenes.json
 
 
 // window settings
-int defaultWindowWidth = 500;
-int defaultWindowHeight = 500;
+inline int defaultWindowWidth = 500;
+inline int defaultWindowHeight = 500;
 
-int minWindowWidth = 300;
-int minWindowHeight = 300;
+inline int minWindowWidth = 300;
+inline int minWindowHeight = 300;
 
-Color backgroundColor(0.07f, 0.13f, 0.17f, 1.0f);
+inline Color backgroundColor(0.07f, 0.13f, 0.17f, 1.0f);
 
-const char* windowName = "Simulacrum project";
+inline const char* windowName = "Simulacrum project";
 
 // render settings
-int maxFrameRate = 60;
-int VSync = 1;
+inline int maxFrameRate = 60;
+inline int VSync = 1;
 
-bool doPostProcess = true;
-bool doFXAA = true;
-bool inverseColors = false;
+inline bool doPostProcess = true;
+inline bool doFXAA = true;
+inline bool inverseColors = false;
 
-float staticDelayFraction = 0.65f;
-bool simulateObjectRotation = true;
+// flag signaling whether the main window is or is not fullscreened. DO NOT MODIFY - handled by enter / exit fullscreen functions.
+inline bool fullscreen = false;
 
-nanoseconds spinDelay(375); // about 350 - 400 ns
-TinyInt lightUpdateFrameSkip = 2;
+inline float staticDelayFraction = 0.65f;
+inline bool simulateObjectRotation = true;
 
-float renderDistance = 1'000.0f;
+inline nanoseconds spinDelay(375); // about 350 - 400 ns
+inline TinyInt lightUpdateFrameSkip = 2;
 
-float cameraSpeed = 12.5f;
-float cameraSensitivity = 175.0f;
-float fovDeg = 45.0f;
+inline float renderDistance = 1'000.0f;
 
-float sceneZoomModifier = 0.05;
+inline float cameraSpeed = 12.5f;
+inline float cameraSensitivity = 175.0f;
+inline float fovDeg = 45.0f;
+
+inline float sceneZoomModifier = 0.05;
 
 
 // GUI
-float fontSize = 15.0f;
-float windowRounding = 8.0f;
-float frameRounding = 4.0f;
-std::string fontFile = "mandalore.otf";
+inline float fontSize = 15.0f;
+inline float windowRounding = 8.0f;
+inline float frameRounding = 4.0f;
+inline std::string fontFile = "mandalore.otf";
 
 // Model settings
 
-float normalizedModelRadius = 1.0f;
-simulationType simulationMode = simulationType::simplified;
-float maxScale = 6.0f;
-double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
-double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
+inline float normalizedModelRadius = 1.0f;
+inline simulationType simulationMode = simulationType::simplified;
+inline float maxScale = 6.0f;
+inline double currentScale; // kilometers per vertex - only for distances; use already present values for all else (especially for simplified mode)
+inline double renderScaleDistortion = 1.0; // 1.0 -> no distortion; less -> greater distances; more -> smaller distances
 
 
-unsigned int phyiscsSubsteps = 2;
+inline unsigned int phyiscsSubsteps = 2;
 
 // functions
 
@@ -106,8 +109,8 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
-double simulationSpeed = 2.5e5;
-float physicsSteps = 60.0f; // amount of physics steps per second
+inline double simulationSpeed = 2.5e5;
+inline float physicsSteps = 60.0f; // amount of physics steps per second
 
 #define PI 3.141592653589793
 #define GRAVITATIONAL_CONSTANT 6.6743e-11 // m³ kg⁻¹ s⁻²

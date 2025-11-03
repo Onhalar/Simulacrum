@@ -1,3 +1,4 @@
+#include <config.hpp>
 #include <globals.hpp>
 #include <state.hpp>
 #include <renderDefinitions.hpp>
@@ -5,11 +6,14 @@
 #include <unordered_map>
 #include <GLFW/glfw3.h>
 
-std::unordered_map<int, bool> wasPressed;
+std::unordered_map<unsigned int, bool> wasPressed;
+
+inline bool isJustPressed(const unsigned int& GlfwKey, const unsigned int& WasPressedFlags );
+inline bool isJustPressed(const unsigned int& GlfwKey ); 
 
 void handleInputs() {
-    bool isPressedEsc = glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS;
-    if (isPressedEsc && !wasPressed[GLFW_KEY_ESCAPE]) {
+
+    if (isJustPressed(GLFW_KEY_ESCAPE, currentCamera->focused)) {
         showMenu = !showMenu;
         if (!showMenu) {
             if (mainState == state::paused) { transitionState(state::running); }
@@ -18,14 +22,39 @@ void handleInputs() {
             if (mainState != state::paused) { transitionState(state::paused); }
         }
     }
-    wasPressed[GLFW_KEY_ESCAPE] = isPressedEsc | currentCamera->focused;
 
-    bool isPressedSpace = glfwGetKey(mainWindow, GLFW_KEY_SPACE) == GLFW_PRESS;
-    if (isPressedSpace && !wasPressed[GLFW_KEY_SPACE]) {
+    if (isJustPressed(GLFW_KEY_SPACE, currentCamera->focused)) {
         if (!showMenu) {
             if (mainState != state::paused) { transitionState(state::paused); }
             else { transitionState(state::running); }
         }
     }
-    wasPressed[GLFW_KEY_SPACE] = isPressedSpace | currentCamera->focused;
+
+    if (isJustPressed(GLFW_KEY_F11)) {
+        if (fullscreen) { exitFullscreen(); }
+        else { enterFullscreen(); }
+    }
+}
+
+
+
+inline bool isJustPressed(const unsigned int& GlfwKey ) {
+    bool output = false;
+
+    bool isPressed = glfwGetKey(mainWindow, GlfwKey) == GLFW_PRESS;
+    if (isPressed && !wasPressed[GlfwKey]) { output = true; }
+    wasPressed[GlfwKey] = isPressed;
+
+    return output;
+}
+
+// was pressed flags just act as "wasPressed = isPressed or [flags]"
+inline bool isJustPressed(const unsigned int& GlfwKey, const unsigned int& WasPressedFlags ) {
+    bool output = false;
+
+    bool isPressed = glfwGetKey(mainWindow, GlfwKey) == GLFW_PRESS;
+    if (isPressed && !wasPressed[GlfwKey]) { output = true; }
+    wasPressed[GlfwKey] = isPressed | WasPressedFlags;
+
+    return output;
 }

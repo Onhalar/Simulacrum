@@ -19,6 +19,7 @@
 
 #include <physicsThread.hpp>
 
+#include "glm/fwd.hpp"
 #include "gui.cpp"
 
 void renderGui(); // function in gui.cpp
@@ -135,11 +136,15 @@ void updateLightSources() {
 
 
 void resize(GLFWwindow *window, int width, int height) {
+    if (fullscreen) { return; } // here just in case so that values won't change after entering fullscreen.
     if ((width | height) == 0) {
         isMinimized = true;
         return;
     }
     else { isMinimized = false; }
+
+    windowWidth = width;
+    windowHeight = height;
 
     // Set the viewport first
     glViewport(0, 0, width, height);
@@ -161,3 +166,38 @@ void resize(GLFWwindow *window, int width, int height) {
         Shaders["postProcess"]->setUniform("resolution", glm::vec2(width, height));
     }
 }
+
+// FULLSCREEN
+
+inline glm::ivec2 oldSize(windowWidth, windowHeight);
+inline glm::ivec2 oldPosition(0);
+
+void enterFullscreen() {
+    if (fullscreen) { return; }
+
+    oldSize = glm::ivec2(windowWidth, windowHeight);
+
+    
+    glfwGetWindowPos(mainWindow, &oldPosition.x, &oldPosition.y);
+    glfwGetWindowSize(mainWindow, &oldSize.x, &oldSize.y);
+    
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    glfwSetWindowMonitor(mainWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+    resize(mainWindow, mode->width, mode->height);
+
+    fullscreen = true;
+}
+
+void exitFullscreen() {
+       if (!fullscreen) { return; }
+       
+       // Restore windowed mode with saved position and size
+       glfwSetWindowMonitor(mainWindow, nullptr, oldPosition.x, oldPosition.y,oldSize.x, oldSize.y, GLFW_DONT_CARE);
+
+       resize(mainWindow, oldSize.x, oldSize.y);
+       
+       fullscreen = false;
+   }
