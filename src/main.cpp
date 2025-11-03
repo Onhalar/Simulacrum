@@ -236,14 +236,18 @@ void mainLoop() {
         if (!isMinimized && shouldRender) { // Custom Actions
 
             // ----==[ RENDERING ]==----
-            GuiCameraInterruption();
 
-            handleInputs();
-            
-            currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed, fovDeg);
-            currentCamera->handleInputs(mainWindow);
-            for(auto shader: Shaders) {
-                currentCamera->updateProjection(shader.second);
+            // WINDOW INTERACTIONS
+            if (glfwGetWindowAttrib(mainWindow, GLFW_FOCUSED)) {
+                GuiCameraInterruption();
+
+                handleInputs();
+                
+                currentCamera->updateCameraValues(renderDistance, cameraSensitivity, cameraSpeed, fovDeg);
+                currentCamera->handleInputs(mainWindow);
+                for(auto shader: Shaders) {
+                    currentCamera->updateProjection(shader.second);
+                }
             }
 
             // y       = 8   = 1000
