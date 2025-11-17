@@ -15,12 +15,12 @@
 #define ANSII_CYAN  "\033[36m"
 #define ANSII_YELLOW "\u001b[33m"
 
-std::string colorText(const std::string &text, const std::string &ansii_color) { return prettyOutput ? ansii_color + text + ANSII_RESET : text; }
-std::string formatError(const std::string &error) { return prettyOutput ? ANSII_RED + error + ANSII_RESET : error; }
-std::string formatPath(const std::string &path) { return prettyOutput ? ANSII_MAGENTA + path + ANSII_RESET : path; }
-std::string formatSuccess(const std::string &sucessMessage) { return prettyOutput ? ANSII_GREEN + sucessMessage + ANSII_RESET : sucessMessage; }
-std::string formatProcess(const std::string &output) { return prettyOutput ? ANSII_BLUE + output + ANSII_RESET : output; }
-std::string formatWarning(const std::string &warningMessage) { return prettyOutput ? ANSII_YELLOW + warningMessage + ANSII_RESET : warningMessage; }
-auto formatRole = formatProcess;
+inline std::string colorText(const std::string &text, const std::string &ansii_color) { return prettyOutput ? ansii_color + text + ANSII_RESET : text; }
+inline std::string formatError(const std::string &error) { return prettyOutput ? ANSII_RED + error + ANSII_RESET : error; }
+inline std::string formatPath(const std::string &path) { return prettyOutput ? ANSII_MAGENTA + path + ANSII_RESET : path; }
+inline std::string formatSuccess(const std::string &sucessMessage) { return prettyOutput ? ANSII_GREEN + sucessMessage + ANSII_RESET : sucessMessage; }
+inline std::string formatProcess(const std::string &output) { return prettyOutput ? ANSII_BLUE + output + ANSII_RESET : output; }
+inline std::string formatWarning(const std::string &warningMessage) { return prettyOutput ? ANSII_YELLOW + warningMessage + ANSII_RESET : warningMessage; }
+inline auto formatRole = formatProcess;
 
 #endif // FORMAT_CONSOLE_TEXT_HEADER
