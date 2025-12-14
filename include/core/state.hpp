@@ -4,7 +4,6 @@
 #include <globals.hpp>
 #include <physicsThread.hpp>
 
-#include <stdexcept>
 #include <unistd.h>
 #include <GLFW/glfw3.h>
 

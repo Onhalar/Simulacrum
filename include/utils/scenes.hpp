@@ -47,8 +47,6 @@ class Scenes {
 };
 
 inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = true) {
-    //SimObjects["pyramid"] = new simulationObject("planet", "pyramid");
-    //SimObjects["sphere"] = new simulationObject("planet", "sphere");
 
     lightQue.clear();
 
@@ -95,12 +93,14 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
         currentScale = 1.0;
     }
 
+    // adds lights to light que
     for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         if (simObject->light != nullptr) {
             lightQue[simObject->name] = simObject->light;
         }
     }
 
+    // buffer all object's vertices
     for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         simObject->model->sendBufferedVertices();
     }

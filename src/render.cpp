@@ -1,13 +1,11 @@
 #include <config.hpp>
 #include <globals.hpp>
 
-//#include <Timer.hpp>
-
 #include <shader.hpp>
 #include <camera.hpp>
 
-#include <paths.hpp> // Assuming projectPath() is defined here
-#include <model.hpp> // Include the Model class header
+#include <paths.hpp> 
+#include <model.hpp>
 #include <lightObject.hpp>
 #include <simObject.hpp>
 
@@ -21,6 +19,7 @@
 
 #include "glm/fwd.hpp"
 #include "gui.cpp"
+#include "state.hpp"
 
 void renderGui(); // function in gui.cpp
 
@@ -60,7 +59,7 @@ void render() {
             }
 
             shader->activate();
-            if (simulateObjectRotation) {
+            if (simulateObjectRotation && mainState != state::paused) {
                 simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0,1,0)); // temporarily rotate around Z axii
                 shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ );
             }
