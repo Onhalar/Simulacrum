@@ -1,6 +1,6 @@
 **OpenGL 3D viewer**
 
-project doesn't require any external libraries or binaries, you will however need a few tools to compile it on your system:
+project doesn't require any external libraries or binaries (for Windows 10/11 and Debian-derived linux), you will however need a few tools to compile it on your system:
 
  * **GCC** 13.0+ or another C/C++ compiler
  * **Cmake** and **Make** if not included with your compiler on *linux*
