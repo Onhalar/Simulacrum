@@ -1,7 +1,9 @@
+#include <units.hpp>
 #include <config.hpp>
 #include <types.hpp>
 #include <renderDefinitions.hpp>
 
+#include <color.hpp>
 #include <simObject.hpp>
 #include <scenes.hpp>
 
@@ -9,11 +11,12 @@
 #include <FormatConsole.hpp>
 #include <paths.hpp>
 
-#include <math.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <optional>
 
-#include <color.hpp>
-#include <unordered_set>
+#include <stdexcept>
+
 
 using Json = nlohmann::json;
 using errorCode = std::string;
@@ -25,6 +28,42 @@ void setupSimulation() {
     loadSimObjects(projectPath(simObjectsConfigPath));
 
     loadPhysicsScene(projectPath(physicsScenesPath));
+}
+
+// retrieves the object with the largest mass
+simulationObject* getGravityWhell(const std::vector<SimObjectID> objectIDs) {
+    std::pair<units::tons, simulationObject*> largestMass = {DBL_MAX, nullptr};
+
+    for (const SimObjectID&  ID : objectIDs) {
+        simulationObject* currentObject = SimObjects[ID];
+        if (!largestMass.second) {
+            largestMass = {currentObject->mass, currentObject};
+            continue;
+        }
+        
+        if (currentObject->mass > largestMass.second->mass) { largestMass = {currentObject->mass, currentObject}; }
+    }
+
+    return largestMass.second;
+}
+
+// calculates the ideal orbital velocity of a body.
+glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulationObject* gravityWhell, const glm::dvec3& orbitalVector /*orbital velocity vector*/) {
+    glm::dvec3 velocity(0.0);
+    if (!object) { throw std::invalid_argument("Object does not exis - calc orbital velocity"); }
+    else if (!gravityWhell) { throw std::invalid_argument("Gravity whell does not exis - calc orbiral velocity"); }
+    if (object->realPosition == gravityWhell->realPosition) { return velocity; }
+    
+    units::kilometers distance = glm::distance(gravityWhell->realPosition, object->realPosition);
+    
+    double neededVelocityMpS = std::sqrt((GRAVITATIONAL_CONSTANT * /*Tons*/ gravityWhell->mass.get<units::kilograms>()) / (double)distance.get<units::meters>());
+    double neededVelocityKpS = neededVelocityMpS / 1000.0;
+
+    velocity = orbitalVector * neededVelocityKpS;
+
+    printVec3("velocity", velocity);
+
+    return velocity;
 }
 
 std::optional<ShaderID> generateFallbackShaderID () {
@@ -201,6 +240,9 @@ void loadSimObjects(std::filesystem::path path) {
 }
 
 void loadPhysicsScene(std::filesystem::path path) {
+    // the direction of standard orbit
+    glm::vec3 orbitVector(0.0f, 1.0f, 0.0f);
+
     if (debugMode) {
         std::cout << '\n' << formatProcess("Loading") << " scenes '" << formatPath(getFileName(path.string())) << "' ... ";
     }
@@ -217,11 +259,34 @@ void loadPhysicsScene(std::filesystem::path path) {
     file.close();
     
     std::stringstream debugBuffer;
+
+    if (data.contains("ORBIT")) {
+        auto ORBIT = data["ORBIT"];
+        orbitVector = glm::vec3(
+          ORBIT[0].get<float>(),
+          ORBIT[1].get<float>(),
+          ORBIT[2].get<float>()  
+        );
+    }
     
     for (const auto& entry : data.items()) {
 
         auto sceneID = entry.key();
         auto entryValue = entry.value();
+
+
+        if (sceneID == "ORBIT") { continue; }
+
+
+        std::vector<SimObjectID> objectIDs = {};
+
+        // gather object IDs for future use; I will not be updating the following loop because hell nah.
+        for (const auto& simObject: entryValue["objects"]) {
+            if (!simObject.contains("object")) { continue; }
+            objectIDs.push_back(simObject["object"].get<std::string>());
+        }  
+
+        static simulationObject* gravityWhell = getGravityWhell(objectIDs);
 
         std::unordered_map<std::string, simulationObject*> objectCache;
 
@@ -270,8 +335,8 @@ void loadPhysicsScene(std::filesystem::path path) {
                 }
             }
             else {
-                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                currentSimObject->velocity = glm::dvec3(0);
+                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading ideal values.") << '\n'; }
+                currentSimObject->realVelocity = calcIdealOrbitVelocity(currentSimObject, gravityWhell, orbitVector);
             }
 
             currentScene->objects.insert(currentSimObject);
@@ -319,10 +384,10 @@ void loadPhysicsScene(std::filesystem::path path) {
     }
 
     // setting up default fallback scene
-    if (Scenes::allScenes.empty()) {
-        if (debugMode) { std::cout << formatWarning("WARNING") << ": No scenes were loaded / found" << std::endl; }
+    if (Scenes::allScenes.empty() && debugMode) {
+        std::cout << formatWarning("WARNING") << ": No scenes were loaded / found" << std::endl;
     }
-    // temporarily disabled since the scenes will now go through scene picker
+    // depricated since the scenes will now go through scene picker
     /*else {
         switchSceneAndCalculateObjects( (*Scenes::allScenes.begin()).first );
     }*/

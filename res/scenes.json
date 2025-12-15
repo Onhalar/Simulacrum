@@ -1,4 +1,5 @@
 {
+    "ORBIT": [0, 1, 0],
     "solarSystem": {
         "objects": [
             {
@@ -16,17 +17,15 @@
             ["sol", "earth"]
         ]
     },
-    "switchTest-Sol": {
+    "Testing-Sol": {
         "objects": [
             {
                 "object": "sol",
-                "position": [0.0, 0.0, 0.0],
-                "velocity": [0.0, 0.0, 0.0]
+                "position": [0.0, 0.0, 0.0]
             },
             {
                 "object": "earth",
-                "position": [1.496e8, 0.0, 0.0],
-                "velocity": [-5.931674617, 29.771, 0.0]
+                "position": [1.496e8, 0.0, 0.0]
             }
         ],
         "groups": [
