@@ -61,8 +61,6 @@ glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulati
 
     velocity = orbitalVector * neededVelocityKpS;
 
-    printVec3("velocity", velocity);
-
     return velocity;
 }
 
