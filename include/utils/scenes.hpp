@@ -68,6 +68,8 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
     if (minObjectRadius > 0) { // will be -1 if not all objects are present
         for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
 
+            simObject->loadOriginalValues();
+
             double scaleFactor;
 
             if (simulationMode == simulationType::realistic) {
@@ -113,8 +115,8 @@ inline void adjustCameraToScene(const SceneID& sceneID) {
     double objectVertRadius = 0.0;
 
     for (const auto& object : Scenes::allScenes[sceneID]->objects) {
-        if (object->realPosition != glm::dvec3(0.0)) {
-            double distance = glm::distance(glm::dvec3(0.0), object->realPosition);
+        if (object->position != glm::dvec3(0.0)) {
+            double distance = glm::distance(glm::dvec3(0.0), object->position);
             if (distance > maxDistance) {
                 maxDistance = distance;
                 objectVertRadius = object->vertexModelRadius;

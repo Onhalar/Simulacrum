@@ -15,24 +15,23 @@ class simulationObject {
     private:
         ShaderID shaderID;
         ModelID modelId;
+
+        // original (backup settings) - only the physics one that can at all change
+
+        glm::dvec3 originalPosition = glm::dvec3(0.0f);
+        glm::dvec3 originalvelocity = glm::dvec3(0.0);
     public:
         // vertex position - scaled
-        glm::vec3 position = glm::vec3(0.0f);
+        glm::vec3 vertPosition = glm::vec3(0.0f);
 
         // real-world position - km
-        glm::dvec3 realPosition = glm::dvec3(0.0f);
+        glm::dvec3 position = glm::dvec3(0.0f);
 
         units::kilometers radius = -1.0;
         units::tons mass = -1.01;
 
-        // vertex velocity - scaled - depricated
-        glm::dvec3 velocity = glm::dvec3(0.0);
-
         // real-world velocity - km/s
-        glm::dvec3 realVelocity = glm::dvec3(0.0);
-
-        // real-world acceleration - km/s^2
-        glm::dvec3 realAcceleration = glm::dvec3(0.0);
+        glm::dvec3 velocity = glm::dvec3(0.0);
 
         std::string name;
 
@@ -61,9 +60,8 @@ class simulationObject {
             this->light = original.light;
             this->objectType = original.objectType;
 
-            this->realAcceleration = original.realAcceleration;
-            this->realPosition = original.realPosition;
-            this->realVelocity = original.realVelocity;
+            this->position = original.position;
+            this->velocity = original.velocity;
 
             this->modelMatrix = original.modelMatrix;
             this->vertexModelRadius = original.vertexModelRadius;
@@ -79,6 +77,17 @@ class simulationObject {
         }
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
+
+        // loads original physics values
+        void loadOriginalValues() {
+            position = originalPosition;
+            velocity = originalvelocity;
+        }
+        // sets current physics values as original
+        void setCurrentAsOriginal() {
+            originalPosition = position;
+            originalvelocity = velocity;
+        }
 
         void calculateAproximateRadius() {
 

@@ -52,9 +52,9 @@ glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulati
     glm::dvec3 velocity(0.0);
     if (!object) { throw std::invalid_argument("Object does not exis - calc orbital velocity"); }
     else if (!gravityWhell) { throw std::invalid_argument("Gravity whell does not exis - calc orbiral velocity"); }
-    if (object->realPosition == gravityWhell->realPosition) { return velocity; }
+    if (object->position == gravityWhell->position) { return velocity; }
     
-    units::kilometers distance = glm::distance(gravityWhell->realPosition, object->realPosition);
+    units::kilometers distance = glm::distance(gravityWhell->position, object->position);
     
     double neededVelocityMpS = std::sqrt((GRAVITATIONAL_CONSTANT * /*Tons*/ gravityWhell->mass.get<units::kilograms>()) / (double)distance.get<units::meters>());
     double neededVelocityKpS = neededVelocityMpS / 1000.0;
@@ -310,11 +310,11 @@ void loadPhysicsScene(std::filesystem::path path) {
             if (simObject.contains("position")) {
                 if (simObject["position"].size() == 3) {
                     auto position = simObject["position"];
-                    currentSimObject->realPosition = glm::vec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
+                    currentSimObject->position = glm::vec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
                     if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' position has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                    currentSimObject->realPosition = glm::dvec3(0);
+                    currentSimObject->position = glm::dvec3(0);
                 }
             }
             else {
@@ -325,7 +325,7 @@ void loadPhysicsScene(std::filesystem::path path) {
             if (simObject.contains("velocity")) {
                 if (simObject["velocity"].size() == 3) {
                     auto position = simObject["velocity"];
-                    currentSimObject->realVelocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
+                    currentSimObject->velocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
                 }
                 else {
                     if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
@@ -334,8 +334,10 @@ void loadPhysicsScene(std::filesystem::path path) {
             }
             else {
                 if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading ideal values.") << '\n'; }
-                currentSimObject->realVelocity = calcIdealOrbitVelocity(currentSimObject, gravityWhell, orbitVector);
+                currentSimObject->velocity = calcIdealOrbitVelocity(currentSimObject, gravityWhell, orbitVector);
             }
+
+            currentSimObject->setCurrentAsOriginal();
 
             currentScene->objects.insert(currentSimObject);
         }

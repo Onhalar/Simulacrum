@@ -55,7 +55,7 @@ void render() {
             glm::dvec3 renderPos;
             {
                 std::lock_guard<std::mutex> lock(physicsMutex);
-                renderPos = simObject->position; // copy safe position
+                renderPos = simObject->vertPosition; // copy safe position
             }
 
             shader->activate();
@@ -102,7 +102,7 @@ void setupPostProcess() {
 void updateLightSourcePositions() {
     for (const auto& light : lightQue) {
         if (SimObjects.find(light.first) != SimObjects.end()) {
-            light.second->position = SimObjects[light.first]->position;
+            light.second->position = SimObjects[light.first]->vertPosition;
         }
     }
 }

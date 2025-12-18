@@ -290,7 +290,7 @@ void renderSceneGraph() {
 
                 ImGui::BulletText("Mass: %g t", (double)object->mass);
                 ImGui::BulletText("Radius: %.0f km", (double)object->radius);
-                ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->realVelocity));
+                ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->velocity));
                 ImGui::TreePop();
             }
         }
