@@ -192,13 +192,20 @@ void enterFullscreen() {
     fullscreen = true;
 }
 
+
 void exitFullscreen() {
     if (!fullscreen) { return; }
-       
-    // Restore windowed mode with saved position and size
-    glfwSetWindowMonitor(mainWindow, nullptr, oldPosition.x, oldPosition.y,oldSize.x, oldSize.y, GLFW_DONT_CARE);
-
-    resize(mainWindow, oldSize.x, oldSize.y);
-       
+    
     fullscreen = false;
+    
+    // Restore windowed mode with saved position and size
+    glfwSetWindowMonitor(mainWindow, nullptr, oldPosition.x, oldPosition.y, oldSize.x, oldSize.y, GLFW_DONT_CARE);
+    
+    // Force a window refresh on Windows because of course I have to ...
+    #ifdef _WIN32
+    glfwSetWindowPos(mainWindow, oldPosition.x, oldPosition.y);
+    glfwSetWindowSize(mainWindow, oldSize.x, oldSize.y);
+    #endif
+    
+    resize(mainWindow, oldSize.x, oldSize.y);
 }
