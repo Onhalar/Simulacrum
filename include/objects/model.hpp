@@ -58,7 +58,11 @@ public:
         // This makes the destructor safe even if sendBufferedVertices() was never called.
         
         // model data gets automatically deleted
+        clearBufferedData();
+        
+    }
 
+    void clearBufferedData() {
         if (vao) {
             delete vao;
             vao = nullptr;
@@ -88,7 +92,7 @@ public:
         }
         if (vao && debugMode) {
             std::cout << formatWarning("WARNING") << ": Rewriting buffered vertices." << std::endl;
-            delete vao;
+            clearBufferedData();
         }
 
         // Create VAO and bind it

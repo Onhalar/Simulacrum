@@ -81,6 +81,7 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
                 if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
             }
 
+            simObject->model->clearBufferedData(); // does it automatically but this way I can get rid of the warning while keeping it safe
             simObject->scaleVertices(scaleFactor);
             simObject->vertexModelRadius *= scaleFactor;
 
