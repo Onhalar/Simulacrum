@@ -1,3 +1,13 @@
+#include "globals.hpp"
+#include "json.hpp"
+#include "lightObject.hpp"
+#include <exception>
+#include <filesystem>
+#include <format>
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
 #include <units.hpp>
 #include <config.hpp>
 #include <types.hpp>
@@ -13,9 +23,9 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <optional>
 
 #include <stdexcept>
+#include <functional>
 
 
 using Json = nlohmann::json;
@@ -30,9 +40,89 @@ void setupSimulation() {
     loadPhysicsScene(projectPath(physicsScenesPath));
 }
 
+
+
+// attempts to assign a value from json data to given variable / member; if default value is provided it will disregard missing values from json - with custom assignment logic
+template <typename dest, typename src>
+inline void assignValue(const std::string& objectName, dest& objectValue, const Json& jsonData, const std::string& jsonKey, std::function<void(dest& destination, const src& source)> action, const std::optional<src> defaultValue = std::nullopt, std::stringstream* const debugBuffer = nullptr) {    
+    src value;
+    
+    if (!jsonData.contains(jsonKey)) {
+        if (!defaultValue.has_value()) {
+            throw std::invalid_argument( std::format("Could not find property '{}' in loaded configuration for object '{}'", jsonKey, objectName) );
+        }
+        else {
+            if (debugBuffer && debugMode) {
+                *debugBuffer << formatWarning("WARNING") << ": could not find '" << colorText(jsonKey, ANSII_MAGENTA) << "' in the config of '" << colorText(objectName, ANSII_MAGENTA) << "' object ... " << formatProcess("Loading defaults") << "\n";
+            }
+            value = defaultValue.value();
+        }
+    }
+    else {
+        value = jsonData[jsonKey].get<src>();
+    }
+    
+    action(objectValue, value);
+}
+// attempts to assign a value from json data to given variable / member; if default value is provided it will disregard missing values from json
+template <typename src, typename dest>
+inline void assignValue(const std::string& objectName, dest& objectValue, const Json& jsonData, const std::string& jsonKey, const std::optional<src> defaultValue = std::nullopt, std::stringstream* const debugBuffer = nullptr) {    
+    src value;
+    
+    if (!jsonData.contains(jsonKey)) {
+        if (!defaultValue.has_value()) {
+            throw std::invalid_argument( std::format("Could not find property '{}' in loaded configuration for object '{}'", jsonKey, objectName) );
+        }
+        else {
+            if (debugBuffer && debugMode) {
+                *debugBuffer << formatWarning("WARNING") << ": could not find '" << colorText(jsonKey, ANSII_MAGENTA) << "' in the config of '" << colorText(objectName, ANSII_MAGENTA) << "' object ... " << formatProcess("Loading defaults") << "\n";
+            }
+            value = defaultValue.value();
+        }
+    }
+    else {
+        value = jsonData[jsonKey].get<src>();
+    }
+
+    objectValue = value;
+}
+
+
+Json loadJsonData(std::filesystem::path filePath) {
+    if ( !std::filesystem::exists(filePath) || !std::filesystem::is_regular_file(filePath) ) {
+        throw std::invalid_argument( std::format("Could not open and load Json data from '{}'", formatPath(filePath)) );
+    }
+
+    std::ifstream file(filePath);
+    Json data;
+    file >> data;
+    file.close();
+
+    return data;
+}
+
+
+void handleDebugBuffer(std::stringstream& buffer) {
+    if (!debugMode) { return; }
+    std::string bufferContents = buffer.str();
+    bool debugPresent = !bufferContents.empty();
+
+    if (debugPresent) {
+        std::cout << formatWarning("Done with exceptions") << "\n" << bufferContents << std::endl;
+    }
+    else {
+        std::cout << formatSuccess("Done") << std::endl;
+    }
+}
+
+
+// -----------------===[ Calculating Values ]===-----------------
+
+
+
 // retrieves the object with the largest mass
 simulationObject* getGravityWhell(const std::vector<SimObjectID> objectIDs) {
-    std::pair<units::tons, simulationObject*> largestMass = {DBL_MAX, nullptr};
+    std::pair<units::tons, simulationObject*> largestMass = {0.0, nullptr};
 
     for (const SimObjectID&  ID : objectIDs) {
         simulationObject* currentObject = SimObjects[ID];
@@ -64,198 +154,141 @@ glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulati
     return velocity;
 }
 
-std::optional<ShaderID> generateFallbackShaderID () {
-    std::optional<ShaderID> output;
-    if (!Shaders.empty()) {
-        output = (*Shaders.begin()).first;
-    }
-    return output;
-}
-std::optional<ModelID> generateFallbackModelID () {
-    std::optional<ModelID> output;
-    if (!Models.empty()) {
-        output = (*Models.begin()).first;
-    }
-    return output;
+
+
+// -----------------===[ Helper Functions ]===-----------------
+
+
+
+void assignColor(glm::vec3& dest, const std::string& src) {
+    Color color = Color(src);
+    dest = {color.decR, color.decG, color.decB};
 }
 
-std::optional<ShaderID> resolveFallbackShaderID(std::string ObjectName, std::stringstream& debugBuffer, bool isMissing = false) {
-    std::optional<ShaderID> shader;
 
-    debugBuffer << formatError("ERROR") << ": in object '" << formatPath(ObjectName) << "' shader value is " << (isMissing ? "Missing" : "incorrect") << " ... " << formatProcess("Attempting to resolve") << " ... ";
-    auto maybeShader = generateFallbackShaderID();
-    if (maybeShader.has_value()) {
-        shader = maybeShader.value();
-        debugBuffer << formatProcess("Loaded ") << "'" << formatPath(shader.value()) << "' " << formatRole("shader") << std::endl;
-    }
-    else {
-        debugBuffer << formatError("FAILED") <<  " ... Skipping" << std::endl;
-    }
 
-    return shader;
-}
+// -----------------===[ Import Handlers ]===-----------------
 
-std::optional<ShaderID> resolveFallbackModelID(std::string ObjectName, std::stringstream& debugBuffer, bool isMissing = false) {
-    std::optional<ShaderID> model;
 
-    debugBuffer << formatError("ERROR") << ": in object '" << formatPath(ObjectName) << "' model value is " << (isMissing ? "Missing" : "incorrect") << " ... " << formatProcess("Attempting to resolve") << " ... ";
-    auto maybeModel = generateFallbackModelID();
-    if (maybeModel.has_value()) {
-        model = maybeModel.value();
-        debugBuffer << formatProcess("Loaded ") << "'" << formatPath(model.value()) << "' " << formatRole("model") << std::endl;
-    }
-    else {
-        debugBuffer << formatError("FAILED") <<  " ... Skipping" << std::endl;
-    }
-
-    return model;
-}
 
 void loadSimObjects(std::filesystem::path path) {
-    if (debugMode) {
-        std::cout << '\n' << formatProcess("Loading") << " objects '" << formatPath(getFileName(path.string())) << "' ... ";
-    }
+    Json data;
 
-    if (!filesystem::exists(path) && debugMode) {
-        std::cout << formatError("FAILED") << "\n";
-        std::cerr << "unable to open '" << formatPath(path.string()) << "'\n" << endl;
+    try {
+        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename()) << "' ... "; }
+        data = loadJsonData(path);
+    }
+    catch (std::exception e) {
+        if (debugMode) { std::cerr << formatError("FAILED") << "\n" << formatError("ERROR") << ": " << e.what(); }
         return;
     }
 
-    std::ifstream file(path);
-    Json data;
-    file >> data;
-    file.close();
 
     std::stringstream debugBuffer;
 
-    for (const auto& entry : data.items()) {
+    static ModelID fallbackModel = (Models.empty() ? "" : Models.begin()->first);
+    static std::optional<std::string> fallbackColor = "#ff00ff";
+    static std::optional<double> earthFallbackRotationSpeed = 0.003992; //360 * ((earthRotationKmH / (EarthRadius*PI*2)) / 3600) -> approximate Earth's rotation degrees / second
+    static std::optional<std::string> fallbackObjectType = "planet";
 
-        auto entryKey = entry.key();
-        auto entryValue = entry.value();
+
+
+    for (const auto& [objectID, object] : data.items()) {
 
         ShaderID shader;
         ModelID model;
 
-        if (entryValue.contains("shader")) {
-            if (Shaders.find(entryValue["shader"]) != Shaders.end()) {
-                shader = entryValue["shader"];
+        // Shader
+        if (object.contains("shader")) {
+            if (Shaders.contains(object["shader"])) {
+                  shader = object["shader"];
             }
             else {
-                auto maybeShader = resolveFallbackShaderID(entryKey, debugBuffer);
-                if (maybeShader.has_value()) {
-                    shader = maybeShader.value();
+                debugBuffer << formatError("ERROR") << ": cannot load invalid shader '" << colorText(object["shader"], ANSII_MAGENTA) << "' for object '" << objectID << "' ... " << formatProcess("skipping") << std::endl;
+                continue;
+            }
+        }
+        else {
+            debugBuffer << formatError("ERROR") << ": shader '" << colorText(object["shader"], ANSII_MAGENTA) << "' does't exist - in object '" << objectID << "' ... " << formatProcess("skipping") << std::endl;
+            continue;
+        }
+
+        // Model
+        if (object.contains("model")) {
+            if (Shaders.contains(object["model"])) {
+                model = object["model"];
+            }
+            else {
+                debugBuffer << formatError("ERROR") << ": cannot load invalid model '" << colorText(object["model"], ANSII_MAGENTA) << "' for object '" << objectID << "' ... " << formatProcess("Loading defaults") << " ... ";
+                if (fallbackModel != "") {
+                    model = fallbackModel; std:: cout << formatSuccess("Done") << std::endl;
                 }
-                else { continue; }
-            }
-        }
-        else {
-            auto maybeShader = resolveFallbackShaderID(entryKey, debugBuffer, true);
-            if (maybeShader.has_value()) {
-                shader = maybeShader.value();
-            }
-            else { continue; }
-        }
-
-        if (entryValue.contains("model")) {
-            if (Models.find(entryValue["model"]) != Models.end()) {
-                model = entryValue["model"];
-            }
-            else {
-                auto maybeModel = resolveFallbackModelID(entryKey, debugBuffer);
-                if (maybeModel.has_value()) {
-                    model = maybeModel.value();
+                else {
+                    std::cout << formatError("FAILED") << " ... " << formatProcess("skipping") << std::endl;
+                    continue;
                 }
-                else { continue; }
             }
         }
         else {
-            auto maybeModel = resolveFallbackModelID(entryKey, debugBuffer, true);
-            if (maybeModel.has_value()) {
-                model = maybeModel.value();
-            }
-            else { continue; }
-        }
-
-        SimObjects[entryKey] = new simulationObject(shader, model);
-
-        SimObjects[entryKey]->name = entryKey;
-
-        if (entryValue.contains("color")) {
-            auto color = Color(entryValue["color"].get<std::string>());
-            SimObjects[entryKey]->model->objectColor = glm::vec3( color.decR, color.decG, color.decB );
-        }
-
-        if (entryValue.contains("radius")) {
-            SimObjects[entryKey]->radius = (units::kilometers)entryValue["radius"].get<double>();
-        }
-
-        if (entryValue.contains("mass")) {
-            SimObjects[entryKey]->mass = (units::tons)entryValue["mass"].get<double>();
-        }
-        if (entryValue.contains("type")) {
-            SimObjects[entryKey]->objectType = entryValue["type"].get<std::string>();
-        }
-
-        if (entryValue.contains("rotation") && SimObjects[entryKey]->radius != -1) {
-            SimObjects[entryKey]->rotationSpeed = entryValue["rotation"].get<double>();
-        }
-        else {
-            SimObjects[entryKey]->vertexRotation = 0.003992; //360 * ((earthRotationKmH / (EarthRadius*PI*2)) / 3600) -> approximate Earth's rotation degrees / second
-        }
-
-        if (entryValue.contains("light")) {
-            glm::vec3 color; float intensity;
-            if (entryValue["light"].contains("intensity")) {
-                intensity = entryValue["light"]["intesity"].get<float>();
+            debugBuffer << formatError("ERROR") << ": shader '" << colorText(object["model"], ANSII_MAGENTA) << "' does't exist - in object '" << objectID << "' ... " << formatProcess("Loading defaults") << " ... ";
+            if (fallbackModel != "") {
+                model = fallbackModel; std:: cout << formatSuccess("Done") << std::endl;
             }
             else {
-                intensity = 1.5f;
+                std::cout << formatError("FAILED") << " ... " << formatProcess("skipping") << std::endl;
+                continue;
             }
-            
-            if (entryValue["light"].contains("color")){
-                auto lightColor = Color(entryValue["light"]["color"].get<std::string>());
-                color = glm::vec3( lightColor.decR, lightColor.decG, lightColor.decB );
-            } else {
-                color = SimObjects[entryKey]->model->objectColor;
-            }
-
-            SimObjects[entryKey]->light = new LightObject(SimObjects[entryKey]->position, color, intensity);            
         }
-        else if (SimObjects[entryKey]->objectType == "star") {
-            SimObjects[entryKey]->light = new LightObject();
+        
+
+        simulationObject* simObject = new simulationObject(shader, model);
+
+
+        // process the rest
+
+        simObject->name = objectID;
+        assignValue<double>(objectID, simObject->radius, object, "radius");
+        assignValue<double>(objectID, simObject->mass, object, "mass");
+        assignValue<double>(objectID, simObject->radius, object, "radius");
+        assignValue<glm::vec3, std::string>(objectID, simObject->model->color, object, "color", assignColor, fallbackColor, &debugBuffer);
+        assignValue<std::string>(objectID, simObject->objectType, object, "type", fallbackObjectType, &debugBuffer);
+        assignValue<double>(objectID, simObject->rotationSpeed, object, "rotation", earthFallbackRotationSpeed, &debugBuffer);
+        
+        // Light
+        if (simObject->objectType == "star") {
+            assignValue<LightObject*, Json>(objectID, simObject->light, object, "light",
+                [&](LightObject*& obj, const Json& value) {
+                    obj = new LightObject();
+                    assignValue<float>(objectID, obj->intensity, value, "intensity");
+                    assignValue<glm::vec3, std::string>(objectID, obj->color, value, "color", assignColor, fallbackColor, &debugBuffer);
+                }
+            );
         }
 
+        SimObjects[objectID] = simObject;
     }
 
-    std::string debugOutputString = debugBuffer.str();
-    bool debugNecesery = debugOutputString.empty();
-
-    if (debugMode) {
-        std::cout << (debugNecesery ? formatSuccess("Done") : formatWarning("Done with exceptions")) << (debugNecesery ? "" : "\n" + debugOutputString) << std::endl;
-    }
-
+    handleDebugBuffer(debugBuffer);
 }
 
+
+
+
+
 void loadPhysicsScene(std::filesystem::path path) {
-    // the direction of standard orbit
-    glm::vec3 orbitVector(0.0f, 1.0f, 0.0f);
+    Json data;
 
-    if (debugMode) {
-        std::cout << '\n' << formatProcess("Loading") << " scenes '" << formatPath(getFileName(path.string())) << "' ... ";
+    try {
+        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename()) << "' ... "; }
+        data = loadJsonData(path);
     }
-
-    if (!filesystem::exists(path) && debugMode) {
-        std::cout << formatError("FAILED") << "\n";
-        std::cerr << "unable to open '" << formatPath(path.string()) << "'\n" << endl;
+    catch (std::exception e) {
+        if (debugMode) { std::cerr << formatError("FAILED") << "\n" << formatError("ERROR") << ": " << e.what(); }
         return;
     }
 
-    std::ifstream file(path);
-    Json data;
-    file >> data;
-    file.close();
-    
+
+    glm::vec3 orbitVector(0.0f, 1.0f, 0.0f);
     std::stringstream debugBuffer;
 
     if (data.contains("ORBIT")) {
@@ -266,130 +299,89 @@ void loadPhysicsScene(std::filesystem::path path) {
           ORBIT[2].get<float>()  
         );
     }
+
+
     
-    for (const auto& entry : data.items()) {
-
-        auto sceneID = entry.key();
-        auto entryValue = entry.value();
-
-
+    for (const auto& [sceneID, sceneData] : data.items()) {
         if (sceneID == "ORBIT") { continue; }
 
-
-        std::vector<SimObjectID> objectIDs = {};
-
-        // gather object IDs for future use; I will not be updating the following loop because hell nah.
-        for (const auto& simObject: entryValue["objects"]) {
-            if (!simObject.contains("object")) { continue; }
-            objectIDs.push_back(simObject["object"].get<std::string>());
-        }  
-
-        static simulationObject* gravityWhell = getGravityWhell(objectIDs);
-
-        std::unordered_map<std::string, simulationObject*> objectCache;
+        std::vector<SimObjectID> objectIDs;
+        std::unordered_map<SimObjectID, simulationObject*> objectCache;
+        
 
         scene* currentScene = new scene();
 
-        // ToDo: add checking clause
-        for (const auto& simObject : entryValue["objects"]) {
-            
-            if (!simObject.contains("object")) {
-                if (debugMode) { debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' and object instance not specified ... " << formatWarning("Skipping") << '\n'; }
-                continue;
-            }
 
-            SimObjectID objectID = simObject["object"].get<std::string>();
-            if (SimObjects.find(objectID) == SimObjects.end()) {
-                if (debugMode) { debugBuffer << formatError("ERROR") << ": Object '" << formatPath(objectID) << "' in scene '" << formatPath(sceneID) << "' ... " << formatWarning("Skipping") << '\n'; }
-                continue;
-            }
-            
-            simulationObject* currentSimObject = new simulationObject(*SimObjects[objectID]);
-            objectCache[objectID] = currentSimObject;
-
-            if (simObject.contains("position")) {
-                if (simObject["position"].size() == 3) {
-                    auto position = simObject["position"];
-                    currentSimObject->position = glm::vec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
-                }
-                else {
-                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' position has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                    currentSimObject->position = glm::dvec3(0);
-                }
-            }
-            else {
-                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' position not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                currentSimObject->position = glm::dvec3(0);
-            }
-
-            if (simObject.contains("velocity")) {
-                if (simObject["velocity"].size() == 3) {
-                    auto position = simObject["velocity"];
-                    currentSimObject->velocity = glm::dvec3(position[0].get<double>(), position[1].get<double>(), position[2].get<double>());
-                }
-                else {
-                    if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity has incorrect format " << formatProcess("[x, y, z]") << " for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading defaults") << '\n'; }
-                    currentSimObject->velocity = glm::dvec3(0);
-                }
-            }
-            else {
-                if (debugMode) { debugBuffer << formatWarning("WARNING") << ": In scene '" << formatPath(sceneID) << "' velocity not found for object '" << formatPath(objectID) << "' ... " << formatProcess("Loading ideal values.") << '\n'; }
-                currentSimObject->velocity = calcIdealOrbitVelocity(currentSimObject, gravityWhell, orbitVector);
-            }
-
-            currentSimObject->setCurrentAsOriginal();
-
-            currentScene->objects.insert(currentSimObject);
+        // gather object IDs beforehand for gravity whell calculations
+        for (const auto& simObject: sceneData["objects"]) {
+            if (!simObject.contains("object")) { continue; }
+            objectIDs.push_back(simObject["object"].get<std::string>());
         }
 
-        // setting up groups
-        if (entryValue.contains("groups") && !entryValue["groups"].empty()){
-            for (const auto& group : entryValue["groups"]) {
-                std::unordered_set<simulationObject*> currentGroup;
+        simulationObject* gravityWhell = getGravityWhell(objectIDs);
 
-                for (const auto& groupMember : group) {
-                    if (objectCache.find(groupMember) != objectCache.end()) {
-                        currentGroup.insert(objectCache[groupMember]);
-                    }
+
+        // --- OBJECTS --
+        if (!sceneData.contains("objects")) {
+            if (debugMode) { debugBuffer << formatError("ERROR") << ": could not find objects in scene '" << colorText(sceneID, ANSII_MAGENTA) << "' ... skipping\n"; }
+            continue;
+        }
+        for (const auto& objectData : sceneData["objects"]) {
+
+            SimObjectID objectID;
+            assignValue<SimObjectID>("", objectID, objectData, "object");
+            
+            simulationObject* simObject = new simulationObject(*SimObjects[objectID]);
+
+
+            assignValue<glm::dvec3, Json>(objectID, simObject->position, objectData, "position", 
+                [&](glm::dvec3& dest, const Json& src) {
+                    dest = {
+                        src[0].get<double>(),
+                        src[1].get<double>(),
+                        src[2].get<double>()
+                    };
                 }
+            );
 
-                if (!currentGroup.empty()) { currentScene->groups.push_back(currentGroup); }
-            }
+            // ToDO: clean up somehow
+            glm::dvec3 idealVelocity = calcIdealOrbitVelocity(simObject, gravityWhell, orbitVector);
+            assignValue<glm::dvec3, Json>(objectID, simObject->velocity, objectData, "velocity", 
+                [&](glm::dvec3& dest, const Json& src) {
+                    dest = {
+                        src[0].get<double>(),
+                        src[1].get<double>(),
+                        src[2].get<double>()
+                    };
+                },
+                (std::optional<Json>)(Json){idealVelocity.x, idealVelocity.y, idealVelocity.z},
+                &debugBuffer
+            );
+
+            simObject->setCurrentAsOriginal();
+
+            objectCache[objectID] = simObject;
+            currentScene->objects.insert(simObject);
         }
 
-        if (currentScene->groups.empty() && !objectCache.empty()) {
-            std::unordered_set<simulationObject*> currentGroup;
 
-            for (auto& [key, object] : objectCache) {
-                currentGroup.insert(object);
+        // --- GROUPS ---
+        if (!sceneData.contains("groups")) {
+            if (debugMode) { debugBuffer << formatError("ERROR") << ": could not find sim groups in scene '" << colorText(sceneID, ANSII_MAGENTA) << "' ... skipping\n"; }
+            continue;
+        }
+        for (const auto& group : sceneData["groups"]) {
+            sceneGroup currentGroup;
+
+            for (const auto& member : group) {
+                currentGroup.insert(objectCache[member.get<std::string>()]);
             }
 
             currentScene->groups.push_back(currentGroup);
         }
 
-        if (currentScene->objects.empty()) {
-            debugBuffer << formatError("ERROR") << ": In scene '" << formatPath(sceneID) << "' no objects were found or passed tests ... " << formatError("Skipping") << '\n';
-        }
-        else {
-            Scenes::allScenes[sceneID] = currentScene;
-        }
-        
+        Scenes::allScenes[sceneID] = currentScene;
     }
-
-    std::string debugOutputString = debugBuffer.str();
-    bool debugNecesery = debugOutputString.empty();
-
-    if (debugMode) {
-        std::cout << (debugNecesery ? formatSuccess("Done") : formatWarning("Done with exceptions")) << (debugNecesery ? "" : "\n" + debugOutputString) << std::endl;
-    }
-
-    // setting up default fallback scene
-    if (Scenes::allScenes.empty() && debugMode) {
-        std::cout << formatWarning("WARNING") << ": No scenes were loaded / found" << std::endl;
-    }
-    // depricated since the scenes will now go through scene picker
-    /*else {
-        switchSceneAndCalculateObjects( (*Scenes::allScenes.begin()).first );
-    }*/
-
+    
+    handleDebugBuffer(debugBuffer);
 }

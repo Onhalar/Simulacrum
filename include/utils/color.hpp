@@ -1,8 +1,6 @@
 #ifndef COLOR_MANAGEMENT_AND_CLASS_HEADER
 #define COLOR_MANAGEMENT_AND_CLASS_HEADER
 
-#include <sstream>
-#include <bitset> // std::hex and such
 #include <string>
 #include <stdexcept>
 #include <algorithm>

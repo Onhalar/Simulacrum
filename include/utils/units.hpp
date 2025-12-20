@@ -163,6 +163,15 @@ class units{
 
             return To_T(value.value * convertor);
         }
+
+        // does a very basic check if a variable's type is a unit of this library
+        template <typename T>
+        static constexpr bool isUnit(const T& var) {
+            if constexpr (requires { T::unitindex; T::value; }) { return true; }
+            else { return false; }
+
+            return false;
+        }
 };
 
 constexpr units::kilometers operator"" _km(long double value) { return units::kilometers(value); }

@@ -16,7 +16,7 @@
         "color": "#fca803",
         "type": "star",
         "rotation": 119.82,
-        "ligth": {
+        "light": {
             "color": "#fca803",
             "intensity": 1.5
         }

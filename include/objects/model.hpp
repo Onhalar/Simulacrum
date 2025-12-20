@@ -34,17 +34,17 @@ private:
 
 public:
     ModelData modelData;      // Raw model data (vertices, normals, indices)
-    glm::vec3 objectColor;     // The base color of the object
+    glm::vec3 color;     // The base color of the object
 
 
     Model(ModelData data, const glm::vec3& color)
-        : modelData(data), objectColor(color), vao(nullptr), vboPositions(nullptr),
+        : modelData(data), color(color), vao(nullptr), vboPositions(nullptr),
           vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
     {
         // Pointers are initialized to nullptr, the OpenGL objects are not created here.
     }
 
-    Model(const Model& copy) : modelData(copy.modelData), objectColor(copy.objectColor), vao(nullptr), vboPositions(nullptr),
+    Model(const Model& copy) : modelData(copy.modelData), color(copy.color), vao(nullptr), vboPositions(nullptr),
           vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
     {
         // Pointers are initialized to nullptr, the OpenGL objects are not created here.
@@ -107,9 +107,9 @@ public:
         std::vector<GLfloat> colors;
         colors.reserve(modelData.vertices.size()); // 3 components per vertex
         for (size_t i = 0; i < modelData.vertices.size() / 3; ++i) {
-            colors.push_back(objectColor.r); // R
-            colors.push_back(objectColor.g); // G
-            colors.push_back(objectColor.b); // B
+            colors.push_back(color.r); // R
+            colors.push_back(color.g); // G
+            colors.push_back(color.b); // B
         }
         vboColors = new VBO(colors.data(), colors.size() * sizeof(GLfloat));
         vao->linkAttrib(*vboColors, 1, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
