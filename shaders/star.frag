@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 color;
+uniform vec3 color;
 in vec3 normal;
 in vec3 currentPosition;
 

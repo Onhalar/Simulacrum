@@ -215,16 +215,16 @@ void loadSimObjects(std::filesystem::path path) {
 
         // Model
         if (object.contains("model")) {
-            if (Shaders.contains(object["model"])) {
+            if (Models.contains(object["model"])) {
                 model = object["model"];
             }
             else {
-                debugBuffer << formatError("ERROR") << ": cannot load invalid model '" << colorText(object["model"], ANSII_MAGENTA) << "' for object '" << objectID << "' ... " << formatProcess("Loading defaults") << " ... ";
+                debugBuffer << formatError("ERROR") << ": cannot load invalid model '" << colorText(object["model"], ANSII_MAGENTA) << "' ... ";
                 if (fallbackModel != "") {
-                    model = fallbackModel; std:: cout << formatSuccess("Done") << std::endl;
+                    model = fallbackModel; debugBuffer << formatSuccess("Done") << std::endl;
                 }
                 else {
-                    std::cout << formatError("FAILED") << " ... " << formatProcess("skipping") << std::endl;
+                    debugBuffer << formatError("FAILED") << " ... " << formatProcess("skipping") << std::endl;
                     continue;
                 }
             }
@@ -241,7 +241,7 @@ void loadSimObjects(std::filesystem::path path) {
         }
         
 
-        simulationObject* simObject = new simulationObject(shader, model);
+        simulationObject* simObject = new simulationObject(shader, model, true /*derive model*/ );
 
 
         // process the rest
@@ -331,7 +331,7 @@ void loadPhysicsScene(std::filesystem::path path) {
             SimObjectID objectID;
             assignValue<SimObjectID>("", objectID, objectData, "object");
             
-            simulationObject* simObject = new simulationObject(*SimObjects[objectID]);
+            simulationObject* simObject = new simulationObject(*SimObjects[objectID], true); // creates a derived model
 
 
             assignValue<glm::dvec3, Json>(objectID, simObject->position, objectData, "position", 
