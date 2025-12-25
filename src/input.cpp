@@ -33,6 +33,7 @@ void handleInputs() {
     if (isJustPressed(GLFW_KEY_F11)) {
         if (fullscreen) { exitFullscreen(); }
         else { enterFullscreen(); }
+        settingsUpdated = true;
     }
 }
 

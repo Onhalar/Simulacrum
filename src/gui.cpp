@@ -1,3 +1,5 @@
+#include "GLFW/glfw3.h"
+#include <cmath>
 #include <state.hpp>
 #include <config.hpp>
 #include <debug.hpp>
@@ -163,10 +165,13 @@ void renderSettingsMenu() {
     if (ImGui::CollapsingHeader("Graphics", ImGuiTreeNodeFlags_DefaultOpen)) {
 
         static bool fullscreenLocal = fullscreen;
+        if (settingsUpdated) { fullscreenLocal = fullscreen; }
+
         ImGui::Checkbox("FullScreen", &fullscreenLocal);
         if (fullscreenLocal != fullscreen) {
             if (fullscreenLocal) { enterFullscreen(); } // fullscreen flag is managed by theese functions directly for maximum consistency
             else { exitFullscreen(); }
+            fullscreenLocal = fullscreen;
         }
 
         static bool showFPSLocal = showFPS;
@@ -175,15 +180,23 @@ void renderSettingsMenu() {
             showFPS = showFPSLocal;
         }
 
-        ImGui::Checkbox("VSync", (bool*)&VSync);
+        static bool localVsync = VSync;
+        ImGui::Checkbox("VSync", &localVsync);
+        if (localVsync != VSync) {
+            VSync = localVsync;
+            glfwSwapInterval(VSync);
+        }
+
         if (!VSync) {
             static int lastMaxFPS = maxFrameRate;
 
-            ImGui::SliderInt("Max FPS", &maxFrameRate, 10, 300, "%i FPS");
+            ImGui::SliderInt("Max FPS", &lastMaxFPS, 10, 300, "%i FPS");
 
             if (lastMaxFPS != maxFrameRate) {
+                lastMaxFPS = (lastMaxFPS / (int)10) * 10;
+
                 frameDuration = nanoseconds(1'000'000'000 / maxFrameRate);
-                lastMaxFPS = maxFrameRate;
+                maxFrameRate = lastMaxFPS;
             }
         }
 
@@ -248,6 +261,8 @@ void renderSettingsMenu() {
     ImGui::PopFont();
 
     ImGui::End();
+
+    if (settingsUpdated) { settingsUpdated = false; }
 }
 
 
