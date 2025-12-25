@@ -27,7 +27,7 @@ ImGuiIO *io;
 
 
 void renderSceneGraph();
-void renderSimSpeedDisplay();
+void renderSimPerfDisplay();
 void renderSettingsMenu();
 void renderScenePicker();
 
@@ -41,7 +41,7 @@ void renderGui() {
 
     // Render setup
     if (!showScenePicker) {
-        renderSimSpeedDisplay();
+        renderSimPerfDisplay();
         renderSceneGraph();
 
         renderSettingsMenu();
@@ -169,6 +169,12 @@ void renderSettingsMenu() {
             else { exitFullscreen(); }
         }
 
+        static bool showFPSLocal = showFPS;
+        ImGui::Checkbox("Show FPS", &showFPSLocal);
+        if (showFPSLocal != showFPS) {
+            showFPS = showFPSLocal;
+        }
+
         ImGui::Checkbox("VSync", (bool*)&VSync);
         if (!VSync) {
             static int lastMaxFPS = maxFrameRate;
@@ -245,7 +251,7 @@ void renderSettingsMenu() {
 }
 
 
-void renderSimSpeedDisplay() {
+void renderSimPerfDisplay() {
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, 10), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
 
     ImGui::PushFont(Fonts["normal"]);
@@ -261,6 +267,28 @@ void renderSimSpeedDisplay() {
 
     if (mainState == state::paused) { ImGui::Text("P A U S E D"); }
     else { ImGui::Text("%ix", (int)simulationSpeed); }
+
+    if (showFPS) {
+        static auto timer = steady_clock::now();
+        static unsigned int count = 0;
+        static float fps = 0.0f;
+
+        count++;
+
+        auto now = steady_clock::now();
+        auto elapsed = now - timer;
+
+        if (elapsed >= seconds(1)) {
+            float secondsElapsed = duration<float>(elapsed).count();
+            fps = (float)count / secondsElapsed;
+            
+            count = 0;
+            timer = now;
+        }
+
+        ImGui::SameLine();
+        ImGui::Text("| %.0f FPS", fps);
+    }
 
     ImGui::PopFont();
 

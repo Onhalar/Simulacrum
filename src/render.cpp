@@ -61,7 +61,7 @@ void render() {
             shader->activate();
 
             if (simulateObjectRotation && mainState != state::paused) {
-                simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0,1,0)); // temporarily rotate around Z axii
+                simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0.0f,0.0f,1.0f)); // temporarily rotate around Z axii
                 shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ * (simObject->model->isDerived ? simObject->model->transform : 1.0f) /*scaling*/ );
             }
             else if (!simObject->model->isDerived) {
