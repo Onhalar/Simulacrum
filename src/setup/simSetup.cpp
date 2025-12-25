@@ -90,7 +90,7 @@ inline void assignValue(const std::string& objectName, dest& objectValue, const 
 
 Json loadJsonData(std::filesystem::path filePath) {
     if ( !std::filesystem::exists(filePath) || !std::filesystem::is_regular_file(filePath) ) {
-        throw std::invalid_argument( std::format("Could not open and load Json data from '{}'", formatPath(filePath)) );
+        throw std::invalid_argument( std::format("Could not open and load Json data from '{}'", formatPath(filePath.string())) );
     }
 
     std::ifstream file(filePath);
@@ -175,7 +175,7 @@ void loadSimObjects(std::filesystem::path path) {
     Json data;
 
     try {
-        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename()) << "' ... "; }
+        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename().string()) << "' ... "; }
         data = loadJsonData(path);
     }
     catch (std::exception e) {
@@ -279,7 +279,7 @@ void loadPhysicsScene(std::filesystem::path path) {
     Json data;
 
     try {
-        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename()) << "' ... "; }
+        if (debugMode) { std::cout << formatProcess("\nLoading") << " objects from '" << formatPath(path.filename().string()) << "' ... "; }
         data = loadJsonData(path);
     }
     catch (std::exception e) {
