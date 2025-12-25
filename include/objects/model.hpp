@@ -32,22 +32,55 @@ private:
     VBO* vboColors;            // VBO for vertex colors
     EBO* ebo;                  // Element Buffer Object (indices)
 
+    void handleFlags(const unsigned int flags) {
+        if (flags & Model::Flags::MAKE_INSTANCE) {
+            isDerived = true;
+            transform = glm::mat4(1.0f);
+        }
+    }
+
+    Model* findOriginalMaster(Model* master) {
+        while (true) {
+            if (master && master->isDerived) {
+                master = master->master;
+            }
+            else {
+                break;
+            }
+        }
+        return master;
+    }
+
 public:
+    struct Flags {
+        static const unsigned int MAKE_INSTANCE = 0b00000001;
+    };
+
     ModelData modelData;      // Raw model data (vertices, normals, indices)
     glm::vec3 color;     // The base color of the object
 
+    // for instances
+    Model* master = nullptr;
+    bool isDerived = false;
+    glm::mat4 transform;
 
-    Model(ModelData data, const glm::vec3& color)
+
+    Model(ModelData data, const glm::vec3& color, const unsigned int flags = 0)
         : modelData(data), color(color), vao(nullptr), vboPositions(nullptr),
           vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
     {
         // Pointers are initialized to nullptr, the OpenGL objects are not created here.
+        handleFlags(flags);
     }
 
-    Model(const Model& copy) : modelData(copy.modelData), color(copy.color), vao(nullptr), vboPositions(nullptr),
+    Model(Model& master, const unsigned int flags = 0) : color(master.color), vao(nullptr), vboPositions(nullptr),
           vboNormals(nullptr), vboColors(nullptr), ebo(nullptr)
     {
         // Pointers are initialized to nullptr, the OpenGL objects are not created here.
+        handleFlags(flags);
+
+        if (!isDerived) { this->modelData = master.modelData; }
+        else { this->master = findOriginalMaster(&master); }
     }
 
     /**
@@ -85,7 +118,20 @@ public:
         }
     }
     
+    void ensureMasterIsBuffered() {
+        if (isDerived && master) {
+            if (master->ebo && master->vao) { return; }
+
+            master->sendBufferedVertices();
+        }
+    }
+
     void sendBufferedVertices() {
+        if (isDerived) {
+            ensureMasterIsBuffered();
+            return;
+        }
+
         if (modelData.indices.empty() && debugMode) {
             std::cerr << formatError("ERROR") << ": ModelData has no verticies, cannot buffer vertices." << std::endl;
             return;
@@ -103,20 +149,9 @@ public:
         vboPositions = new VBO(modelData.vertices.data(), modelData.vertices.size() * sizeof(GLfloat));
         vao->linkAttrib(*vboPositions, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
 
-        // --- Vertex Colors (location = 1) ---
-        std::vector<GLfloat> colors;
-        colors.reserve(modelData.vertices.size()); // 3 components per vertex
-        for (size_t i = 0; i < modelData.vertices.size() / 3; ++i) {
-            colors.push_back(color.r); // R
-            colors.push_back(color.g); // G
-            colors.push_back(color.b); // B
-        }
-        vboColors = new VBO(colors.data(), colors.size() * sizeof(GLfloat));
-        vao->linkAttrib(*vboColors, 1, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
-
-        // --- Normals (location = 2) ---
+        // --- Normals (location = 1) ---
         vboNormals = new VBO(modelData.normals.data(), modelData.normals.size() * sizeof(GLfloat));
-        vao->linkAttrib(*vboNormals, 2, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
+        vao->linkAttrib(*vboNormals, 1, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
 
         // --- EBO (Indices) ---
         ebo = new EBO(modelData.indices.data(), modelData.indices.size() * sizeof(GLuint));
@@ -134,22 +169,29 @@ public:
      * @brief Draws the model.
      * @param shader The shader program to use for rendering.
      */
-    void draw(Shader* shader) {
+    void draw(Shader* shader, bool skipDerivedMatrix = false, bool skipColor = false) {
 
-        if (!vao || !ebo || modelData.indices.empty()) {
+        if ((!vao || !ebo) && !isDerived) {
             // Model not properly loaded or initialized, cannot draw.
             std::cerr << formatError("ERROR") << ": Attempted to draw a model that has not been buffered." << std::endl;
             return;
         }
 
         shader->activate(); // Activate the shader program
+        if (!skipColor) { shader->setUniform("color", color); }
 
-        vao->bind(); // Bind the VAO
+        if (!isDerived) {
+            vao->bind(); // Bind the VAO
 
-        glDrawElements(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, modelData.indices.size(), GL_UNSIGNED_INT, 0);
 
-        // Unbind the VAO
-        vao->unbind();
+            // Unbind the VAO
+            vao->unbind();
+        }
+        else {
+            if (!skipDerivedMatrix) { shader->applyModelMatrix(transform); }
+            master->draw(shader, true, true);
+        }
     }
 };
 

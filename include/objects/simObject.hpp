@@ -48,13 +48,23 @@ class simulationObject {
 
         LightObject* light = nullptr;
 
-        simulationObject(ShaderID shaderID, ModelID modelID) {
+        simulationObject(ShaderID shaderID, ModelID modelID, bool deriveModel = false) {
             shader = Shaders[shaderID];
-            model = new Model(*Models[modelID]);
+            if (deriveModel) {
+                model = new Model(*Models[modelID], Model::Flags::MAKE_INSTANCE);
+            }
+            else {
+                model = new Model(*Models[modelID]);
+            }
         }
-        simulationObject(const simulationObject& original) {
+        simulationObject(const simulationObject& original, bool deriveModel = true) {
             this->shader = original.shader;
-            this->model = original.model;
+            if (deriveModel) {
+                this->model = new Model(*original.model, Model::Flags::MAKE_INSTANCE);
+            }
+            else {
+                this->model = original.model;
+            }
 
             this->mass = original.mass;
             this->light = original.light;
@@ -91,7 +101,14 @@ class simulationObject {
 
         void calculateAproximateRadius() {
 
-            auto vertices = model->modelData.vertices;
+            std::vector<float> vertices;
+
+            if (model->isDerived) {
+                vertices = model->master->modelData.vertices;
+            }
+            else {
+                vertices = model->modelData.vertices;
+            }
             // vertices passed will be render-ready so x, y, z, x, y, z, ...
 
             float minX = vertices[0]; float MaxX = vertices[0];
@@ -130,14 +147,19 @@ class simulationObject {
             vertexModelRadius = normalizedRadius;
         }
 
-        void scaleVertices(const float& scaleFactor) {
-            for (auto& verticeAxee : model->modelData.vertices) {
-                verticeAxee *= scaleFactor;
+        void scaleVertices(const float scaleFactor) {
+            if (model->isDerived) {
+                model->transform = glm::scale(model->transform, {scaleFactor, scaleFactor, scaleFactor});
+            }
+            else {
+                for (auto& verticeAxee : model->modelData.vertices) {
+                    verticeAxee *= scaleFactor;
+                }
             }
         }
 
-        void draw() {
-            model->draw(shader);
+        void draw(bool skipDerivedMatrix = false) {
+            model->draw(shader, skipDerivedMatrix);
         }
 
 };
