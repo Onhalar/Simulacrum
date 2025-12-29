@@ -263,7 +263,7 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        ImGui::SliderFloat("FOV", &fovDeg, 30.0f, 120.0f, "%.2f Deg");
+        ImGui::SliderFloat("FOV", &fovDeg, 30.0f, 120.0f, "%.1f Deg");
         ImGui::SliderFloat("Sensitivity", &cameraSensitivity, 50.0f, 300.0f, "%.0f");
         ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 100.0f, "%.0f");
     }
