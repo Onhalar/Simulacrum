@@ -256,13 +256,18 @@ void loadSimObjects(std::filesystem::path path) {
         
         // Light
         if (simObject->objectType == "star") {
-            assignValue<LightObject*, Json>(objectID, simObject->light, object, "light",
-                [&](LightObject*& obj, const Json& value) {
-                    obj = new LightObject();
-                    assignValue<float>(objectID, obj->intensity, value, "intensity");
-                    assignValue<glm::vec3, std::string>(objectID, obj->color, value, "color", assignColor, fallbackColor, &debugBuffer);
-                }
-            );
+            if (!object.contains("light")) {
+                simObject->light = new LightObject;
+            }
+            else {
+                assignValue<LightObject*, Json>(objectID, simObject->light, object, "light",
+                    [&](LightObject*& obj, const Json& value) {
+                        obj = new LightObject();
+                        assignValue<float>(objectID, obj->intensity, value, "intensity");
+                        assignValue<glm::vec3, std::string>(objectID, obj->color, value, "color", assignColor, fallbackColor, &debugBuffer);
+                    }
+                );
+            }
         }
 
         SimObjects[objectID] = simObject;

@@ -6,7 +6,7 @@
         "model": "sphere",
         "color": "#0000ff",
         "type": "planet",
-        "rotation": 1600.0
+        "rotation": 0.003992
     },
     "sol": {
         "radius": 696340,
@@ -15,7 +15,7 @@
         "model": "sphere",
         "color": "#fca803",
         "type": "star",
-        "rotation": 119.82,
+        "rotation": 0.000154,
         "light": {
             "color": "#fca803",
             "intensity": 1.5

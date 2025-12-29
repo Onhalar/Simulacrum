@@ -14,12 +14,19 @@ inline bool isJustPressed(const unsigned int& GlfwKey );
 void handleInputs() {
 
     if (isJustPressed(GLFW_KEY_ESCAPE, currentCamera->focused)) {
+        if (!showMenu && mainState == state::paused) { wasStatePausedBeforeMenu = true; }
+
         showMenu = !showMenu;
-        if (!showMenu) {
+
+        if (!showMenu && !wasStatePausedBeforeMenu) {
             if (mainState == state::paused) { transitionState(state::running); }
         }
         else {
             if (mainState != state::paused) { transitionState(state::paused); }
+        }
+
+        if (!showMenu) {
+            wasStatePausedBeforeMenu = false;
         }
     }
 

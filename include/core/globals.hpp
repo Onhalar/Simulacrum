@@ -23,6 +23,7 @@ inline bool showMenu = false;
 inline bool showScenePicker = true; // has to be TRUE to avoid initial segfaults
 inline bool showFPS = false;
 inline bool settingsUpdated = true;
+inline bool wasStatePausedBeforeMenu = false;
 
 inline int windowWidth = defaultWindowWidth, windowHeight = defaultWindowHeight;
 

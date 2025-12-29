@@ -64,6 +64,8 @@ inline bool doPostProcess = true;
 inline bool doFXAA = true;
 inline bool inverseColors = false;
 
+inline float ambientStrength = 0.2;
+
 // flag signaling whether the main window is or is not fullscreened. DO NOT MODIFY - handled by enter / exit fullscreen functions.
 inline bool fullscreen = false;
 

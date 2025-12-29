@@ -20,6 +20,8 @@ layout(std140) uniform LightBlock {
     float lightFallOff;
 };
 
+uniform float ambientStrength = 0.2;
+
 // Additive blending function
 vec3 blendAdditive(vec3 base, vec3 blend) {
     return min(base + blend, 1.0);
@@ -30,7 +32,6 @@ void main() {
     float totalDiffuse = 0.0;
 
     vec3 norm = normalize(normal);
-    float ambientStrength = 0.2;
 
     // Loop through all active lights
     for (int i = 0; i < lightCount; ++i) {

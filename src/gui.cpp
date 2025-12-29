@@ -1,5 +1,3 @@
-#include "GLFW/glfw3.h"
-#include <cmath>
 #include <state.hpp>
 #include <config.hpp>
 #include <debug.hpp>
@@ -69,14 +67,14 @@ void renderScenePicker() {
     ImGui::Begin("Scene Picker", &showScenePicker, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
     ImGui::PopFont();
 
-    for (const auto scene : Scenes::allScenes) {
-        ImGui::Text(scene.first.c_str());
+    for (const auto& [name, scene] : Scenes::allScenes) {
+        ImGui::TextUnformatted(name.c_str());
 
-        std::string button_label = "Switch##" + scene.first;
+        std::string button_label = "Switch##" + name;
 
         ImGui::SameLine(0.0f, 10.0f);
         if (ImGui::Button(button_label.c_str())) {
-            switchSceneAndCalculateObjects(scene.first);
+            switchSceneAndCalculateObjects(name);
 
             showScenePicker = false;
             transitionState(state::running);
@@ -89,6 +87,7 @@ void renderScenePicker() {
 }
 
 void renderSettingsMenu() {
+    static bool wasPaused;
 
     if (!showMenu) {
         ImGui::SetNextWindowBgAlpha(0.35f);
@@ -116,7 +115,8 @@ void renderSettingsMenu() {
     if (!showMenu) { return; }
     if (currentCamera->focused) {
         showMenu = false;
-        if (mainState == state::paused) { transitionState(state::running); }
+        if (mainState == state::paused && !wasStatePausedBeforeMenu) { transitionState(state::running); }
+        wasStatePausedBeforeMenu = false;
     }
 
     // Center the window
@@ -222,6 +222,16 @@ void renderSettingsMenu() {
             }
         }
 
+        static float ambientStrengthLocal = ambientStrength;
+        ImGui::SliderFloat("Ambient Light Strength", &ambientStrengthLocal, 0.0f, 1.0f, "%.2f");
+        if (ambientStrengthLocal != ambientStrength) {
+            for (const auto& [shaderID, shader] : Shaders) {
+                ambientStrength = ambientStrengthLocal;
+                shader->setUniform("ambientStrength", ambientStrength);
+            }
+        }
+
+        // udpates every frame in main loop
         ImGui::SliderFloat("Render Distance (Vertex distance)", &renderDistance, 100.0f, 50'000.0f, "%.0f Vd");
     }
     
