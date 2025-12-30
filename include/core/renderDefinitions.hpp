@@ -37,6 +37,16 @@ struct LightBlockData {
     float padding[2];
 };
 
+inline std::map<char, glm::vec3> starTypeCartoonEmissions = {
+    {'O', {0.10f, 0.30f, 1.00f}},
+    {'B', {0.20f, 0.60f, 1.00f}},
+    {'A', {0.70f, 0.90f, 1.00f}},
+    {'F', {1.00f, 1.00f, 0.80f}},
+    {'G', {1.00f, 0.85f, 0.00f}},
+    {'K', {1.00f, 0.40f, 0.00f}},
+    {'M', {1.00f, 0.00f, 0.00f}}
+};
+
 void enterFullscreen();
 void exitFullscreen();
 

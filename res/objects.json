@@ -13,12 +13,13 @@
         "mass": 1.988416e27,
         "shader": "star",
         "model": "sphere",
-        "color": "#fca803",
+        "color": "#f4f5f3",
         "type": "star",
         "rotation": 0.000154,
         "light": {
-            "color": "#fca803",
-            "intensity": 1.5
+            "color": "#f4f5f3",
+            "intensity": 1.5,
+            "starType": "G"
         }
     }
 }

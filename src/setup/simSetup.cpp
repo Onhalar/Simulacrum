@@ -265,6 +265,7 @@ void loadSimObjects(std::filesystem::path path) {
                         obj = new LightObject();
                         assignValue<float>(objectID, obj->intensity, value, "intensity");
                         assignValue<glm::vec3, std::string>(objectID, obj->color, value, "color", assignColor, fallbackColor, &debugBuffer);
+                        assignValue<char, Json>(objectID, obj->starType, value, "starType", [&](char& obj, const Json& value) {obj = value.get<std::string>()[0]; });
                     }
                 );
             }

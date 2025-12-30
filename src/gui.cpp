@@ -256,7 +256,7 @@ void renderSettingsMenu() {
             phyiscsSubsteps = phyiscsSubstepsLocal;
         }
 
-        
+        ImGui::Checkbox("Cartoon Color Mode", &cartoonColorMode);
         ImGui::Checkbox("Simulate object rotation", &simulateObjectRotation);
         ImGui::Text("Physics FPS: %.0f", physicsSteps);
     }

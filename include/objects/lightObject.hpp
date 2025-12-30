@@ -5,9 +5,10 @@
 
 class LightObject {
     public:
-        mutable glm::vec3 position;
-        mutable glm::vec3 color;
-        mutable float intensity;
+        glm::vec3 position;
+        glm::vec3 color;
+        float intensity;
+        char starType = 0;
 
         LightObject (
             glm::vec3 position = glm::vec3(0,0,0),

@@ -10,6 +10,7 @@
 #include <lightObject.hpp>
 
 #include <globals.hpp>
+#include <renderDefinitions.hpp>
 
 class simulationObject {
     private:
@@ -159,13 +160,18 @@ class simulationObject {
         }
 
         void draw(bool skipDerivedMatrix = false) {
-            model->draw(shader, skipDerivedMatrix);
+            bool skipColor = cartoonColorMode && objectType == "star";
+            if (skipColor) {
+                shader->setUniform("color", starTypeCartoonEmissions[light->starType]);
+            }
+
+            model->draw(shader, skipDerivedMatrix, skipColor);
         }
 
 };
 
 using SimObjectList = std::unordered_map<std::string, simulationObject*>;
 
-SimObjectList SimObjects;
+inline SimObjectList SimObjects;
 
 #endif // FULL_SIMULATION_OBJECT_HEADER

@@ -123,7 +123,7 @@ void updateLightSources() {
         if (lightsAdded >= MAX_LIGHTS) { break; }
 
         lightsData.lights[lightsAdded].position = light.second->position;
-        lightsData.lights[lightsAdded].color = glm::vec4(light.second->color, 1);
+        lightsData.lights[lightsAdded].color = glm::vec4((cartoonColorMode ? starTypeCartoonEmissions[light.second->starType] : light.second->color), 1);
         lightsData.lights[lightsAdded].intensity = light.second->intensity;
 
         lightsAdded++;
