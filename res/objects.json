@@ -1,25 +1,88 @@
 {
-    "earth": {
-        "radius": 6378,
-        "mass": 5.9722e21,
-        "shader": "planet",
-        "model": "sphere",
-        "color": "#0000ff",
-        "type": "planet",
-        "rotation": 0.003992
-    },
-    "sol": {
+        "sol": {
         "radius": 696340,
         "mass": 1.988416e27,
         "shader": "star",
         "model": "sphere",
         "color": "#f4f5f3",
         "type": "star",
-        "rotation": 0.000154,
+        "rotation": 1.54e-4,
         "light": {
             "color": "#f4f5f3",
             "intensity": 1.5,
             "starType": "G"
         }
+    },
+    "mercury": {
+        "radius": 2440,
+        "mass": 3.30104e20,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#8f8f8f",
+        "type": "planet",
+        "rotation": 2.3674e-5
+    },
+    "venus": {
+        "radius": 6052,
+        "mass": 4.86732e21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#f4c9a8",
+        "type": "planet",
+        "rotation": 1.7147e-5
+    },
+    "earth": {
+        "radius": 6378,
+        "mass": 5.97219e21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#0000ff",
+        "type": "planet",
+        "rotation": 3.992e-3
+    },
+    "mars": {
+        "radius": 3390,
+        "mass": 6.39e20,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#ad6242",
+        "type": "planet",
+        "rotation": 1.69377e-4
+    },
+    "jupiter": {
+        "radius": 69911,
+        "mass": 1.89813e24,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#d1a77f",
+        "type": "planet",
+        "rotation": 4.20875e-4
+    },
+    "saturn": {
+        "radius": 60250,
+        "mass": 5.683e23,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#c3a171",
+        "type": "planet",
+        "rotation": 3.89408e-4
+    },
+    "uranus": {
+        "radius": 15881.5,
+        "mass": 8.68103e22,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#d4fbfa",
+        "type": "planet",
+        "rotation": 2.45098e-4
+    },
+    "neptune": {
+        "radius": 6378,
+        "mass": 1.024e23,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#3851d9",
+        "type": "planet",
+        "rotation": 2.60417e-4
     }
 }

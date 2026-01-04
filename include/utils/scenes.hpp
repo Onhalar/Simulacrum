@@ -2,9 +2,9 @@
 #define PHYSICS_SCENE_CLASS_HEADER
 
 #include "config.hpp"
+#include "glm/geometric.hpp"
 #include <simObject.hpp>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 #include <types.hpp>
 #include <customMath.hpp>
@@ -13,10 +13,10 @@
 #include <math.h>
 
 
-using sceneGroup = std::unordered_set<simulationObject*>;
+using sceneGroup = std::vector<simulationObject*>;
 
 struct scene {
-    std::unordered_set<simulationObject*> objects;
+    std::vector<simulationObject*> objects;
     std::vector<sceneGroup> groups;
 
     ~scene() {
@@ -66,6 +66,7 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
     }
 
     if (minObjectRadius > 0) { // will be -1 if not all objects are present
+        int objectOrder = 1;
         for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
 
             simObject->loadOriginalValues();
@@ -78,18 +79,25 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
             }
             else if (simulationMode == simulationType::simplified) {
                 scaleFactor = exponentialScale(minObjectRadius, MaxObjctRadius, simObject->radius, maxScale);
-                if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
+                // if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
+
+                double distance = glm::distance({0.0, 0.0, 0.0}, simObject->position);
+                if (simObject->position == glm::dvec3(0.0, 0.0, 0.0)) { distance = simObject->radius * 2.0; } // object in the origin is likley a star, that I don't want to move
+
+                simObject->distanceScale = distance / (unifiedDistance * objectOrder);
             }
 
             simObject->model->clearBufferedData(); // does it automatically but this way I can get rid of the warning while keeping it safe
             simObject->scaleVertices(scaleFactor);
             simObject->vertexModelRadius *= scaleFactor;
 
-            if (simObject->rotationSpeed != -1 && simulateObjectRotation) {
+            if (simObject->rotationSpeed != -1.0 && simulateObjectRotation) {
                 double objectCircumference = 2.0 * PI * (double)simObject->radius;
 
                 simObject->vertexRotation = 360.0 * ( ( simObject->rotationSpeed / objectCircumference ) / 3600 ); // degrees per second
             }
+
+            ++objectOrder;
         }
     }
     else {
@@ -119,13 +127,15 @@ inline void adjustCameraToScene(const SceneID& sceneID) {
         if (object->position != glm::dvec3(0.0)) {
             double distance = glm::distance(glm::dvec3(0.0), object->position);
             if (distance > maxDistance) {
-                maxDistance = distance;
+                if (simulationMode != simulationType::simplified) { maxDistance = distance; }
                 objectVertRadius = object->vertexModelRadius;
             }
         }
     }
 
-    maxDistance /= currentScale;
+    if (simulationMode != simulationType::simplified) { maxDistance /= currentScale; }
+    else { maxDistance = unifiedDistance * Scenes::allScenes[sceneID]->objects.size(); }
+
     maxDistance += objectVertRadius;
 
     maxDistance *= (1 + sceneZoomModifier);

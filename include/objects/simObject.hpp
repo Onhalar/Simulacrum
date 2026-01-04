@@ -41,6 +41,8 @@ class simulationObject {
 
         double rotationSpeed = -1; // km/h
 
+        double distanceScale = 1.0;
+
         mutable Shader* shader;
         mutable Model* model;
 

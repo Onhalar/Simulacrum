@@ -1,6 +1,7 @@
 #include "globals.hpp"
 #include "json.hpp"
 #include "lightObject.hpp"
+#include <algorithm>
 #include <exception>
 #include <filesystem>
 #include <format>
@@ -22,7 +23,6 @@
 #include <paths.hpp>
 
 #include <unordered_map>
-#include <unordered_set>
 
 #include <stdexcept>
 #include <functional>
@@ -367,7 +367,7 @@ void loadPhysicsScene(std::filesystem::path path) {
             simObject->setCurrentAsOriginal();
 
             objectCache[objectID] = simObject;
-            currentScene->objects.insert(simObject);
+            currentScene->objects.push_back(simObject);
         }
 
 
@@ -380,11 +380,22 @@ void loadPhysicsScene(std::filesystem::path path) {
             sceneGroup currentGroup;
 
             for (const auto& member : group) {
-                currentGroup.insert(objectCache[member.get<std::string>()]);
+                currentGroup.push_back(objectCache[member.get<std::string>()]);
             }
 
             currentScene->groups.push_back(currentGroup);
         }
+
+        // sort by distance from origin
+        std::sort(currentScene->objects.begin(), currentScene->objects.end(), 
+            [](simulationObject* a, simulationObject* b){
+                static glm::dvec3 origin = {0.0, 0.0, 0.0};
+                if (a->position == b->position) { return true; }
+                double distA = glm::distance(origin, a->position), distB = glm::distance(origin, a->position);
+
+                return distA > distB;
+            }
+        );
 
         Scenes::allScenes[sceneID] = currentScene;
     }

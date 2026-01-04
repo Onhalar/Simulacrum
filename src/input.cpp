@@ -1,3 +1,4 @@
+#include "scenes.hpp"
 #include <config.hpp>
 #include <globals.hpp>
 #include <state.hpp>
@@ -14,7 +15,10 @@ inline bool isJustPressed(const unsigned int& GlfwKey );
 void handleInputs() {
 
     if (isJustPressed(GLFW_KEY_ESCAPE, currentCamera->focused)) {
-        if (!showMenu && mainState == state::paused) { wasStatePausedBeforeMenu = true; }
+        if (showBackgroundChanger) { showBackgroundChanger = false; return; }
+        if (showScenePicker && Scenes::currentScene) { showScenePicker = false; return; }
+
+        if (!showMenu && !showBackgroundChanger && mainState == state::paused) { wasStatePausedBeforeMenu = true; }
 
         showMenu = !showMenu;
 
@@ -25,13 +29,13 @@ void handleInputs() {
             if (mainState != state::paused) { transitionState(state::paused); }
         }
 
-        if (!showMenu) {
+        if (!showMenu && !showBackgroundChanger) {
             wasStatePausedBeforeMenu = false;
         }
     }
 
     if (isJustPressed(GLFW_KEY_SPACE, currentCamera->focused)) {
-        if (!showMenu) {
+        if (!showMenu && !showBackgroundChanger) {
             if (mainState != state::paused) { transitionState(state::paused); }
             else { transitionState(state::running); }
         }

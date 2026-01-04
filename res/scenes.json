@@ -1,35 +1,53 @@
 {
     "ORBIT": [0, 1, 0],
-    "solarSystem": {
+    "Sol": {
         "objects": [
             {
                 "object": "sol",
-                "position": [0.0, 0.0, 0.0],
-                "velocity": [0.0, 0.0, 0.0]
+                "position": [0, 0, 0]
+            },
+            {
+                "object": "mercury",
+                "position": [5.98391484e7 , 0, 0]
+            },
+            {
+                "object": "venus",
+                "position": [1.047185097e8, 0, 0]
             },
             {
                 "object": "earth",
-                "position": [1.496e8, 0.0, 0.0],
-                "velocity": [-5.931674617, 29.771, 0.0]
-            }
-        ],
-        "groups": [
-            ["sol", "earth"]
-        ]
-    },
-    "Testing-Sol": {
-        "objects": [
-            {
-                "object": "sol",
-                "position": [0.0, 0.0, 0.0]
+                "position": [1.49597871e8, 0, 0]
             },
             {
-                "object": "earth",
-                "position": [1.496e8, 0.0, 0.0]
+                "object": "mars",
+                "position": [2.243968065e8, 0, 0]
+            },
+            {
+                "object": "jupiter",
+                "position": [7.779089292e8, 0, 0]
+            },
+            {
+                "object": "saturn",
+                "position": [1.4211797745e9, 0, 0]
+            },
+            {
+                "object": "uranus",
+                "position": [2.8722791232e9, 0, 0]
+            },
+            {
+                "object": "neptune",
+                "position": [4.487936130e9, 0, 0]
             }
         ],
         "groups": [
-            ["sol", "earth"]
+            ["sol", "mercury"],
+            ["sol", "venus"],
+            ["sol", "earth"],
+            ["sol", "mars"],
+            ["sol", "jupiter"],
+            ["sol", "saturn"],
+            ["sol", "uranus"],
+            ["sol", "neptune"]
         ]
     }
 }

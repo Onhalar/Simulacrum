@@ -64,12 +64,11 @@ void simulateStep() {
 
     if (deltaTime == 0.0) { return; }
 
-    for (unsigned int groupID = 0; groupID < Scenes::currentScene->groups.size(); ++groupID) {
-        const auto& currentGroup = Scenes::currentScene->groups[groupID];
+    for (int step = 0; step < phyiscsSubsteps; step++) {
+        for (unsigned int groupID = 0; groupID < Scenes::currentScene->groups.size(); ++groupID) {
+            const auto& currentGroup = Scenes::currentScene->groups[groupID];
 
-        for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
-
-            for (int step = 0; step < phyiscsSubsteps; step++) {
+            for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
                 glm::dvec3 acceleration = calcGravVelocity(simObject, groupID);
                 advanceObjectPosition(simObject, acceleration);
             }
@@ -80,12 +79,12 @@ void simulateStep() {
 // -----------------===[ Helper Functions ]===-----------------
 
 inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 acceleration) {
-    double deltaSubStep = physicsDeltaTime  * simulationSpeed / (double)phyiscsSubsteps;
+    double deltaSubStep = physicsDeltaTime * simulationSpeed / (double)phyiscsSubsteps;
 
-    simObject->velocity += acceleration* deltaSubStep;
+    simObject->velocity += acceleration * deltaSubStep;
 
     simObject->position += simObject->velocity * deltaSubStep;
-    simObject->vertPosition = simObject->position / currentScale;
+    simObject->vertPosition = simObject->position / (simulationMode == simulationType::simplified ? simObject->distanceScale : currentScale);
 }
 
 glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupID) {
@@ -94,6 +93,7 @@ glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupI
     for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
         // Skip self-gravity
         if (currentObject == simObject) { continue; }
+        //if (currentObject->position == simObject->position) { continue; }
         
         // Get distance in simulation units and convert to meters
         units::meters distance = glm::distance(currentObject->position, simObject->position) * 1'000.0;
@@ -102,8 +102,6 @@ glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupI
         double gravitationalAcceleration = GRAVITATIONAL_CONSTANT * (comparisonObjectMass) / (double)(distance * distance);
         
         glm::dvec3 direction = glm::normalize(simObject->position - currentObject->position);
-
-        //std::cout << "Direction: " << direction.x << ", " << direction.y << ", " << direction.z << std::endl;
         
         glm::dvec3 gravPullAcceleration = direction * (gravitationalAcceleration / 1'000.0);
         fullGravPullAcceleration += gravPullAcceleration;

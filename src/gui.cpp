@@ -30,6 +30,7 @@ void renderSceneGraph();
 void renderSimPerfDisplay();
 void renderSettingsMenu();
 void renderScenePicker();
+void renderBackgChanger();
 
 void renderGui() {
     io = &ImGui::GetIO();
@@ -40,13 +41,18 @@ void renderGui() {
     ImGui::NewFrame();
 
     // Render setup
-    if (!showScenePicker) {
+    if (showScenePicker) {
+        renderScenePicker();
+    }
+    else if (showBackgroundChanger) {
+        renderBackgChanger();
+    }
+    else {
         renderSimPerfDisplay();
         renderSceneGraph();
 
         renderSettingsMenu();
     }
-    else { renderScenePicker(); }
 
     // Rendering
     ImGui::Render();
@@ -82,6 +88,25 @@ void renderScenePicker() {
             if (showMenu) { showMenu = false; } // ensures clear first look
         }
     }
+
+    ImGui::End();
+}
+
+void renderBackgChanger() {
+    transitionState(state::paused);
+
+    ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always);
+    
+    ImGui::PushFont(Fonts["larger"]);
+    ImGui::Begin("Background changer", &showBackgroundChanger, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::PopFont();
+
+    ImGui::SliderFloat("R", &backgroundColor.decR, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("G", &backgroundColor.decG, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("B", &backgroundColor.decB, 0.0f, 1.0f, "%.2f");
+
+    glClearColor(backgroundColor.decR, backgroundColor.decG, backgroundColor.decB, backgroundColor.a);
 
     ImGui::End();
 }
@@ -139,6 +164,11 @@ void renderSettingsMenu() {
 
     if (ImGui::Button("Load Scene")) {
         showScenePicker = true;
+    }
+
+    ImGui::SameLine(0.0f, 10.0f);
+    if (ImGui::Button("Change Background")) {
+        showBackgroundChanger = true;
     }
 
     ImGui::SameLine(0.0f, 10.0f);
@@ -237,19 +267,18 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        static double min = 1.0, max = 5.0e5, simulationSpeedLocal = simulationSpeed;
+        static double min = 1.0, max = 1.0e6, simulationSpeedLocal = simulationSpeed;
 
-        ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.2fx");
+        ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.0fx");
 
         if (simulationSpeedLocal != simulationSpeed) {
             std::lock_guard<std::mutex> lock(physicsMutex);
             simulationSpeed = simulationSpeedLocal;
         }
 
-
         static unsigned int phyiscsSubstepsLocal = phyiscsSubsteps;
 
-        ImGui::SliderInt("Physics SubSteps", (int*)&phyiscsSubstepsLocal, 1, 32);
+        ImGui::SliderInt("Physics SubSteps", (int*)&phyiscsSubstepsLocal, 1, 256);
 
         if (phyiscsSubstepsLocal != phyiscsSubsteps) {
             std::lock_guard<std::mutex> lock(physicsMutex);
@@ -265,7 +294,7 @@ void renderSettingsMenu() {
 
         ImGui::SliderFloat("FOV", &fovDeg, 30.0f, 120.0f, "%.1f Deg");
         ImGui::SliderFloat("Sensitivity", &cameraSensitivity, 50.0f, 300.0f, "%.0f");
-        ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 100.0f, "%.0f");
+        ImGui::SliderFloat("Camera Speed", &cameraSpeed, 1.0f, 250.0f, "%.0f");
     }
     
     ImGui::PopFont();
@@ -341,6 +370,7 @@ void renderSceneGraph() {
         for (const auto& object :Scenes::currentScene->objects) {
             if (ImGui::TreeNode(object->name.c_str())) {
 
+                if (object->objectType == "star") { ImGui::BulletText("Star type: %c", object->light->starType); }
                 ImGui::BulletText("Mass: %g t", (double)object->mass);
                 ImGui::BulletText("Radius: %.0f km", (double)object->radius);
                 ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->velocity));

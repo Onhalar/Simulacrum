@@ -21,6 +21,7 @@ inline bool isMinimized = false;
 inline bool supressCameraControls = false;
 inline bool showMenu = false;
 inline bool showScenePicker = true; // has to be TRUE to avoid initial segfaults
+inline bool showBackgroundChanger = false;
 inline bool showFPS = false;
 inline bool settingsUpdated = true;
 inline bool wasStatePausedBeforeMenu = false;

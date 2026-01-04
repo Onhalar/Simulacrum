@@ -17,6 +17,7 @@
 
 #include <physicsThread.hpp>
 
+#include "debug.hpp"
 #include "glm/fwd.hpp"
 #include "gui.cpp"
 #include "state.hpp"
@@ -64,7 +65,7 @@ void render() {
                 simObject->modelMatrix = glm::rotate(simObject->modelMatrix, (float)(glm::radians(simObject->vertexRotation) * simulationSpeed * deltaTime), glm::vec3(0.0f,0.0f,1.0f)); // temporarily rotate around Z axii
                 shader->applyModelMatrix( calcuculateModelMatrixFromPosition(renderPos) * simObject->modelMatrix /*rotation*/ * (simObject->model->isDerived ? simObject->model->transform : 1.0f) /*scaling*/ );
             }
-            else if (!simObject->model->isDerived) {
+            else {
                 shader->applyModelMatrix(calcuculateModelMatrixFromPosition(renderPos) * (simObject->model->isDerived ? simObject->model->transform : 1.0f));
             }
 

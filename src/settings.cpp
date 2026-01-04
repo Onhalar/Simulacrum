@@ -77,6 +77,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
 
     {"simulationMode",                    {"PHYSICS", SettingsEntry(&simulationMode, setValue<simulationType>)}},
     {"simpleMaxScale",                    {"PHYSICS", SettingsEntry(&maxScale, setValue<float>)}},
+    {"unifiedDistance",                   {"PHYSICS", SettingsEntry(&unifiedDistance, setValue<double>)}},
     {"normalizedModelRadius",             {"PHYSICS", SettingsEntry(&normalizedModelRadius, setValue<float>)}},
     {"renderScaleDistortion",             {"PHYSICS", SettingsEntry(&renderScaleDistortion, setValue<double>)}},
     {"physicsSubsteps",                   {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},

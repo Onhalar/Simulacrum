@@ -83,6 +83,8 @@ inline float fovDeg = 45.0f;
 
 inline float sceneZoomModifier = 0.05;
 
+inline double unifiedDistance = 10.0; // used for simplified mode scaling
+
 
 // GUI
 inline float fontSize = 15.0f;
