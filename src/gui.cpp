@@ -128,7 +128,10 @@ void renderSettingsMenu() {
 
         ImGui::PushStyleColor(ImGuiCol_Button, transparent);
 
-        if (ImGui::Button("Menu")) { showMenu = true; }
+        if (ImGui::Button("Menu")) {
+            showMenu = true;
+            if (mainState == state::paused) { wasStatePausedBeforeMenu = true; }
+        }
 
         ImGui::PopStyleColor();
 
@@ -365,14 +368,22 @@ void renderSceneGraph() {
 
     if (ImGui::TreeNode(Scenes::currentSceneID.c_str())) {
         for (const auto& object :Scenes::currentScene->objects) {
+            const char* objID = ("##" + object->name).c_str();
+
             if (ImGui::TreeNode(object->name.c_str())) {
+
+                ImGui::SameLine(0.0f, 20.0f);
+                ImGui::Checkbox(objID, &object->simulate);
 
                 if (object->objectType == "star") { ImGui::BulletText("Star type: %c", object->light->starType); }
                 ImGui::BulletText("Mass: %g t", (double)object->mass);
                 ImGui::BulletText("Radius: %.0f km", (double)object->radius);
                 ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->velocity));
-                ImGui::Checkbox("Simulate", &object->simulate);
                 ImGui::TreePop();
+            }
+            else {
+                ImGui::SameLine(0.0f, 20.0f);
+                ImGui::Checkbox(objID, &object->simulate);
             }
         }
         ImGui::TreePop();
