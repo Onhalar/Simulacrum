@@ -156,11 +156,13 @@ glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulati
     velocity = orbitalVector * neededVelocityKpS;
 
     // gravity pull
-    double gravAccel = GRAVITATIONAL_CONSTANT * (gravityWhell->mass.get<units::kilograms>()) / (double)(distance * distance); // m / s^2
-    glm::dvec3 direction = glm::normalize(gravityWhell->position - object->position);
-    glm::dvec3 gravPullVelocity = direction * (gravAccel / 1'000.0); // * 1s => km/s
+    if (gravityInInitialVel) {
+        double gravAccel = GRAVITATIONAL_CONSTANT * (gravityWhell->mass.get<units::kilograms>()) / (double)(distance * distance); // m / s^2
+        glm::dvec3 direction = glm::normalize(gravityWhell->position - object->position);
+        glm::dvec3 gravPullVelocity = direction * (gravAccel / 1'000.0); // * 1s => km/s
 
-    velocity += gravPullVelocity;
+        velocity += gravPullVelocity;
+    }
 
     return velocity;
 }

@@ -117,6 +117,7 @@ inline std::string projectPath(const std::filesystem::path& path) {
 // physics
 inline double simulationSpeed = 2.5e5;
 inline float physicsSteps = 60.0f; // amount of physics steps per second
+inline bool gravityInInitialVel = false;
 
 #define PI 3.141592653589793
 #define GRAVITATIONAL_CONSTANT 6.6743e-11 // m³ kg⁻¹ s⁻²

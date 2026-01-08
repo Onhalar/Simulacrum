@@ -84,6 +84,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"physicsSubsteps",                   {"PHYSICS", SettingsEntry(&phyiscsSubsteps, setValue<unsigned int>)}},
     {"simulateObjectRotation",            {"PHYSICS", SettingsEntry(&simulateObjectRotation, setValue<bool>)}},
     {"physicsSteps",                      {"PHYSICS", SettingsEntry(&physicsSteps, setValue<float>)}},
+    {"gravityInInitialVel",               {"PHYSICS", SettingsEntry(&gravityInInitialVel, setValue<bool>)}},
 
     {"fontSize",                          {"GUI", SettingsEntry(&fontSize, setValue<float>)}},
     {"windowRounding",                    {"GUI", SettingsEntry(&windowRounding, setValue<float>)}},
