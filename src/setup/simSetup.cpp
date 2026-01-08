@@ -1,3 +1,5 @@
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/geometric.hpp"
 #include "globals.hpp"
 #include "json.hpp"
 #include "lightObject.hpp"
@@ -140,16 +142,25 @@ simulationObject* getGravityWhell(const std::vector<SimObjectID> objectIDs) {
 // calculates the ideal orbital velocity of a body.
 glm::dvec3 calcIdealOrbitVelocity(const simulationObject* object, const simulationObject* gravityWhell, const glm::dvec3& orbitalVector /*orbital velocity vector*/) {
     glm::dvec3 velocity(0.0);
+
     if (!object) { throw std::invalid_argument("Object does not exis - calc orbital velocity"); }
-    else if (!gravityWhell) { throw std::invalid_argument("Gravity whell does not exis - calc orbiral velocity"); }
+    if (!gravityWhell) { throw std::invalid_argument("Gravity whell does not exis - calc orbiral velocity"); }
     if (object->position == gravityWhell->position) { return velocity; }
     
-    units::kilometers distance = glm::distance(gravityWhell->position, object->position);
-    
-    double neededVelocityMpS = std::sqrt((GRAVITATIONAL_CONSTANT * /*Tons*/ gravityWhell->mass.get<units::kilograms>()) / (double)distance.get<units::meters>());
+    units::meters distance = glm::distance(gravityWhell->position, object->position) * 1'000.0;
+
+    // raw orbital speed in one direction
+    double neededVelocityMpS = std::sqrt((GRAVITATIONAL_CONSTANT * /*Tons*/ gravityWhell->mass.get<units::kilograms>()) / (double)distance);
     double neededVelocityKpS = neededVelocityMpS / 1000.0;
 
     velocity = orbitalVector * neededVelocityKpS;
+
+    // gravity pull
+    double gravAccel = GRAVITATIONAL_CONSTANT * (gravityWhell->mass.get<units::kilograms>()) / (double)(distance * distance); // m / s^2
+    glm::dvec3 direction = glm::normalize(gravityWhell->position - object->position);
+    glm::dvec3 gravPullVelocity = direction * (gravAccel / 1'000.0); // * 1s => km/s
+
+    velocity += gravPullVelocity;
 
     return velocity;
 }

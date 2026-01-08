@@ -82,21 +82,22 @@ inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 newAcc
     double deltaSubStep = physicsDeltaTime * simulationSpeed / (double)phyiscsSubsteps;
 
     if (simObject->firstPass) {
-        // First frame: simple Euler step to initialize
+        // Euler step to initialize
         simObject->acceleration = newAcceleration;
         simObject->velocity += newAcceleration * deltaSubStep;
         simObject->position += simObject->velocity * deltaSubStep;
         simObject->firstPass = false;
     } 
     else {
-        // Velocity Verlet integration
-        // Update position: x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt²
+        // Varlet for continuous
+
+        // velocity Verlet integration
         simObject->position += simObject->velocity * deltaSubStep + 0.5 * simObject->acceleration * deltaSubStep * deltaSubStep;
         
-        // Update velocity: v(t+dt) = v(t) + 0.5*[a(t) + a(t+dt)]*dt
+        // update velocity
         simObject->velocity += 0.5 * (simObject->acceleration + newAcceleration) * deltaSubStep;
         
-        // Store new acceleration for next iteration
+        // store new acceleration for next iteration
         simObject->acceleration = newAcceleration;
     }
     
@@ -117,7 +118,7 @@ glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupI
         units::kilograms comparisonObjectMass = units::manual_cast<units::kilograms>(simObject->mass, 1'000.0);
         
         double gravitationalAcceleration = GRAVITATIONAL_CONSTANT * (comparisonObjectMass) / (double)(distance * distance);
-        
+
         glm::dvec3 direction = glm::normalize(simObject->position - currentObject->position);
         
         glm::dvec3 gravPullAcceleration = direction * (gravitationalAcceleration / 1'000.0);
