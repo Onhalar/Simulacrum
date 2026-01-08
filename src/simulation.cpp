@@ -57,8 +57,6 @@ void physicsThreadFunction() {
     }
 }
 
-bool firstFrame = true;
-
 // Master Simulation Step Function
 void simulateStep() {
 
@@ -70,8 +68,9 @@ void simulateStep() {
 
             for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
                 if (!simObject->simulate) { continue; }
-                glm::dvec3 acceleration = calcGravVelocity(simObject, groupID);
-                advanceObjectPosition(simObject, acceleration);
+
+                glm::dvec3 newAcceleration = calcGravVelocity(simObject, groupID);
+                advanceObjectPosition(simObject, newAcceleration);
             }
         }
     }
@@ -79,12 +78,28 @@ void simulateStep() {
 
 // -----------------===[ Helper Functions ]===-----------------
 
-inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 acceleration) {
+inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 newAcceleration) {
     double deltaSubStep = physicsDeltaTime * simulationSpeed / (double)phyiscsSubsteps;
 
-    simObject->velocity += acceleration * deltaSubStep;
-
-    simObject->position += simObject->velocity * deltaSubStep;
+    if (simObject->firstPass) {
+        // First frame: simple Euler step to initialize
+        simObject->acceleration = newAcceleration;
+        simObject->velocity += newAcceleration * deltaSubStep;
+        simObject->position += simObject->velocity * deltaSubStep;
+        simObject->firstPass = false;
+    } 
+    else {
+        // Velocity Verlet integration
+        // Update position: x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt²
+        simObject->position += simObject->velocity * deltaSubStep + 0.5 * simObject->acceleration * deltaSubStep * deltaSubStep;
+        
+        // Update velocity: v(t+dt) = v(t) + 0.5*[a(t) + a(t+dt)]*dt
+        simObject->velocity += 0.5 * (simObject->acceleration + newAcceleration) * deltaSubStep;
+        
+        // Store new acceleration for next iteration
+        simObject->acceleration = newAcceleration;
+    }
+    
     simObject->vertPosition = simObject->position / (simulationMode == simulationType::simplified ? simObject->distanceScale : currentScale);
 }
 

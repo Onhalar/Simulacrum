@@ -21,6 +21,7 @@ class simulationObject {
 
         glm::dvec3 originalPosition = glm::dvec3(0.0f);
         glm::dvec3 originalvelocity = glm::dvec3(0.0);
+        glm::dvec3 originalAcceleration = glm::dvec3(0.0);
     public:
         // vertex position - scaled
         glm::vec3 vertPosition = glm::vec3(0.0f);
@@ -33,6 +34,9 @@ class simulationObject {
 
         // real-world velocity - km/s
         glm::dvec3 velocity = glm::dvec3(0.0);
+
+        // last-frame acceleration for valet calculation
+        glm::dvec3 acceleration = glm::dvec3(0.0);
 
         std::string name;
 
@@ -49,6 +53,7 @@ class simulationObject {
         glm::mat4 modelMatrix = glm::mat4(1);
         std::string objectType = "planet";
         bool simulate = true;
+        bool firstPass = true;
 
         LightObject* light = nullptr;
 
@@ -92,15 +97,18 @@ class simulationObject {
 
         ~simulationObject() {} // shader and model class instances will get deleted in the cleanup loop.
 
-        // loads original physics values
+        // loads original physics values; assume resetting state
         void loadOriginalValues() {
             position = originalPosition;
             velocity = originalvelocity;
+            acceleration = originalAcceleration;
+            firstPass = true;
         }
         // sets current physics values as original
         void setCurrentAsOriginal() {
             originalPosition = position;
             originalvelocity = velocity;
+            originalAcceleration = acceleration;
         }
 
         void calculateAproximateRadius() {
