@@ -69,6 +69,7 @@ void simulateStep() {
             const auto& currentGroup = Scenes::currentScene->groups[groupID];
 
             for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
+                if (!simObject->simulate) { continue; }
                 glm::dvec3 acceleration = calcGravVelocity(simObject, groupID);
                 advanceObjectPosition(simObject, acceleration);
             }
@@ -91,9 +92,10 @@ glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupI
     glm::dvec3 fullGravPullAcceleration = glm::dvec3(0.0);
 
     for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
-        // Skip self-gravity
-        if (currentObject == simObject) { continue; }
-        //if (currentObject->position == simObject->position) { continue; }
+        if (!simObject->simulate) { continue; } // remove non-simulated object's influence
+
+        if (currentObject == simObject) { continue; } // Skip self-gravity
+        if (currentObject->position == simObject->position) { continue; } // skip distane calculation errors (inf)
         
         // Get distance in simulation units and convert to meters
         units::meters distance = glm::distance(currentObject->position, simObject->position) * 1'000.0;

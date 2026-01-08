@@ -48,6 +48,7 @@ class simulationObject {
 
         glm::mat4 modelMatrix = glm::mat4(1);
         std::string objectType = "planet";
+        bool simulate = true;
 
         LightObject* light = nullptr;
 

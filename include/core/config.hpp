@@ -63,6 +63,7 @@ inline int VSync = 1;
 inline bool doPostProcess = true;
 inline bool doFXAA = true;
 inline bool inverseColors = false;
+inline bool renderUnsimulated = false;
 
 inline float ambientStrength = 0.2;
 
@@ -94,6 +95,7 @@ inline std::string fontFile = "mandalore.otf";
 
 // Model settings
 
+inline unsigned int centerObjectScaleMultiplier = 20.0f;
 inline float normalizedModelRadius = 1.0f;
 inline simulationType simulationMode = simulationType::simplified;
 inline float maxScale = 6.0f;

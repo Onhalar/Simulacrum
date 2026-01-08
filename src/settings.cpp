@@ -68,6 +68,7 @@ std::unordered_map<std::string, std::pair<std::string, SettingsVariant>> setting
     {"lightUpdateFrameSkip",              {"RENDER", SettingsEntry(&lightUpdateFrameSkip, setValue<unsigned char>)}},
     {"inverseColors",                     {"RENDER", SettingsEntry(&inverseColors, setValue<bool>)}},
     {"fullscreen",                        {"RENDER", SettingsEntry(&fullscreen, setValue<bool>)}},
+    {"centerObjectScaleMultiplier",       {"RENEDR", SettingsEntry(&centerObjectScaleMultiplier, setValue<unsigned int>)}},
 
     {"renderDistance",                    {"CAMERA", SettingsEntry(&renderDistance, setValue<float>)}},
     {"cameraSpeed",                       {"CAMERA", SettingsEntry(&cameraSpeed, setValue<float>)}},

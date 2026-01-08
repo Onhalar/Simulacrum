@@ -204,11 +204,8 @@ void renderSettingsMenu() {
             fullscreenLocal = fullscreen;
         }
 
-        static bool showFPSLocal = showFPS;
-        ImGui::Checkbox("Show FPS", &showFPSLocal);
-        if (showFPSLocal != showFPS) {
-            showFPS = showFPSLocal;
-        }
+        ImGui::Checkbox("Render non-simulated objects", &renderUnsimulated);
+        ImGui::Checkbox("Show FPS", &showFPS);
 
         static bool localVsync = VSync;
         ImGui::Checkbox("VSync", &localVsync);
@@ -267,7 +264,7 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        static double min = 1.0, max = 5.0e5, simulationSpeedLocal = simulationSpeed;
+        static double min = 5.0e3, max = 1.0e7, simulationSpeedLocal = simulationSpeed;
 
         ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.0fx");
 
@@ -374,6 +371,7 @@ void renderSceneGraph() {
                 ImGui::BulletText("Mass: %g t", (double)object->mass);
                 ImGui::BulletText("Radius: %.0f km", (double)object->radius);
                 ImGui::BulletText("Velocity: %.2f km/s", (double)glm::length(object->velocity));
+                ImGui::Checkbox("Simulate", &object->simulate);
                 ImGui::TreePop();
             }
         }

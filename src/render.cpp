@@ -56,6 +56,7 @@ void render() {
             glm::dvec3 renderPos;
             {
                 std::lock_guard<std::mutex> lock(physicsMutex);
+                if (!simObject->simulate && !renderUnsimulated) { continue; } // escape early on non-simulated ojbects
                 renderPos = simObject->vertPosition; // copy safe position
             }
 
