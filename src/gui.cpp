@@ -147,6 +147,8 @@ void renderSettingsMenu() {
         wasStatePausedBeforeMenu = false;
     }
 
+    if (mainState != state::paused) { transitionState(state::paused); } // failsafe
+
     // Center the window
     ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5f, io->DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.9f, io->DisplaySize.y * 0.9f), ImGuiCond_Always);
