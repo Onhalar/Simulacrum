@@ -1,7 +1,9 @@
 #include "state.hpp"
+#include "units.hpp"
 #include <chrono>
 #include <config.hpp>
 #include <globals.hpp>
+#include <string>
 #include <thread>
 #include <types.hpp>
 
@@ -17,15 +19,17 @@
 
 #include <physicsThread.hpp>
 #include <unistd.h>
+#include <vector>
 
-inline void advanceObjectPosition(simulationObject* simObject);
-inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 position);
+void advanceObjectPosition(SnapObj* simObject, glm::dvec3 newAcceleration);
+glm::dvec3 calcGravVelocity(const SnapObj* currentObject, const std::vector<SnapObj*>& group);
+void simulateStep(Snapshot* snapshot);
 
-glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupID);
 
-void simulateStep();
 
-void physicsThreadFunction() {    
+void physicsThreadFunction() {
+    static Snapshot* snapshot = new Snapshot();
+
     using namespace std::chrono;
     bool wasPaused = false;
 
@@ -46,30 +50,31 @@ void physicsThreadFunction() {
         accumulator += frameTime.count(); // add elapsed time to the unprocessed-physics-time accumulator
 
         while (accumulator >= physicsDeltaTime) { // while there's at least one full physics step worth of time available
-            {
-                std::lock_guard<std::mutex> lock(physicsMutex);
-                simulateStep(); // advance simulation by one fixed physics step (physicsDeltaTime)
-            }
+            snapshot->takeSnapshot();
+
+            simulateStep(snapshot); // advance simulation by one fixed physics step (physicsDeltaTime)
             accumulator -= physicsDeltaTime; // consume one physics step's worth of accumulated time
+
+            snapshot->updateOrigin();
         }
 
         std::this_thread::sleep_for(milliseconds(1)); // tiny sleep to avoid busy-waiting the CPU
     }
+
+    delete snapshot;
 }
 
 // Master Simulation Step Function
-void simulateStep() {
+void simulateStep(Snapshot* snapshot) {
 
     if (deltaTime == 0.0) { return; }
 
     for (int step = 0; step < phyiscsSubsteps; step++) {
-        for (unsigned int groupID = 0; groupID < Scenes::currentScene->groups.size(); ++groupID) {
-            const auto& currentGroup = Scenes::currentScene->groups[groupID];
-
-            for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
+        for (const auto& currentGroup : snapshot->groups) {
+            for (const auto simObject : currentGroup) {
                 if (!simObject->simulate) { continue; }
 
-                glm::dvec3 newAcceleration = calcGravVelocity(simObject, groupID);
+                glm::dvec3 newAcceleration = calcGravVelocity(simObject, currentGroup);
                 advanceObjectPosition(simObject, newAcceleration);
             }
         }
@@ -78,7 +83,7 @@ void simulateStep() {
 
 // -----------------===[ Helper Functions ]===-----------------
 
-inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 newAcceleration) {
+void advanceObjectPosition(SnapObj* simObject, glm::dvec3 newAcceleration) {
     double deltaSubStep = physicsDeltaTime * simulationSpeed / (double)phyiscsSubsteps;
 
     if (simObject->firstPass) {
@@ -104,10 +109,10 @@ inline void advanceObjectPosition(simulationObject* simObject, glm::dvec3 newAcc
     simObject->vertPosition = simObject->position / (simulationMode == simulationType::simplified ? simObject->distanceScale : currentScale);
 }
 
-glm::dvec3 calcGravVelocity(simulationObject* currentObject, unsigned int groupID) {
+glm::dvec3 calcGravVelocity(const SnapObj* currentObject, const std::vector<SnapObj*>& group) {
     glm::dvec3 fullGravPullAcceleration = glm::dvec3(0.0);
 
-    for (const auto& simObject : Scenes::currentScene->groups[groupID]) {
+    for (const auto& simObject : group) {
         if (!simObject->simulate) { continue; } // remove non-simulated object's influence
 
         if (currentObject == simObject) { continue; } // Skip self-gravity
