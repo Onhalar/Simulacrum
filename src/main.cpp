@@ -1,3 +1,4 @@
+#include <chrono>
 #include <config.hpp>
 #include <filesystem>
 #include <globals.hpp>
@@ -32,6 +33,9 @@ void setupSimulation();
 
 void setupGui();
 void GuiCameraInterruption();
+
+void countFPS();
+void trackElapsedTime();
 
 void cleanup();
 
@@ -229,6 +233,7 @@ void mainLoop() {
 
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
+
         if (showScenePicker) { supressCameraControls = true; } // don't use cameara when switching scene
         else { supressCameraControls = false; }
 
@@ -236,6 +241,10 @@ void mainLoop() {
         glfwPollEvents();
 
         if (!isMinimized) { // Custom Actions
+
+            // ----==[ MISC ]==----
+            if (showFPS) { countFPS(); }
+            if (trackSimTime) { trackElapsedTime(); }
 
             // ----==[ RENDERING ]==----
 
@@ -252,7 +261,7 @@ void mainLoop() {
                 }
             }
 
-            // y       = 8   = 1000
+            // y       = 8   = 1000 - y has to be POT
             // y - 1   = 7   = 0111
             if ( (frameCount & (lightUpdateFrameSkip - 1)) == 0 ) {
                 updateLightSources();
@@ -260,7 +269,6 @@ void mainLoop() {
 
             render();
         }
-
         static steady_clock::time_point lastTime;
 
         // here just so everything doesn't fly 10 000 km off the screen
@@ -295,6 +303,41 @@ void mainLoop() {
         lastTime = frameEnd;
     }
 }
+
+
+
+void countFPS() {
+    static auto timer = steady_clock::now();
+    static unsigned int count = 0;
+
+    count++;
+
+    auto now = steady_clock::now();
+    auto elapsed = now - timer;
+
+    if (elapsed >= seconds(1)) {
+        float secondsElapsed = duration<float>(elapsed).count();
+        currentFPS = (float)count / secondsElapsed;
+            
+        count = 0;
+        timer = now;
+    }
+}
+
+void trackElapsedTime() {
+    static auto timer = steady_clock::now();
+
+    auto now = steady_clock::now();
+    auto elapsed = now - timer;
+
+    if (mainState == state::running) {
+        elapsedSimTime += std::chrono::duration_cast<std::chrono::seconds>(elapsed * simulationSpeed);
+    }
+
+    timer = now;
+}
+
+
 
 void cleanup() {
     // must be called before shutting down the main window

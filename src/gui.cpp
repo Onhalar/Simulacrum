@@ -211,6 +211,7 @@ void renderSettingsMenu() {
 
         ImGui::Checkbox("Render non-simulated objects", &renderUnsimulated);
         ImGui::Checkbox("Show FPS", &showFPS);
+        ImGui::Checkbox("Show elapsed sim time", &showElapsedSimTime);
 
         static bool localVsync = VSync;
         ImGui::Checkbox("VSync", &localVsync);
@@ -269,7 +270,7 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        static double min = 5.0e3, max = 1.0e7, simulationSpeedLocal = simulationSpeed;
+        static double min = 2.5e4, max = 1.0e7, simulationSpeedLocal = simulationSpeed;
 
         ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.0fx");
 
@@ -324,26 +325,28 @@ void renderSimPerfDisplay() {
     if (mainState == state::paused) { ImGui::Text("P A U S E D"); }
     else { ImGui::Text("%ix", (int)simulationSpeed); }
 
-    if (showFPS) {
-        static auto timer = steady_clock::now();
-        static unsigned int count = 0;
-        static float fps = 0.0f;
+    if (showElapsedSimTime && trackSimTime) {
+        auto totalSecs = duration_cast<seconds>(elapsedSimTime);
 
-        count++;
+        auto y = duration_cast<years>(totalSecs);
+        totalSecs -= y;
 
-        auto now = steady_clock::now();
-        auto elapsed = now - timer;
+        auto d = duration_cast<days>(totalSecs);
+        totalSecs -= d;
 
-        if (elapsed >= seconds(1)) {
-            float secondsElapsed = duration<float>(elapsed).count();
-            fps = (float)count / secondsElapsed;
-            
-            count = 0;
-            timer = now;
-        }
+        auto h = duration_cast<hours>(totalSecs);
+        totalSecs -= h;
+
+        auto m = duration_cast<minutes>(totalSecs);
+        totalSecs -= m;
 
         ImGui::SameLine();
-        ImGui::Text("| %.0f FPS", fps);
+        ImGui::Text("| %li year(s) %3li day(s) %2li hour(s) %2li minute(s)", y.count(), d.count(), h.count(), m.count());
+    }
+
+    if (showFPS) {
+        ImGui::SameLine();
+        ImGui::Text("| %.0f FPS", currentFPS);
     }
 
     ImGui::PopFont();
