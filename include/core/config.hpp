@@ -95,7 +95,7 @@ inline std::string fontFile = "mandalore.otf";
 
 // Model settings
 
-inline unsigned int centerObjectScaleMultiplier = 20.0f;
+inline unsigned int starScaleMultiplier = 20.0f;
 inline float normalizedModelRadius = 1.0f;
 inline simulationType simulationMode = simulationType::simplified;
 inline float maxScale = 6.0f;

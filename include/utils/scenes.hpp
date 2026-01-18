@@ -82,7 +82,7 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
                 // if (!currentScale) { currentScale = ( (minObjectRadius /* /1 */ + (MaxObjctRadius / (double)maxScale)) /2 ) * renderScaleDistortion; }
 
                 double distance = glm::distance({0.0, 0.0, 0.0}, simObject->position);
-                if (simObject->position == glm::dvec3(0.0, 0.0, 0.0) || objectOrder == 1) { distance = simObject->radius * (double)centerObjectScaleMultiplier; } // object in the origin is likley a star, that I don't want to move
+                if (simObject->objectType == "star" || objectOrder == 1) { distance = simObject->radius * (double)starScaleMultiplier; } // object in the origin is likley a star, that I don't want to move
 
                 simObject->distanceScale = distance / (unifiedDistance * objectOrder);
             }
