@@ -62,7 +62,7 @@
         "radius": 60250,
         "mass": 5.683e23,
         "shader": "planet",
-        "model": "sphere",
+        "model": "sphere-ring",
         "color": "#c3a171",
         "type": "planet",
         "rotation": 3.89408e-4
@@ -85,4 +85,6 @@
         "type": "planet",
         "rotation": 2.60417e-4
     }
+
+    
 }

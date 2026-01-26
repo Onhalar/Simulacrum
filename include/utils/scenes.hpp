@@ -59,7 +59,9 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
 
     for (const auto& simObject : Scenes::allScenes[sceneID]->objects) {
         simObject->calculateAproximateRadius();
-        simObject->normalizeVertices(normalizedModelRadius);
+        if (!assumeModleIsScaled) {
+            simObject->normalizeVertices(normalizedModelRadius);
+        }
 
         minObjectRadius = std::min(simObject->radius, minObjectRadius);
         MaxObjctRadius = std::max(simObject->radius, MaxObjctRadius);

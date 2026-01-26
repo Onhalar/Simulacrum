@@ -64,6 +64,7 @@ inline bool doPostProcess = true;
 inline bool doFXAA = true;
 inline bool inverseColors = false;
 inline bool renderUnsimulated = false;
+inline bool assumeModleIsScaled = true;
 
 inline float ambientStrength = 0.2;
 
