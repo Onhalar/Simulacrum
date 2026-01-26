@@ -49,5 +49,50 @@
             ["sol", "uranus"],
             ["sol", "neptune"]
         ]
+    },
+    "TRAPPIST-1": {
+        "objects": [
+            {
+                "object": "TRAPPIST-1",
+                "position": [0, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 b",
+                "position": [1726359.43134, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 c",
+                "position": [2363646.3618, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 d",
+                "position": [3331544.58717, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 e",
+                "position": [4375737.72675, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 f",
+                "position": [5758022.05479, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 g",
+                "position": [7005668.29893, 0, 0]
+            },
+            {
+                "object": "TRAPPIST-1 h",
+                "position": [9258612.23619, 0, 0]
+            }
+        ],
+        "groups": [
+            ["TRAPPIST-1", "TRAPPIST-1 b"],
+            ["TRAPPIST-1", "TRAPPIST-1 c"],
+            ["TRAPPIST-1", "TRAPPIST-1 d"],
+            ["TRAPPIST-1", "TRAPPIST-1 e"],
+            ["TRAPPIST-1", "TRAPPIST-1 f"],
+            ["TRAPPIST-1", "TRAPPIST-1 g"],
+            ["TRAPPIST-1", "TRAPPIST-1 h"]
+        ]
     }
 }

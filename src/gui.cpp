@@ -270,7 +270,8 @@ void renderSettingsMenu() {
     
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        static double min = 2.5e4, max = 1.0e7, simulationSpeedLocal = simulationSpeed;
+        static bool extraSlowSimSpeed = false;
+        double min = extraSlowSimSpeed ? 1 : 2.5e4, max = extraSlowSimSpeed ? 5e3 : 1.0e7, simulationSpeedLocal = simulationSpeed;
 
         ImGui::SliderScalar("Simulation Speed", ImGuiDataType_Double, &simulationSpeedLocal, &min, &max, "%.0fx");
 
@@ -278,6 +279,9 @@ void renderSettingsMenu() {
             std::lock_guard<std::mutex> lock(physicsMutex);
             simulationSpeed = simulationSpeedLocal;
         }
+
+        ImGui::SameLine();
+        ImGui::Checkbox("Extra slow", &extraSlowSimSpeed);
 
         static unsigned int phyiscsSubstepsLocal = phyiscsSubsteps;
 

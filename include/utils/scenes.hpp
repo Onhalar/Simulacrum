@@ -2,6 +2,7 @@
 #define PHYSICS_SCENE_CLASS_HEADER
 
 #include "config.hpp"
+#include "glm/fwd.hpp"
 #include "glm/geometric.hpp"
 #include <simObject.hpp>
 #include <unordered_map>
@@ -61,6 +62,9 @@ inline void setupSceneObjects(const SceneID& sceneID, const bool& setAsActive = 
         simObject->calculateAproximateRadius();
         if (!assumeModleIsScaled) {
             simObject->normalizeVertices(normalizedModelRadius);
+        }
+        else {
+            simObject->model->transform = glm::mat4(1.0);
         }
 
         minObjectRadius = std::min(simObject->radius, minObjectRadius);

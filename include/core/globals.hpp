@@ -3,7 +3,6 @@
 
 #include <chrono>
 #include <config.hpp>
-#include <ratio>
 #include <types.hpp>
 
 #include <string>
@@ -29,6 +28,8 @@ inline bool showBackgroundChanger = false;
 inline bool settingsUpdated = true;
 inline bool wasStatePausedBeforeMenu = false;
 inline bool cartoonColorMode = true;
+
+inline double simulationSpeed = 5e3;
 
 inline int windowWidth = defaultWindowWidth, windowHeight = defaultWindowHeight;
 inline float currentFPS = 0;

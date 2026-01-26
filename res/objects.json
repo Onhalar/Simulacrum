@@ -84,7 +84,86 @@
         "color": "#3851d9",
         "type": "planet",
         "rotation": 2.60417e-4
-    }
+    },
 
     
+
+    "TRAPPIST-1": {
+        "radius": 82927.44,
+        "mass": 1.7862118e26,
+        "shader": "star",
+        "model": "sphere",
+        "color": "#FFA14C",
+        "type": "star",
+        "rotationSpeed": 0.00012154236286132115,
+        "light": {
+            "color": "#FFA14C",
+            "intensity": 1.5,
+            "starType": "M"
+        }
+    },
+    "TRAPPIST-1 b": {
+        "radius": 7110.036,
+        "mass": 8.2058028e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#333333",
+        "type": "planet",
+        "rotation": 0.0027578732869745866
+    },
+    "TRAPPIST-1 c": {
+        "radius": 6988.987,
+        "mass": 7.8116376e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#333333",
+        "type": "planet",
+        "rotation": 0.0017203860656436014
+    },
+    "TRAPPIST-1 d": {
+        "radius": 5020.348,
+        "mass": 2.3172135999999999e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#333333",
+        "type": "planet",
+        "rotation": 0.0010290050171815027
+    },
+    "TRAPPIST-1 e": {
+        "radius": 861.32,
+        "mass": 4.1327623999999993e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#7F7266",
+        "type": "planet",
+        "rotation": 0.0006829466953547986
+    },
+    "TRAPPIST-1 f": {
+        "radius": 6657.695,
+        "mass": 6.205115799999999e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#7F7266",
+        "type": "planet",
+        "rotation": 0.000452527674782479
+    },
+    "TRAPPIST-1 g": {
+        "radius": 7192.859,
+        "mass": 7.889276199999999e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#7F7266",
+        "type": "planet",
+        "rotation": 0.0030883669814392705
+    },
+    "TRAPPIST-1 h": {
+        "radius": 4810.1050000000005,
+        "mass": 1.9469372e+21,
+        "shader": "planet",
+        "model": "sphere",
+        "color": "#7F7266",
+        "type": "planet",
+        "rotation": 0.0020722944765574824
+    }
+
 }

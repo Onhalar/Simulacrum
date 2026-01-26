@@ -116,7 +116,6 @@ inline std::string projectPath(const std::filesystem::path& path) {
 }
 
 // physics
-inline double simulationSpeed = 2.5e5;
 inline float physicsSteps = 60.0f; // amount of physics steps per second
 inline bool gravityInInitialVel = false;
 inline bool trackSimTime = true;
