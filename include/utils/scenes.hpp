@@ -149,11 +149,12 @@ inline void adjustCameraToScene(const SceneID& sceneID) {
     currentCamera->position.z = (maxDistance / std::tan(glm::radians(currentCamera->FOVdeg) / 2.0));
 }
 
-inline void switchSceneAndCalculateObjects(const SceneID& sceneID) {
-    if (Scenes::currentSceneID == sceneID) { return; }
+void switchSceneAndCalculateObjects(const SceneID& sceneID) {
     setupSceneObjects(sceneID);
     Scenes::switchScene(sceneID);
     adjustCameraToScene(sceneID);
+
+    elapsedSimTime = std::chrono::seconds(0);
 }
 
 #endif // PHYSICS_SCENE_CLASS_HEADER
