@@ -285,7 +285,7 @@ void renderSettingsMenu() {
 
         static unsigned int phyiscsSubstepsLocal = phyiscsSubsteps;
 
-        ImGui::SliderInt("Physics SubSteps", (int*)&phyiscsSubstepsLocal, 1, 256);
+        ImGui::SliderInt("Physics SubSteps", (int*)&phyiscsSubstepsLocal, 1, 512);
 
         if (phyiscsSubstepsLocal != phyiscsSubsteps) {
             std::lock_guard<std::mutex> lock(physicsMutex);

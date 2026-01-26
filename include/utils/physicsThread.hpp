@@ -137,6 +137,7 @@ class Snapshot {
                 snapObj->acceleration = obj->acceleration;
 
                 snapObj->firstPass = obj->firstPass;
+                snapObj->simulate = obj->simulate;
             }
         }
 };
