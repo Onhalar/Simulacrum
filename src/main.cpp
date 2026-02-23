@@ -234,8 +234,7 @@ void mainLoop() {
     while (!glfwWindowShouldClose(mainWindow)) {
         auto frameStart = steady_clock::now(); // Use std::chrono
 
-        if (showScenePicker) { supressCameraControls = true; } // don't use cameara when switching scene
-        else { supressCameraControls = false; }
+        supressCameraControls = showScenePicker; // don't use cameara when switching scene
 
         // handles events such as resizing and creating window
         glfwPollEvents();
@@ -280,16 +279,16 @@ void mainLoop() {
 
         auto frameEnd = steady_clock::now();
         auto elapsed = duration_cast<nanoseconds>(frameEnd - frameStart);
+        auto target = frameStart + frameDuration;
 
         if (elapsed < frameDuration && !VSync) {
             std::this_thread::sleep_for((frameDuration - elapsed) * staticDelayFraction);
 
             // spin delay for frames
             if (staticDelayFraction < 1.0f) {
-                while (true)
+                while (steady_clock::now() < target)
                 {
                     std::this_thread::sleep_for(spinDelay);
-                    if (steady_clock::now() >= frameStart + frameDuration) { break; }
                 }
             }
         }
