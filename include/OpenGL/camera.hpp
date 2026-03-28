@@ -95,6 +95,13 @@ class Camera {
 
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) && !focused && !supressCameraControls) {
                 focused = true;
+
+                // transparent image
+                static unsigned char pixels[16 * 16 * 4] = {};
+                static GLFWimage image = { 16, 16, pixels };
+                static GLFWcursor* invisibleCursor = glfwCreateCursor(&image, 0, 0);
+
+                glfwSetCursor(window, invisibleCursor);
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glfwSetCursorPos(window, (width / 2), (height / 2));
             }

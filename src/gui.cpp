@@ -112,7 +112,14 @@ void renderBackgChanger() {
 }
 
 void renderSettingsMenu() {
-    static bool wasPaused;
+    // used to keep track whether the "close" button has been pressed and neends to be closed
+    static bool keepWindowAlive = true;
+
+    if (!keepWindowAlive) {
+        if (mainState == state::paused && !wasStatePausedBeforeMenu) { transitionState(state::running); }
+        showMenu = false;
+        keepWindowAlive = true;
+    }
 
     if (!showMenu) {
         ImGui::SetNextWindowBgAlpha(0.35f);
@@ -130,21 +137,23 @@ void renderSettingsMenu() {
 
         if (ImGui::Button("Menu")) {
             showMenu = true;
-            if (mainState == state::paused) { wasStatePausedBeforeMenu = true; }
+            wasStatePausedBeforeMenu = mainState == state::paused;
         }
 
         ImGui::PopStyleColor();
 
         ImGui::End();
 
+        return;
     }
 
     // Only render if settings should be shown
-    if (!showMenu) { return; }
     if (currentCamera->focused) {
         showMenu = false;
         if (mainState == state::paused && !wasStatePausedBeforeMenu) { transitionState(state::running); }
         wasStatePausedBeforeMenu = false;
+
+        return;
     }
 
     if (mainState != state::paused) { transitionState(state::paused); } // failsafe
@@ -154,7 +163,7 @@ void renderSettingsMenu() {
     ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x * 0.9f, io->DisplaySize.y * 0.9f), ImGuiCond_Always);
     
     ImGui::PushFont(Fonts["larger"]);
-    ImGui::Begin("Menu", &showMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin("Menu", &keepWindowAlive, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
     ImGui::PopFont();
 
     // OPTIONS

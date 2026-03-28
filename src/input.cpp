@@ -1,3 +1,4 @@
+#include "camera.hpp"
 #include "scenes.hpp"
 #include <config.hpp>
 #include <globals.hpp>
@@ -14,22 +15,29 @@ inline bool isJustPressed(const unsigned int& GlfwKey );
 
 void handleInputs() {
 
-    if (isJustPressed(GLFW_KEY_ESCAPE, currentCamera->focused)) {
-        if (showBackgroundChanger) { showBackgroundChanger = false; return; }
-        if (showScenePicker && Scenes::currentScene) { showScenePicker = false; return; }
+    if (isJustPressed(GLFW_KEY_ESCAPE)) {
+        // Unfocusing is handled by camera
+        if (currentCamera->focused) { return; }
 
-        if (!showMenu && !showBackgroundChanger && mainState == state::paused) { wasStatePausedBeforeMenu = true; }
+        if (showBackgroundChanger) {
+            showBackgroundChanger = false;
+            return;
+        }
+
+        if (showScenePicker && Scenes::currentScene) {
+            showScenePicker = false;
+            return;
+        }
 
         showMenu = !showMenu;
 
-        if (!showMenu && !wasStatePausedBeforeMenu) {
-            if (mainState == state::paused) { transitionState(state::running); }
-        }
-        else {
+        if (showMenu) {
+            // Opening menu: remember if we were paused, then pause
+            wasStatePausedBeforeMenu = (mainState == state::paused);
             if (mainState != state::paused) { transitionState(state::paused); }
-        }
-
-        if (!showMenu && !showBackgroundChanger) {
+        } else {
+            // Closing menu: restore previous state
+            if (!wasStatePausedBeforeMenu) { transitionState(state::running); }
             wasStatePausedBeforeMenu = false;
         }
     }
